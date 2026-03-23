@@ -1,0 +1,12 @@
+package com.backend.interactionservice;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+
+@SpringBootApplication(scanBasePackages = "com.backend")
+public class InteractionServiceApplication {
+
+    public static void main(String[] args) {
+        SpringApplication.run(InteractionServiceApplication.class, args);
+    }
+}

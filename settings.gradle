@@ -1,0 +1,8 @@
+rootProject.name = "backend"
+
+include("user-service")
+include("search-service")
+include("interaction-service")
+include("integrated-common")
+include("integrated-worker")
+include("integrated-api")
