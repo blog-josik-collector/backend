@@ -3,5 +3,5 @@ plugins {
 }
 
 dependencies {
-    implementation project(":integrated-common")
+    implementation project(":common-db")
 }

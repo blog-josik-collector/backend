@@ -1,3 +1,9 @@
 spring:
   application:
     name: integrated-api
+  sql:
+    init:
+      mode: never
+  flyway:
+    enabled: true
+    locations: classpath:db/migration

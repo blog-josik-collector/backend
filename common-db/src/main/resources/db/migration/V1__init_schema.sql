@@ -1,0 +1,183 @@
+-- schema.sql for PostgreSQL
+
+-- 1. 기초 테이블 (참조를 하지 않는 테이블들)
+DROP TABLE IF EXISTS users;
+CREATE TABLE users
+(
+    id             UUID PRIMARY KEY,
+    user_type      INTEGER   NOT NULL,
+    login_type     INTEGER   NOT NULL,
+    user_id        VARCHAR   NOT NULL,
+    password       VARCHAR,
+    sso_provider   VARCHAR,
+    sso_subject_id VARCHAR,
+    nickname       VARCHAR   NOT NULL,
+    introduction   VARCHAR   NOT NULL,
+    role           VARCHAR   NOT NULL,
+    created_at     TIMESTAMP NOT NULL,
+    updated_at     TIMESTAMP NOT NULL,
+    last_login_at  TIMESTAMP
+);
+
+DROP TABLE IF EXISTS post_providers;
+CREATE TABLE post_providers
+(
+    id          UUID PRIMARY KEY,
+    name        VARCHAR   NOT NULL,
+    description VARCHAR   NOT NULL,
+    base_url    VARCHAR   NOT NULL,
+    is_used     BOOLEAN   NOT NULL,
+    created_at  TIMESTAMP NOT NULL,
+    updated_at  TIMESTAMP NOT NULL
+);
+
+DROP TABLE IF EXISTS report_types;
+CREATE TABLE report_types
+(
+    code       INTEGER PRIMARY KEY,
+    category   VARCHAR,
+    name       VARCHAR,
+    is_used    BOOLEAN   NOT NULL,
+    created_at TIMESTAMP NOT NULL,
+    updated_at TIMESTAMP NOT NULL
+);
+
+-- 2. 1단 참조 테이블 (post_providers, users 등을 참조)
+DROP TABLE IF EXISTS collect_sources;
+CREATE TABLE collect_sources
+(
+    id               UUID PRIMARY KEY,
+    post_provider_id UUID REFERENCES post_providers (id),
+    cron_expression  VARCHAR(50),
+    is_active        BOOLEAN            DEFAULT TRUE,
+    created_at       TIMESTAMP NOT NULL DEFAULT NOW(),
+    updated_at       TIMESTAMP NOT NULL DEFAULT NOW()
+);
+
+DROP TABLE IF EXISTS posts;
+CREATE TABLE posts
+(
+    id                 UUID PRIMARY KEY,
+    provider_id        UUID                NOT NULL REFERENCES post_providers (id),
+    title              VARCHAR             NOT NULL,
+    url                VARCHAR(512) UNIQUE NOT NULL,
+    published_at       TIMESTAMP           NOT NULL,
+    thumbnail_url      VARCHAR             NOT NULL,
+    summary            TEXT                NOT NULL,
+    like_count         INTEGER DEFAULT 0,
+    view_count         INTEGER DEFAULT 0,
+    comment_count      INTEGER DEFAULT 0,
+    total_report_count INTEGER DEFAULT 0,
+    status             INTEGER DEFAULT 0,
+    created_at         TIMESTAMP           NOT NULL,
+    updated_at         TIMESTAMP           NOT NULL
+);
+
+-- 3. 수집 및 작업 관련 테이블
+DROP TABLE IF EXISTS collecting_jobs;
+CREATE TABLE collecting_jobs
+(
+    id                UUID PRIMARY KEY,
+    collect_source_id UUID REFERENCES collect_sources (id),
+    status            VARCHAR(20),
+    total_count       INTEGER DEFAULT 0,
+    collected_count   INTEGER DEFAULT 0,
+    error_message     TEXT,
+    started_at        TIMESTAMP,
+    ended_at          TIMESTAMP
+);
+
+DROP TABLE IF EXISTS collect_source_posts;
+CREATE TABLE collect_source_posts
+(
+    id                     UUID PRIMARY KEY,
+    source_id              UUID REFERENCES collect_sources (id),
+    title                  VARCHAR             NOT NULL,
+    url                    VARCHAR(512) UNIQUE NOT NULL,
+    published_at           TIMESTAMP           NOT NULL,
+    thumbnail_url          VARCHAR             NOT NULL,
+    summary                TEXT                NOT NULL,
+    content                TEXT                NOT NULL,
+    content_hash           VARCHAR             NOT NULL,
+    indexing_status        INTEGER   DEFAULT 0,
+    indexing_error_count   INTEGER   DEFAULT 0,
+    last_indexed_at        TIMESTAMP DEFAULT NULL,
+    last_collected_at      TIMESTAMP DEFAULT NOW(),
+    last_collecting_job_id UUID
+);
+
+DROP TABLE IF EXISTS indexing_jobs;
+CREATE TABLE indexing_jobs
+(
+    id                UUID PRIMARY KEY,
+    collecting_job_id UUID REFERENCES collecting_jobs (id),
+    job_type          VARCHAR(20),
+    status            VARCHAR(20),
+    total_count       INTEGER DEFAULT 0,
+    indexed_count     INTEGER DEFAULT 0,
+    error_message     TEXT,
+    started_at        TIMESTAMP,
+    ended_at          TIMESTAMP
+);
+
+-- 4. 사용자 활동 관련 테이블 (post, user 참조)
+DROP TABLE IF EXISTS post_likes;
+CREATE TABLE post_likes
+(
+    id         UUID PRIMARY KEY,
+    user_id    UUID      NOT NULL REFERENCES users (id),
+    post_id    UUID      NOT NULL REFERENCES posts (id),
+    is_enable  BOOLEAN   NOT NULL,
+    created_at TIMESTAMP NOT NULL,
+    UNIQUE (user_id, post_id)
+);
+
+DROP TABLE IF EXISTS post_bookmarks;
+CREATE TABLE post_bookmarks
+(
+    id         UUID PRIMARY KEY,
+    user_id    UUID      NOT NULL REFERENCES users (id),
+    post_id    UUID      NOT NULL REFERENCES posts (id),
+    is_enable  BOOLEAN   NOT NULL,
+    created_at TIMESTAMP NOT NULL,
+    UNIQUE (user_id, post_id)
+);
+
+DROP TABLE IF EXISTS post_comments;
+CREATE TABLE post_comments
+(
+    id                 UUID PRIMARY KEY,
+    user_id            UUID      NOT NULL REFERENCES users (id),
+    post_id            UUID      NOT NULL REFERENCES posts (id),
+    parent_comment_id  UUID REFERENCES post_comments (id),
+    content            VARCHAR   NOT NULL,
+    total_report_count INTEGER DEFAULT 0,
+    status             INTEGER DEFAULT 0,
+    created_at         TIMESTAMP NOT NULL,
+    updated_at         TIMESTAMP NOT NULL
+);
+
+-- 5. 신고 관련 테이블
+DROP TABLE IF EXISTS post_reports;
+CREATE TABLE post_reports
+(
+    id               UUID PRIMARY KEY,
+    user_id          UUID      NOT NULL REFERENCES users (id),
+    post_id          UUID      NOT NULL REFERENCES posts (id),
+    report_type_code INTEGER   NOT NULL REFERENCES report_types (code),
+    content          VARCHAR   NOT NULL,
+    created_at       TIMESTAMP NOT NULL,
+    processed        BOOLEAN   NOT NULL
+);
+
+DROP TABLE IF EXISTS comment_reports;
+CREATE TABLE comment_reports
+(
+    id               UUID PRIMARY KEY,
+    comment_id       UUID      NOT NULL REFERENCES post_comments (id),
+    user_id          UUID      NOT NULL REFERENCES users (id),
+    report_type_code INTEGER   NOT NULL REFERENCES report_types (code),
+    content          VARCHAR   NOT NULL,
+    created_at       TIMESTAMP NOT NULL,
+    processed        BOOLEAN   NOT NULL
+);

@@ -1,3 +1,16 @@
 spring:
   application:
     name: search-service
+  datasource:
+    url: jdbc:postgresql://localhost:5432/backend_db
+    username: postgres
+    password: postgres
+    driver-class-name: org.postgresql.Driver
+  sql:
+    init:
+      mode: never
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+server:
+  port: 8082

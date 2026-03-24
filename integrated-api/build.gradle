@@ -11,6 +11,7 @@ jar {
 }
 
 dependencies {
-    implementation project(":integrated-common")
+    implementation project(":common-db")
     implementation "org.springframework.boot:spring-boot-starter-web"
+    implementation "org.flywaydb:flyway-core"
 }
