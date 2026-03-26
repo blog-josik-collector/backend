@@ -8,16 +8,19 @@ CREATE TABLE users
     user_type      INTEGER   NOT NULL,
     login_type     INTEGER   NOT NULL,
     user_id        VARCHAR   NOT NULL,
-    password       VARCHAR,
+    password       VARCHAR   NOT NULL,
     sso_provider   VARCHAR,
     sso_subject_id VARCHAR,
     nickname       VARCHAR   NOT NULL,
     introduction   VARCHAR   NOT NULL,
-    role           VARCHAR   NOT NULL,
     created_at     TIMESTAMP NOT NULL,
     updated_at     TIMESTAMP NOT NULL,
-    last_login_at  TIMESTAMP
+    last_login_at  TIMESTAMP,
+    deleted_at     TIMESTAMP
 );
+
+CREATE UNIQUE INDEX IF NOT EXISTS uq_users_user_id_active ON users (user_id) WHERE deleted_at IS NULL;
+CREATE UNIQUE INDEX IF NOT EXISTS uq_users_user_nickname_active ON users (nickname) WHERE deleted_at IS NULL;
 
 DROP TABLE IF EXISTS post_providers;
 CREATE TABLE post_providers
@@ -28,7 +31,10 @@ CREATE TABLE post_providers
     base_url    VARCHAR   NOT NULL,
     is_used     BOOLEAN   NOT NULL,
     created_at  TIMESTAMP NOT NULL,
-    updated_at  TIMESTAMP NOT NULL
+    updated_at  TIMESTAMP NOT NULL,
+
+    -- UNIQUE 제약 조건 추가
+    CONSTRAINT uk_post_providers_name UNIQUE (user_id)
 );
 
 DROP TABLE IF EXISTS report_types;
@@ -72,6 +78,9 @@ CREATE TABLE posts
     created_at         TIMESTAMP           NOT NULL,
     updated_at         TIMESTAMP           NOT NULL
 );
+
+CREATE INDEX idx_posts_title_provider ON posts (title, provider_id);
+CREATE INDEX idx_posts_provider_id ON posts (provider_id);
 
 -- 3. 수집 및 작업 관련 테이블
 DROP TABLE IF EXISTS collecting_jobs;
@@ -129,7 +138,9 @@ CREATE TABLE post_likes
     post_id    UUID      NOT NULL REFERENCES posts (id),
     is_enable  BOOLEAN   NOT NULL,
     created_at TIMESTAMP NOT NULL,
-    UNIQUE (user_id, post_id)
+
+    -- UNIQUE 제약 조건 추가
+    CONSTRAINT uk_post_likes_user_id_post_id UNIQUE (user_id, post_id)
 );
 
 DROP TABLE IF EXISTS post_bookmarks;
@@ -140,7 +151,9 @@ CREATE TABLE post_bookmarks
     post_id    UUID      NOT NULL REFERENCES posts (id),
     is_enable  BOOLEAN   NOT NULL,
     created_at TIMESTAMP NOT NULL,
-    UNIQUE (user_id, post_id)
+
+    -- UNIQUE 제약 조건 추가
+    CONSTRAINT uk_post_bookmarks_user_id_post_id UNIQUE (user_id, post_id)
 );
 
 DROP TABLE IF EXISTS post_comments;
