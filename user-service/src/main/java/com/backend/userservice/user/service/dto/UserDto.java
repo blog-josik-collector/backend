@@ -15,8 +15,8 @@ import lombok.experimental.Accessors;
 @Accessors(fluent = true)
 @Getter
 @Builder
-@NoArgsConstructor
-@AllArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor(access = AccessLevel.PRIVATE) // 빌더용
+@NoArgsConstructor(access = AccessLevel.PRIVATE)  // Jackson 역직렬화용
 public class UserDto {
 
     // only request

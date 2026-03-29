@@ -21,7 +21,7 @@ import lombok.experimental.Accessors;
 @Getter
 @Builder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@AllArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Table(name = "users")
 @Entity
 public class User extends BaseEntity {

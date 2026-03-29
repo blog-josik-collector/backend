@@ -3,37 +3,25 @@ package com.backend.userservice.user.controller.dto;
 import com.backend.commondb.user.enums.LoginType;
 import com.backend.commondb.user.enums.UserType;
 import com.backend.userservice.user.service.dto.UserDto;
-import jakarta.persistence.Column;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
 import java.time.OffsetDateTime;
-import java.util.UUID;
-import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
 
-public class UserReadDto {
+// 네임스페이스 역할을 하는 외부 Record
+public record UserReadDto() {
 
-    public static class Request {
-
+    public record Request() {
 
     }
 
     @Builder
-    @Getter
-    @AllArgsConstructor
-    @NoArgsConstructor
-    public static class Response {
-
-        private String id;
-        private UserType userType;
-        private LoginType loginType;
-        private String userId;
-        private String nickname;
-        private OffsetDateTime createdAt;
-        private OffsetDateTime updatedAt;
-        private OffsetDateTime lastLoginAt;
+    public record Response(String id,
+                           UserType userType,
+                           LoginType loginType,
+                           String userId,
+                           String nickname,
+                           OffsetDateTime createdAt,
+                           OffsetDateTime updatedAt,
+                           OffsetDateTime lastLoginAt) {
 
         public static Response from(UserDto userDto) {
             return Response.builder()

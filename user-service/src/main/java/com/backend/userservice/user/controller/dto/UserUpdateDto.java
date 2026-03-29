@@ -1,16 +1,16 @@
 package com.backend.userservice.user.controller.dto;
 
-public class UserUpdateDto {
-    public static class Request {
+public record UserUpdateDto() {
+
+    public record Request() {
 
     }
 
-    public static class PasswordRequest {
+    public record PasswordRequest() {
 
     }
 
-    public static class Response {
-
+    public record Response() {
 
     }
 }

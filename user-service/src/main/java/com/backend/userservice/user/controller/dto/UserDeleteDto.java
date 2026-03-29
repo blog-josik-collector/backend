@@ -1,15 +1,16 @@
 package com.backend.userservice.user.controller.dto;
 
-public class UserDeleteDto {
-    public static class Request {
+public record UserDeleteDto() {
+
+    public record Request() {
 
     }
 
-    public static class PasswordRequest {
+    public record PasswordRequest() {
 
     }
 
-    public static class Response {
+    public record Response() {
 
 
     }

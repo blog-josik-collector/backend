@@ -1,14 +1,12 @@
 package com.backend.userservice.user.controller.dto;
 
-public final class UserMergeDto {
+public record UserMergeDto() {
 
-    public static class Request {
-
+    public record Request() {
 
     }
 
-    public static class Response {
-
+    public record Response() {
 
     }
 }
