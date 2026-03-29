@@ -12,7 +12,6 @@ CREATE TABLE users
     sso_provider   VARCHAR,
     sso_subject_id VARCHAR,
     nickname       VARCHAR   NOT NULL,
-    introduction   VARCHAR   NOT NULL,
     created_at     TIMESTAMP NOT NULL,
     updated_at     TIMESTAMP NOT NULL,
     last_login_at  TIMESTAMP,
@@ -31,10 +30,7 @@ CREATE TABLE post_providers
     base_url    VARCHAR   NOT NULL,
     is_used     BOOLEAN   NOT NULL,
     created_at  TIMESTAMP NOT NULL,
-    updated_at  TIMESTAMP NOT NULL,
-
-    -- UNIQUE 제약 조건 추가
-    CONSTRAINT uk_post_providers_name UNIQUE (user_id)
+    updated_at  TIMESTAMP NOT NULL
 );
 
 DROP TABLE IF EXISTS report_types;
