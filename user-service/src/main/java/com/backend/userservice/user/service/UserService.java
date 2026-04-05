@@ -4,6 +4,7 @@ import com.backend.commondb.user.enums.LoginType;
 import com.backend.commondb.user.User;
 import com.backend.commondb.user.enums.UserType;
 import com.backend.userservice.common.validator.ValidationFlow;
+import com.backend.userservice.user.repository.UserQueryRepository;
 import com.backend.userservice.user.repository.UserRepository;
 import com.backend.userservice.user.service.dto.UserDto;
 import com.backend.userservice.user.service.validator.UserValidator;
@@ -19,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class UserService {
 
     private final UserRepository userRepository;
+    private final UserQueryRepository userQueryRepository;
 
     public UserDto create(UserDto userDto) {
         ValidationFlow.start(userDto)
@@ -44,7 +46,7 @@ public class UserService {
         UserValidator.validateId(id);
 
         UUID uuid = UUID.fromString(id);
-        User user = userRepository.findById(uuid).orElse(null);
+        User user = userQueryRepository.findById(uuid);
         return UserDto.from(Objects.requireNonNull(user));
     }
 }

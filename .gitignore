@@ -17,5 +17,9 @@ out/
 ### vscode
 .vscode
 
+### for querydsl
+**/build/generated/
+**/src/main/generated/
+
 ### Project Ignore Folder ###
 docker-backend/postgres-data
