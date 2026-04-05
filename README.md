@@ -7,7 +7,7 @@ Gradle + Spring Boot 기반 멀티 모듈 백엔드 프로젝트입니다.
 
 현재 `settings.gradle` 기준 모듈은 아래와 같습니다.
 
-- `common-db`: 공통 DB/JPA 엔티티 및 DB 관련 공용 모듈
+- `common-data-access`: 공통 데이터 접근(JPA 엔티티, persistence/security/exception 패키지)
 - `user-service`: 사용자 도메인 서비스 (실행 모듈)
 - `search-service`: 검색 도메인 서비스 (실행 모듈)
 - `interaction-service`: 상호작용 도메인 서비스 (실행 모듈)
@@ -16,13 +16,13 @@ Gradle + Spring Boot 기반 멀티 모듈 백엔드 프로젝트입니다.
 
 ## 의존 관계
 
-- `user-service` -> `common-db`
-- `search-service` -> `common-db`
-- `interaction-service` -> `common-db`
-- `integrated-api` -> `common-db`
-- `integrated-worker` -> `common-db`
+- `user-service` -> `common-data-access`
+- `search-service` -> `common-data-access`
+- `interaction-service` -> `common-data-access`
+- `integrated-api` -> `common-data-access`
+- `integrated-worker` -> `common-data-access`
 
-`common-db`는 라이브러리 모듈(`jar`), 나머지는 실행 모듈(`bootJar`)로 동작합니다.
+`common-data-access`는 라이브러리 모듈(`jar`), 나머지는 실행 모듈(`bootJar`)로 동작합니다.
 
 ## 기술 스택
 
@@ -101,7 +101,7 @@ docker compose -f docker-backend/docker-compose.yml down
 backend
 ├─ build.gradle
 ├─ settings.gradle
-├─ common-db
+├─ common-data-access
 ├─ user-service
 ├─ search-service
 ├─ interaction-service

@@ -1,6 +1,6 @@
 package com.backend.userservice.user.repository;
 
-import com.backend.commondb.user.User;
+import com.backend.commondataaccess.persistence.user.User;
 import java.util.UUID;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;

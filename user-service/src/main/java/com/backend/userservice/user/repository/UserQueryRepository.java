@@ -1,7 +1,7 @@
 package com.backend.userservice.user.repository;
 
-import com.backend.commondb.user.QUser;
-import com.backend.commondb.user.User;
+import com.backend.commondataaccess.persistence.user.QUser;
+import com.backend.commondataaccess.persistence.user.User;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import java.util.Optional;
 import java.util.UUID;

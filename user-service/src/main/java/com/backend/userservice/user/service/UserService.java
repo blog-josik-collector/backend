@@ -1,8 +1,8 @@
 package com.backend.userservice.user.service;
 
-import com.backend.commondb.user.User;
-import com.backend.commondb.user.enums.LoginType;
-import com.backend.commondb.user.enums.UserType;
+import com.backend.commondataaccess.persistence.user.User;
+import com.backend.commondataaccess.persistence.user.enums.LoginType;
+import com.backend.commondataaccess.persistence.user.enums.UserType;
 import com.backend.userservice.common.validator.ValidationFlow;
 import com.backend.userservice.user.repository.UserQueryRepository;
 import com.backend.userservice.user.repository.UserRepository;

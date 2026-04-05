@@ -1,6 +1,6 @@
 package com.backend.userservice.user.service.validator;
 
-import com.backend.commondb.user.User;
+import com.backend.commondataaccess.persistence.user.User;
 import com.backend.userservice.user.service.dto.UserDto;
 import java.util.Optional;
 import java.util.UUID;

@@ -1,6 +1,6 @@
 package com.backend.userservice.user.controller;
 
-import com.backend.commondb.user.User;
+import com.backend.commondataaccess.persistence.user.User;
 import com.backend.userservice.user.controller.dto.UserCreateDto;
 import com.backend.userservice.user.controller.dto.UserMergeDto;
 import com.backend.userservice.user.controller.dto.UserReadDto;

@@ -1,8 +1,8 @@
-package com.backend.commondb.user;
+package com.backend.commondataaccess.persistence.user;
 
-import com.backend.commondb.common.BaseEntity;
-import com.backend.commondb.user.enums.LoginType;
-import com.backend.commondb.user.enums.UserType;
+import com.backend.commondataaccess.persistence.BaseEntity;
+import com.backend.commondataaccess.persistence.user.enums.LoginType;
+import com.backend.commondataaccess.persistence.user.enums.UserType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;

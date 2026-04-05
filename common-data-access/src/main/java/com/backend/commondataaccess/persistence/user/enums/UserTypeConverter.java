@@ -1,4 +1,4 @@
-package com.backend.commondb.user.enums;
+package com.backend.commondataaccess.persistence.user.enums;
 
 import jakarta.persistence.AttributeConverter;
 import jakarta.persistence.Converter;

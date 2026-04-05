@@ -15,7 +15,7 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 @EnableJpaRepositories(basePackages = {
         "com.backend.userservice.user.repository"
 })
-@EntityScan(basePackages = "com.backend.commondb")
+@EntityScan(basePackages = "com.backend.commondataaccess.persistence")
 public class JpaConfig {
     @Bean
     public DateTimeProvider auditingDateTimeProvider() {

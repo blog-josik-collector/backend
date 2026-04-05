@@ -71,8 +71,8 @@ CREATE TABLE posts
     comment_count      INTEGER DEFAULT 0,
     total_report_count INTEGER DEFAULT 0,
     status             INTEGER DEFAULT 0,
-    created_at         TIMESTAMP           NOT NULL,
-    updated_at         TIMESTAMP           NOT NULL
+    created_at         TIMESTAMP NOT NULL,
+    updated_at         TIMESTAMP NOT NULL
 );
 
 CREATE INDEX idx_posts_title_provider ON posts (title, provider_id);
