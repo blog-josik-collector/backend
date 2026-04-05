@@ -9,6 +9,7 @@ public record UserCreateDto() {
 
     public record Request(String userId,
                           String password,
+                          String passwordConfirm,
                           String nickname
     ) {
 

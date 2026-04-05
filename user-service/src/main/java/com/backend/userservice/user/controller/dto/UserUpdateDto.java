@@ -1,16 +1,31 @@
 package com.backend.userservice.user.controller.dto;
 
+import com.backend.userservice.user.service.dto.UserDto;
+import java.time.OffsetDateTime;
+import java.util.UUID;
+import lombok.Builder;
+
 public record UserUpdateDto() {
 
-    public record Request() {
+    public record Request(String nickname) {
 
     }
 
-    public record PasswordRequest() {
+    public record PasswordRequest(String password,
+                                  String newPassword) {
 
     }
 
-    public record Response() {
+    @Builder
+    public record Response(UUID id,
+                           OffsetDateTime updatedAt) {
+
+        public static Response from(UserDto userDto) {
+            return Response.builder()
+                           .id(userDto.id())
+                           .updatedAt(userDto.updatedAt())
+                           .build();
+        }
 
     }
 }

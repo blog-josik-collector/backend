@@ -1,14 +1,17 @@
 package com.backend.userservice.user.controller;
 
+import com.backend.commondb.user.User;
 import com.backend.userservice.user.controller.dto.UserCreateDto;
-import com.backend.userservice.user.controller.dto.UserDeleteDto;
 import com.backend.userservice.user.controller.dto.UserMergeDto;
 import com.backend.userservice.user.controller.dto.UserReadDto;
 import com.backend.userservice.user.controller.dto.UserUpdateDto;
+import com.backend.userservice.user.controller.dto.UserUpdateDto.Response;
 import com.backend.userservice.user.service.UserService;
 import com.backend.userservice.user.service.dto.UserDto;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import java.util.Objects;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -31,27 +34,39 @@ public class UserController {
     @Operation(summary = "직접 회원가입")
     @PostMapping("/users")
     public ResponseEntity<UserCreateDto.Response> create(@RequestBody UserCreateDto.Request request) {
-        UserDto userDto = userService.create(UserDto.of(request.userId(), request.password(), request.nickname()));
+        UserDto userDto = userService.create(UserDto.of(request.userId(),
+                                                        request.password(),
+                                                        request.passwordConfirm(),
+                                                        request.nickname()));
+
         return ResponseEntity.ok(UserCreateDto.Response.from(userDto));
     }
 
     @Operation(summary = "회원정보 조회(내 정보 조회)")
     @GetMapping("/users/me")
-    public ResponseEntity<UserReadDto.Response> getMe(@RequestParam("id") String id) {
-        UserDto userDto = userService.getUser(id);
+    public ResponseEntity<UserReadDto.Response> getMe(@RequestParam("id") UUID id) {
+        User user = userService.getUser(id);
+        UserDto userDto = UserDto.from(Objects.requireNonNull(user));
         return ResponseEntity.ok(UserReadDto.Response.from(userDto));
     }
 
     @Operation(summary = "회원정보 수정(내 정보 수정)")
     @PatchMapping("/users/me")
-    public UserUpdateDto.Response update(UserUpdateDto.Request request) {
-        return null;
+    public ResponseEntity<UserUpdateDto.Response> update(@RequestParam("id") UUID id,
+                                                         @RequestBody UserUpdateDto.Request request) {
+
+        UserDto userDto = UserDto.of(id, request.nickname());
+        userService.update(userDto);
+        return ResponseEntity.ok(Response.from(userService.getUserDto(userDto)));
     }
 
     @Operation(summary = "비밀번호 수정(내 정보 수정)")
     @PatchMapping("/users/me/password")
-    public UserUpdateDto.Response updatePassword(UserUpdateDto.PasswordRequest request) {
-        return null;
+    public ResponseEntity<UserUpdateDto.Response> updatePassword(@RequestParam("id") UUID id,
+                                                 @RequestBody UserUpdateDto.PasswordRequest request) {
+
+        userService.updatePassword(id, request.password(), request.newPassword());
+        return ResponseEntity.ok(Response.from(userService.getUserDto(id)));
     }
 
     @Operation(summary = "회원정보 통합")
@@ -62,7 +77,8 @@ public class UserController {
 
     @Operation(summary = "회원탈퇴")
     @DeleteMapping("/users/me")
-    public UserDeleteDto.Response delete() {
-        return null;
+    public ResponseEntity<Void> delete(@RequestParam("id") UUID id) {
+        userService.delete(id);
+        return ResponseEntity.ok().build();
     }
 }
