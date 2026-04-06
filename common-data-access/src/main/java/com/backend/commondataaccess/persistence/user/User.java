@@ -61,4 +61,8 @@ public class User extends BaseEntity {
     public void updatePassword(String password) {
         this.nickname = password;
     }
+
+    public void login() {
+        this.lastLoginAt = OffsetDateTime.now();
+    }
 }

@@ -12,5 +12,13 @@ jar {
 }
 
 dependencies {
+    api 'org.springframework.boot:spring-boot-starter-security'
     api "org.springframework.boot:spring-boot-starter-data-jpa"
+    api 'org.springframework.boot:spring-boot-starter-web'
+
+    // JWT 관련 라이브러리 (jjwt)
+    // 최신 버전은 기능을 분리해서 선언해야 합니다.
+    implementation 'io.jsonwebtoken:jjwt-api:0.12.5'
+    runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.12.5'
+    runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.12.5' // JSON 파싱용
 }

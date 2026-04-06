@@ -61,6 +61,12 @@ public class UserService {
         return UserValidator.getUserOrThrow(id, userQueryRepository::findById);
     }
 
+    @Transactional(readOnly = true)
+    public User getUser(String userId) {
+        UserValidator.validateUserId(userId);
+        return UserValidator.getUserOrThrow(userId, userQueryRepository::findByUserId);
+    }
+
     public void update(UserDto userDto) {
         ValidationFlow.start(userDto)
                       .next(UserValidator.validateId())

@@ -56,6 +56,13 @@ public class UserDto {
                       .build();
     }
 
+    public static UserDto of(String userId, String password) {
+        return UserDto.builder()
+                      .userId(userId)
+                      .nickname(password)
+                      .build();
+    }
+
     public static UserDto of(String userId, String password, String passwordConfirm, String nickname) {
         return UserDto.builder()
                       .userId(userId)

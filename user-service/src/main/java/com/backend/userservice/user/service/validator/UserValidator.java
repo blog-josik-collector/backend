@@ -112,4 +112,11 @@ public final class UserValidator {
         return findById.apply(id)
                        .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 user입니다. id: " + id));
     }
+
+    public static User getUserOrThrow(String userId, Function<String, Optional<User>> findById) {
+        validateUserId(userId);
+
+        return findById.apply(userId)
+                       .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 user입니다. uesr_id: " + userId));
+    }
 }

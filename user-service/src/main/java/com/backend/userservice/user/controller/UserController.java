@@ -1,6 +1,7 @@
 package com.backend.userservice.user.controller;
 
 import com.backend.commondataaccess.persistence.user.User;
+import com.backend.commondataaccess.security.JwtAuthentication;
 import com.backend.userservice.user.controller.dto.UserCreateDto;
 import com.backend.userservice.user.controller.dto.UserMergeDto;
 import com.backend.userservice.user.controller.dto.UserReadDto;
@@ -14,6 +15,7 @@ import java.util.Objects;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -24,9 +26,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @Tag(name = "01. 회원정보 관련 API")
-@RequiredArgsConstructor
 @RequestMapping(value = "/user/v1")
 @RestController
+@RequiredArgsConstructor
 public class UserController {
 
     private final UserService userService;
@@ -44,8 +46,8 @@ public class UserController {
 
     @Operation(summary = "회원정보 조회(내 정보 조회)")
     @GetMapping("/users/me")
-    public ResponseEntity<UserReadDto.Response> getMe(@RequestParam("id") UUID id) {
-        User user = userService.getUser(id);
+    public ResponseEntity<UserReadDto.Response> getMe(@AuthenticationPrincipal JwtAuthentication authentication) {
+        User user = userService.getUser(authentication.getId());
         UserDto userDto = UserDto.from(Objects.requireNonNull(user));
         return ResponseEntity.ok(UserReadDto.Response.from(userDto));
     }
