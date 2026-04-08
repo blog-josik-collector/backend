@@ -12,7 +12,6 @@ import com.backend.userservice.user.service.dto.UserDto;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.Objects;
-import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -22,7 +21,6 @@ import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @Tag(name = "01. 회원정보 관련 API")
@@ -54,21 +52,21 @@ public class UserController {
 
     @Operation(summary = "회원정보 수정(내 정보 수정)")
     @PatchMapping("/users/me")
-    public ResponseEntity<UserUpdateDto.Response> update(@RequestParam("id") UUID id,
+    public ResponseEntity<UserUpdateDto.Response> update(@AuthenticationPrincipal JwtPrincipal authentication,
                                                          @RequestBody UserUpdateDto.Request request) {
 
-        UserDto userDto = UserDto.of(id, request.nickname());
+        UserDto userDto = UserDto.of(authentication.getId(), request.nickname());
         userService.update(userDto);
         return ResponseEntity.ok(Response.from(userService.getUserDto(userDto)));
     }
 
     @Operation(summary = "비밀번호 수정(내 정보 수정)")
     @PatchMapping("/users/me/password")
-    public ResponseEntity<UserUpdateDto.Response> updatePassword(@RequestParam("id") UUID id,
-                                                 @RequestBody UserUpdateDto.PasswordRequest request) {
+    public ResponseEntity<UserUpdateDto.Response> updatePassword(@AuthenticationPrincipal JwtPrincipal authentication,
+                                                                 @RequestBody UserUpdateDto.PasswordRequest request) {
 
-        userService.updatePassword(id, request.password(), request.newPassword());
-        return ResponseEntity.ok(Response.from(userService.getUserDto(id)));
+        userService.updatePassword(authentication.getId(), request.password(), request.newPassword());
+        return ResponseEntity.ok(Response.from(userService.getUserDto(authentication.getId())));
     }
 
     @Operation(summary = "회원정보 통합")
@@ -79,8 +77,8 @@ public class UserController {
 
     @Operation(summary = "회원탈퇴")
     @DeleteMapping("/users/me")
-    public ResponseEntity<Void> delete(@RequestParam("id") UUID id) {
-        userService.delete(id);
+    public ResponseEntity<Void> delete(@AuthenticationPrincipal JwtPrincipal authentication) {
+        userService.delete(authentication.getId());
         return ResponseEntity.ok().build();
     }
 }
