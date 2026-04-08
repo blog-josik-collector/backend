@@ -16,18 +16,23 @@ import lombok.NoArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+/**
+ * 역할: JWT 자체에 대한 생성/검증/파싱/리프레시를 담당하는 컴포넌트. <p> 입력/출력 <p> - 입력: JWT 문자열, (발급 시) User + roles <p> - 출력: access token 문자열, refresh token 문자열, Claims <p> 책임 <p> - 서명키/issuer/expiry 설정 관리 <p> - 토큰
+ * 생성(createToken, createRefreshToken) <p> - 토큰 검증 및 클레임 파싱(verify) <p> - “유효성 여부만” 확인하는 헬퍼(isValidateToken) 제공 <p> 비책임(두면 헷갈리는 영역) <p> - Spring Security의 Authentication, GrantedAuthority 생성/조립은 하지
+ * 않음(그건 Converter 책임)
+ */
 @Getter
 @Component
-public class Jwt {
+public class JwtService {
 
     private final String issuer;
     private final int expirySeconds;
     private final SecretKey key; // Key 대신 SecretKey 타입 권장
     private final JwtParser jwtParser;
 
-    public Jwt(@Value("${jwt.issuer}") String issuer,
-               @Value("${jwt.client-secret}") String clientSecret,
-               @Value("${jwt.expiry-seconds}") int expirySeconds) {
+    public JwtService(@Value("${jwt.issuer}") String issuer,
+                      @Value("${jwt.client-secret}") String clientSecret,
+                      @Value("${jwt.expiry-seconds}") int expirySeconds) {
 
         this.issuer = issuer;
         this.expirySeconds = expirySeconds;
@@ -75,6 +80,10 @@ public class Jwt {
         return new Claims(jwtParser.parseSignedClaims(token).getPayload());
     }
 
+    /**
+     * 역할: JWT payload(클레임)를 서비스 공통 포맷으로 담는 DTO. <p> 책임 <p> - JJWT의 claims를 컨트롤러/서비스에서 꺼내 쓰는 필드(id, userId, nickname, roles, iat, exp)로 매핑 <p> - 발급용 클레임 생성(of(User, roles)) 제공 <p> 주의점(주석으로 명확히 적으면 좋은
+     * 것) <p> - 이 클래스의 필드가 사실상 서비스 간 계약(contract) 이라, 필드 변경은 토큰 호환성에 영향이 있음
+     */
     @Getter
     @NoArgsConstructor(access = AccessLevel.PRIVATE)
     public static class Claims {
@@ -90,6 +99,7 @@ public class Jwt {
         @SuppressWarnings("unchecked")
         private Claims(io.jsonwebtoken.Claims jjwtClaims) {
             String idStr = jjwtClaims.get("id", String.class);
+
             this.id = (idStr != null) ? UUID.fromString(idStr) : null;
             this.userId = jjwtClaims.get("userId", String.class);
             this.nickname = jjwtClaims.get("nickname", String.class);

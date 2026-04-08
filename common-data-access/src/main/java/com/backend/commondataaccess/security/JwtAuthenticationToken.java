@@ -4,6 +4,10 @@ import java.util.Collection;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
 
+/**
+ * 역할: Spring Security가 이해하는 Authentication 구현체. <p> - 인증 전: from(userId, password)처럼 “credentials 기반” 미인증 토큰 <p> - 인증 후: of(principal, authorities)처럼 “권한 포함” 인증 완료 토큰 <p> 책임 <p> - 인증 전/후 상태
+ * 표현(setAuthenticated 제약 포함) <p> - SecurityContext에 담길 표준 형태 제공 <p> 비책임(두면 헷갈리는 영역) <p> - 토큰 검증/파싱/발급 <p> - 권한 계산 로직 <p>
+ */
 public class JwtAuthenticationToken extends AbstractAuthenticationToken {
 
     /**

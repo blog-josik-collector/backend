@@ -2,7 +2,7 @@ package com.backend.userservice.auth.config;
 
 import com.backend.commondataaccess.persistence.user.enums.UserType;
 import com.backend.commondataaccess.security.JwtAuthenticationFilter;
-import com.backend.commondataaccess.security.jwt.JwtTokenProvider;
+import com.backend.commondataaccess.security.jwt.JwtAuthenticationConverter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -20,14 +20,14 @@ import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 /**
- * SpringSecurity, 인증 인가 관련 설정 및 관련 Bean 모음
+ * 역할: UserService의 보안 정책(허용 URL, role 매칭, 세션 정책)과 공통 JWT 필터를 필터체인에 연결하는 구성 클래스. <p> 책임 <p> - JwtAuthenticationFilter를 UsernamePasswordAuthenticationFilter 앞에 추가 <p> - endpoint별 접근 제어 <p>
  */
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-    private final JwtTokenProvider jwtTokenProvider;
+    private final JwtAuthenticationConverter jwtAuthenticationConverter;
 
     // 1. HTTP 보안 설정
     @Bean
@@ -50,7 +50,7 @@ public class SecurityConfig {
                 .formLogin(AbstractHttpConfigurer::disable)
                 .httpBasic(AbstractHttpConfigurer::disable)
                 // 필터 위치 지정
-                .addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider),
+                .addFilterBefore(new JwtAuthenticationFilter(jwtAuthenticationConverter),
                                  UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
