@@ -55,6 +55,12 @@ public final class UserValidator {
         }
     }
 
+    public static void validateSubjectId(String subjectId) {
+        if (StringUtils.isBlank(subjectId)) {
+            throw new IllegalArgumentException("subjectId는 필수 입력값입니다.");
+        }
+    }
+
     public static void validateNickname(String nickname) {
         if (StringUtils.isBlank(nickname)) {
             throw new IllegalArgumentException("nickname는 필수 입력값입니다.");
@@ -113,10 +119,17 @@ public final class UserValidator {
                        .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 user입니다. id: " + id));
     }
 
-    public static User getUserOrThrow(String userId, Function<String, Optional<User>> findById) {
+    public static User getUserByUserIdOrThrow(String userId, Function<String, Optional<User>> findByUserId) {
         validateUserId(userId);
 
-        return findById.apply(userId)
+        return findByUserId.apply(userId)
                        .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 user입니다. uesr_id: " + userId));
+    }
+
+    public static User getUserBySubjectIdOrThrow(String subjectId, Function<String, Optional<User>> findBySubjectId) {
+        validateSubjectId(subjectId);
+
+        return findBySubjectId.apply(subjectId)
+                       .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 subject_id 입니다. subject_id: " + subjectId));
     }
 }

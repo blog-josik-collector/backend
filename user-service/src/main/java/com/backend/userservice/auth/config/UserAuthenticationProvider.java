@@ -10,6 +10,7 @@ import com.backend.commondataaccess.security.jwt.JwtService;
 import com.backend.commondataaccess.security.jwt.JwtService.Claims;
 import com.backend.userservice.user.service.UserService;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.dao.DataAccessException;
 import org.springframework.security.authentication.AuthenticationProvider;
@@ -44,29 +45,54 @@ public class UserAuthenticationProvider implements AuthenticationProvider {
 
     private Authentication createUserAuthentication(JwtAuthenticationToken authentication) {
         try {
-            String userId = authentication.getPrincipal().toString();
-            String password = authentication.getCredentials().toString();
+            // 1. Context에 따른 사용자 조회 (OAuth vs Local)
+            User user = fetchUser(authentication);
 
-            User user = userService.getUser(userId);
+            // 2. 공통 로직: 토큰 발행 및 Authentication 객체 생성
+            return createSuccessAuthentication(user);
 
-            if (!StringUtils.equals(password, user.password())) {
-                throw new IllegalArgumentException("Invalid password");
-            }
-
-            String accessToken = jwtService.createToken(user, new String[]{user.userType().name()});
-            Claims verifiedClaims = jwtService.verify(accessToken);
-
-            JwtPrincipal principal = JwtPrincipal.from(verifiedClaims);
-            JwtAuthenticationToken jwtAuthenticationToken =
-                    JwtAuthenticationToken.of(principal, createAuthorityList(user.userType().name()));
-
-            jwtAuthenticationToken.setDetails(accessToken);
-
-            return jwtAuthenticationToken;
         } catch (IllegalArgumentException e) {
             throw new BadCredentialsException(e.getMessage());
         } catch (DataAccessException e) {
             throw new AuthenticationServiceException(e.getMessage(), e);
         }
+    }
+
+    private User fetchUser(JwtAuthenticationToken authentication) {
+        String principal = authentication.getPrincipal().toString();
+        Object credentials = authentication.getCredentials();
+
+        // OAuth Flow: credentials가 없는 경우
+        if (ObjectUtils.isEmpty(credentials)) {
+            return userService.findUser(principal).orElseGet(() -> userService.create(principal));
+        }
+
+        // Direct Login Flow
+        User user = userService.getUserByUserId(principal);
+        String password = credentials.toString();
+
+        if (!StringUtils.equals(password, user.password())) {
+            throw new IllegalArgumentException("Invalid password");
+        }
+
+        return user;
+    }
+
+    private Authentication createSuccessAuthentication(User user) {
+        String role = user.userType().name();
+        String accessToken = jwtService.createToken(user, new String[]{role});
+
+        // 검증 및 Principal 추출
+        Claims verifiedClaims = jwtService.verify(accessToken);
+        JwtPrincipal principal = JwtPrincipal.from(verifiedClaims);
+
+        // 인증 객체 생성
+        JwtAuthenticationToken successToken =
+                JwtAuthenticationToken.of(principal, createAuthorityList(role));
+
+        // Details에 생성된 토큰 저장
+        successToken.setDetails(accessToken);
+
+        return successToken;
     }
 }

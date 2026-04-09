@@ -17,12 +17,24 @@ public class JwtAuthenticationToken extends AbstractAuthenticationToken {
 
     private Object credentials;     // JWT 토큰 자체
 
-    public static JwtAuthenticationToken from(String principal, String credentials) {
+    public static JwtAuthenticationToken from(String principal) {
+        return new JwtAuthenticationToken(principal);
+    }
+
+    public static JwtAuthenticationToken of(String principal, String credentials) {
         return new JwtAuthenticationToken(principal, credentials);
     }
 
     public static JwtAuthenticationToken of(Object principal, Collection<? extends GrantedAuthority> authorities) {
         return new JwtAuthenticationToken(principal, authorities);
+    }
+
+    private JwtAuthenticationToken(String principal) {
+        super(null);
+        super.setAuthenticated(false);
+
+        this.principal = principal;
+        this.credentials = null;
     }
 
     private JwtAuthenticationToken(String principal, String credentials) {

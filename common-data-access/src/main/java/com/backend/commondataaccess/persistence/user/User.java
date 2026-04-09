@@ -2,6 +2,7 @@ package com.backend.commondataaccess.persistence.user;
 
 import com.backend.commondataaccess.persistence.BaseEntity;
 import com.backend.commondataaccess.persistence.user.enums.LoginType;
+import com.backend.commondataaccess.persistence.user.enums.SnsProvider;
 import com.backend.commondataaccess.persistence.user.enums.UserType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -36,19 +37,17 @@ public class User extends BaseEntity {
     @Column(name = "login_type", nullable = false)
     private LoginType loginType;
 
-    @Column(name = "user_id", nullable = false)
+    @Column(name = "user_id")
     private String userId;
 
-    @Column(nullable = false)
     private String password;
 
     @Column(name = "sso_provider")
-    private String ssoProvider;
+    private SnsProvider ssoProvider;
 
     @Column(name = "sso_subject_id")
     private String ssoSubjectId;
 
-    @Column(nullable = false)
     private String nickname;
 
     @Column(name = "last_login_at")

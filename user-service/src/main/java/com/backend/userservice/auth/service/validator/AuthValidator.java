@@ -9,16 +9,23 @@ import org.apache.commons.lang3.StringUtils;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class AuthValidator {
 
-    public static UnaryOperator<AuthDto> validateUserId() {
+    public static UnaryOperator<AuthDto.PasswordRequest> validateUserId() {
         return authDto -> {
-            validateUserId(authDto.userId());
+            validateUserId(authDto.getUserId());
             return authDto;
         };
     }
 
-    public static UnaryOperator<AuthDto> validatePassword() {
+    public static UnaryOperator<AuthDto.PasswordRequest> validatePassword() {
         return authDto -> {
-            validatePassword(authDto.password());
+            validatePassword(authDto.getPassword());
+            return authDto;
+        };
+    }
+
+    public static UnaryOperator<AuthDto.GoogleRequest> validateSubject() {
+        return authDto -> {
+            validateSubject(authDto.getSubject());
             return authDto;
         };
     }
@@ -32,6 +39,12 @@ public final class AuthValidator {
     public static void validatePassword(String password) {
         if (StringUtils.isBlank(password)) {
             throw new IllegalArgumentException("password는 필수 입력값입니다.");
+        }
+    }
+
+    public static void validateSubject(String subject) {
+        if (StringUtils.isBlank(subject)) {
+            throw new IllegalArgumentException("subject는 필수 입력값입니다.");
         }
     }
 }

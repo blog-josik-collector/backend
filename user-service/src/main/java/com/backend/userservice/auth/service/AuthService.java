@@ -21,22 +21,39 @@ public class AuthService {
     private final UserService userService;
     private final AuthenticationManager authenticationManager;
 
-    public AuthDto login(AuthDto authDto) {
-        ValidationFlow.start(authDto)
+    public AuthDto.Response loginWithPassword(AuthDto.PasswordRequest passwordRequest) {
+        ValidationFlow.start(passwordRequest)
                       .next(AuthValidator.validateUserId())
                       .next(AuthValidator.validatePassword())
                       .end();
 
-        JwtAuthenticationToken authToken = JwtAuthenticationToken.from(authDto.userId(),
-                                                                       authDto.password());
+        JwtAuthenticationToken authToken = JwtAuthenticationToken.of(passwordRequest.getUserId(),
+                                                                     passwordRequest.getPassword());
 
         Authentication authenticate = authenticationManager.authenticate(authToken);
 
-        User user = userService.getUser(authDto.userId());
+        User user = userService.getUserByUserId(passwordRequest.getUserId());
         user.login();
 
         SecurityContextHolder.getContext().setAuthentication(authenticate);
 
-        return AuthDto.from((String) authenticate.getDetails());
+        return AuthDto.Response.from((String) authenticate.getDetails());
+    }
+
+    public AuthDto.Response loginWithGoogle(AuthDto.GoogleRequest googleRequest) {
+        ValidationFlow.start(googleRequest)
+                      .next(AuthValidator.validateSubject())
+                      .end();
+
+        JwtAuthenticationToken authToken = JwtAuthenticationToken.from(googleRequest.getSubject());
+
+        Authentication authenticate = authenticationManager.authenticate(authToken);
+
+        User user = userService.getUserBySubjectId(googleRequest.getSubject());
+        user.login();
+
+        SecurityContextHolder.getContext().setAuthentication(authenticate);
+
+        return AuthDto.Response.from((String) authenticate.getDetails());
     }
 }

@@ -1,39 +1,73 @@
 package com.backend.userservice.auth.service.dto;
 
+import com.backend.userservice.auth.oauth.google.GoogleOAuthUserClaims;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.experimental.Accessors;
 
-@JsonInclude(JsonInclude.Include.NON_NULL)
-@Accessors(fluent = true)
 @Getter
-@Builder
-@AllArgsConstructor(access = AccessLevel.PRIVATE) // 빌더용
 @NoArgsConstructor(access = AccessLevel.PRIVATE)  // Jackson 역직렬화용
 public class AuthDto {
 
-    // request
-    private String userId;
-    private String password;
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    @Getter
+    @Builder
+    @AllArgsConstructor(access = AccessLevel.PRIVATE) // 빌더용
+    @NoArgsConstructor(access = AccessLevel.PRIVATE)  // Jackson 역직렬화용
+    public static class PasswordRequest {
+
+        private String userId;
+        private String password;
+
+        public static AuthDto.PasswordRequest of(String userId, String password) {
+            return AuthDto.PasswordRequest.builder()
+                                          .userId(userId)
+                                          .password(password)
+                                          .build();
+        }
+    }
+
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    @Getter
+    @Builder
+    @AllArgsConstructor(access = AccessLevel.PRIVATE) // 빌더용
+    @NoArgsConstructor(access = AccessLevel.PRIVATE)  // Jackson 역직렬화용
+    public static class GoogleRequest {
+
+        private String subject; // sso_subject_id
+
+        public static AuthDto.GoogleRequest from(GoogleOAuthUserClaims claims) {
+            return GoogleRequest.builder()
+                                .subject(claims.subject())
+                                .build();
+        }
+    }
 
     // response
-    private String accessToken;
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    @Getter
+    @Builder
+    @AllArgsConstructor(access = AccessLevel.PRIVATE) // 빌더용
+    @NoArgsConstructor(access = AccessLevel.PRIVATE)  // Jackson 역직렬화용
+    public static class Response {
 
-    public static AuthDto from(String accessToken) {
-        return AuthDto.builder()
-                      .accessToken(accessToken)
-                      .build();
+        private String accessToken;
+        private String refreshToken;
+
+        public static AuthDto.Response from(String accessToken) {
+            return AuthDto.Response.builder()
+                                   .accessToken(accessToken)
+                                   .build();
+        }
+
+        public static AuthDto.Response of(String accessToken, String refreshToken) {
+            return AuthDto.Response.builder()
+                                   .accessToken(accessToken)
+                                   .refreshToken(refreshToken)
+                                   .build();
+        }
     }
-
-    public static AuthDto of(String userId, String password) {
-        return AuthDto.builder()
-                      .userId(userId)
-                      .password(password)
-                      .build();
-    }
-
 }

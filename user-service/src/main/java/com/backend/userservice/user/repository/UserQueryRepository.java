@@ -35,4 +35,14 @@ public class UserQueryRepository {
 
         return Optional.ofNullable(result);
     }
+
+    public Optional<User> findBySubjectId(String subjectId) {
+        User result = queryFactory.select(user)
+                                  .from(user)
+                                  .where(user.ssoSubjectId.eq(subjectId))
+                                  .where(user.deletedAt.isNull())
+                                  .fetchOne();
+
+        return Optional.ofNullable(result);
+    }
 }

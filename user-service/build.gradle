@@ -12,10 +12,12 @@ jar {
 
 ext {
     set('springDocVersion', "2.8.16")
+    set('googleApiClientVersion', "2.7.2")
 }
 
 dependencies {
     implementation project(":common-data-access")
+    implementation "com.google.api-client:google-api-client:$googleApiClientVersion"
     implementation "org.springframework.boot:spring-boot-starter-web"
     implementation "org.springdoc:springdoc-openapi-starter-webmvc-ui:$springDocVersion"
     implementation "org.flywaydb:flyway-core"

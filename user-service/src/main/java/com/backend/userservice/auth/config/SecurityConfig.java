@@ -42,7 +42,12 @@ public class SecurityConfig {
 //                        .authenticationEntryPoint(unauthorizedHandler)
 //                )
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/heartbeat", "/user/v1/users/**", "/auth/v1/auth/login", "/users/swagger-ui/**", "/users/v3/api-docs/**").permitAll()
+                        .requestMatchers("/api/heartbeat",
+                                         "/user/v1/users/**",
+                                         "/auth/v1/auth/login",
+                                         "/auth/v1/oauth/google/callback",
+                                         "/users/swagger-ui/**",
+                                         "/users/v3/api-docs/**").permitAll()
                         .requestMatchers("/api/admin/**").hasRole(UserType.ADMIN.name()) // 운영진
                         .requestMatchers("/user/v1/**").hasRole(UserType.USER.name())    // 일반 회원
                         .anyRequest().authenticated()

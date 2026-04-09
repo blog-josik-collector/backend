@@ -1,5 +1,7 @@
 package com.backend.userservice.user.service;
 
+import static com.backend.commondataaccess.persistence.user.enums.SnsProvider.GOOGLE;
+
 import com.backend.commondataaccess.persistence.user.User;
 import com.backend.commondataaccess.persistence.user.enums.LoginType;
 import com.backend.commondataaccess.persistence.user.enums.UserType;
@@ -8,6 +10,7 @@ import com.backend.userservice.user.repository.UserQueryRepository;
 import com.backend.userservice.user.repository.UserRepository;
 import com.backend.userservice.user.service.dto.UserDto;
 import com.backend.userservice.user.service.validator.UserValidator;
+import java.util.Optional;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
@@ -44,6 +47,19 @@ public class UserService {
         return UserDto.from(userRepository.save(user));
     }
 
+    public User create(String subject) {
+        UserValidator.validateSubjectId(subject);
+
+        User user = User.builder()
+                        .userType(UserType.USER)
+                        .loginType(LoginType.SNS)
+                        .ssoProvider(GOOGLE)
+                        .ssoSubjectId(subject)
+                        .build();
+
+        return userRepository.save(user);
+    }
+
     @Transactional(readOnly = true)
     public UserDto getUserDto(UserDto userDto) {
         return UserDto.from(getUser(userDto.id()));
@@ -62,9 +78,21 @@ public class UserService {
     }
 
     @Transactional(readOnly = true)
-    public User getUser(String userId) {
+    public User getUserByUserId(String userId) {
         UserValidator.validateUserId(userId);
-        return UserValidator.getUserOrThrow(userId, userQueryRepository::findByUserId);
+        return UserValidator.getUserByUserIdOrThrow(userId, userQueryRepository::findByUserId);
+    }
+
+    @Transactional(readOnly = true)
+    public User getUserBySubjectId(String subjectId) {
+        UserValidator.validateSubjectId(subjectId);
+        return UserValidator.getUserBySubjectIdOrThrow(subjectId, userQueryRepository::findBySubjectId);
+    }
+
+    @Transactional(readOnly = true)
+    public Optional<User> findUser(String subjectId) {
+        UserValidator.validateSubjectId(subjectId);
+        return userQueryRepository.findBySubjectId(subjectId);
     }
 
     public void update(UserDto userDto) {
