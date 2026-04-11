@@ -1,6 +1,6 @@
 package com.backend.commondataaccess.security.jwt;
 
-import com.backend.commondataaccess.persistence.user.User;
+import com.backend.commondataaccess.persistence.user.UserAuthentication;
 import io.jsonwebtoken.JwtBuilder;
 import io.jsonwebtoken.JwtParser;
 import io.jsonwebtoken.Jwts;
@@ -44,8 +44,8 @@ public class JwtService {
                              .build();
     }
 
-    public String createToken(User user, String[] roles) {
-        Claims claims = Claims.of(user, roles);
+    public String createToken(UserAuthentication userAuthentication, String[] roles) {
+        Claims claims = Claims.of(userAuthentication, roles);
         return createNewToken(claims);
     }
 
@@ -60,7 +60,7 @@ public class JwtService {
         }
 
         return builder
-                .claim("id", claims.id)
+                .claim("authenticationId", claims.authenticationId)
                 .claim("userId", claims.userId)
                 .claim("nickname", claims.nickname)
                 .claim("roles", claims.roles)
@@ -88,8 +88,8 @@ public class JwtService {
     @NoArgsConstructor(access = AccessLevel.PRIVATE)
     public static class Claims {
 
-        private UUID id;
-        private String userId;
+        private UUID authenticationId;
+        private UUID userId;
         private String nickname;
         private String[] roles;
         private Date iat;
@@ -98,10 +98,11 @@ public class JwtService {
         // JJWT의 JpaClaims를 우리 객체로 매핑
         @SuppressWarnings("unchecked")
         private Claims(io.jsonwebtoken.Claims jjwtClaims) {
-            String idStr = jjwtClaims.get("id", String.class);
+            String authenticationIdStr = jjwtClaims.get("authenticationId", String.class);
+            this.authenticationId = (authenticationIdStr != null) ? UUID.fromString(authenticationIdStr) : null;
 
-            this.id = (idStr != null) ? UUID.fromString(idStr) : null;
-            this.userId = jjwtClaims.get("userId", String.class);
+            String userIdStr = jjwtClaims.get("userId", String.class);
+            this.userId = (authenticationIdStr != null) ? UUID.fromString(userIdStr) : null;
             this.nickname = jjwtClaims.get("nickname", String.class);
 
             Object rolesObj = jjwtClaims.get("roles");
@@ -113,11 +114,11 @@ public class JwtService {
             this.exp = jjwtClaims.getExpiration();
         }
 
-        public static Claims of(User user, String[] roles) {
+        public static Claims of(UserAuthentication userAuthentication, String[] roles) {
             Claims claims = new Claims();
-            claims.id = user.id();
-            claims.userId = user.userId();
-            claims.nickname = user.nickname();
+            claims.authenticationId = userAuthentication.id();
+            claims.userId = userAuthentication.user().id();
+            claims.nickname = userAuthentication.user().nickname();
             claims.roles = roles;
             return claims;
         }

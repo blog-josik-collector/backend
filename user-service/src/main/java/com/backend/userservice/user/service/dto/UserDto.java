@@ -22,13 +22,13 @@ import lombok.experimental.Accessors;
 public class UserDto {
 
     // only request
-    private String userId;
+    private String loginId;
     private String password;
     private String passwordConfirm;
     private String nickname;
 
     // response
-    private UUID id;
+    private UUID userId;
     private LoginType loginType;
     private UserType userType;
 
@@ -38,10 +38,8 @@ public class UserDto {
 
     public static UserDto from(User user) {
         return UserDto.builder()
-                      .id(user.id())
-                      .userId(user.userId())
+                      .userId(user.id())
                       .nickname(user.nickname())
-                      .loginType(user.loginType())
                       .userType(user.userType())
                       .createdAt(user.createdAt())
                       .updatedAt(user.updatedAt())
@@ -49,23 +47,23 @@ public class UserDto {
                       .build();
     }
 
-    public static UserDto of(UUID id, String nickname) {
+    public static UserDto of(UUID userId, String nickname) {
         return UserDto.builder()
-                      .id(id)
+                      .userId(userId)
                       .nickname(nickname)
                       .build();
     }
 
-    public static UserDto of(String userId, String password) {
+    public static UserDto of(String loginId, String password) {
         return UserDto.builder()
-                      .userId(userId)
+                      .loginId(loginId)
                       .nickname(password)
                       .build();
     }
 
-    public static UserDto of(String userId, String password, String passwordConfirm, String nickname) {
+    public static UserDto of(String loginId, String password, String passwordConfirm, String nickname) {
         return UserDto.builder()
-                      .userId(userId)
+                      .loginId(loginId)
                       .password(password)
                       .passwordConfirm(passwordConfirm)
                       .nickname(nickname)

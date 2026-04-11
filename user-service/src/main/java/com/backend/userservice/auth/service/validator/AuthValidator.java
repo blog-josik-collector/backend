@@ -11,7 +11,7 @@ public final class AuthValidator {
 
     public static UnaryOperator<AuthDto.PasswordRequest> validateUserId() {
         return authDto -> {
-            validateUserId(authDto.getUserId());
+            validateUserId(authDto.getLoginId());
             return authDto;
         };
     }

@@ -17,13 +17,13 @@ import lombok.RequiredArgsConstructor;
 public class JwtPrincipal {
 
     private final UUID id;
-    private final String userId;
+    private final UUID userId;
     private final String nickname;
     private final String[] roles;
 
     public static JwtPrincipal from(JwtService.Claims claims) {
         return JwtPrincipal.builder()
-                           .id(claims.getId())
+                           .id(claims.getAuthenticationId())
                            .userId(claims.getUserId())
                            .nickname(claims.getNickname())
                            .roles(claims.getRoles())

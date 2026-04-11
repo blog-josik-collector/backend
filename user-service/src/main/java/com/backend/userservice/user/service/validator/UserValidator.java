@@ -16,14 +16,14 @@ public final class UserValidator {
 
     public static UnaryOperator<UserDto> validateId() {
         return userDto -> {
-            validateId(userDto.id());
+            validateId(userDto.userId());
             return userDto;
         };
     }
 
     public static UnaryOperator<UserDto> validateUserId() {
         return userDto -> {
-            validateUserId(userDto.userId());
+            validateUserId(userDto.loginId());
             return userDto;
         };
     }
@@ -85,26 +85,6 @@ public final class UserValidator {
         }
     }
 
-    public static void validateIsSamePasswordAndPasswordConfirm(String password,
-                                                                String passwordConfirm) {
-        if (StringUtils.isBlank(password)) {
-            throw new IllegalArgumentException("password는 필수 입력값입니다.");
-        }
-        if (StringUtils.isBlank(passwordConfirm)) {
-            throw new IllegalArgumentException("password_confirm은 필수 입력값입니다.");
-        }
-        if (!StringUtils.equals(password, passwordConfirm)) {
-            throw new IllegalArgumentException("password와 password_confirm 값은 동일해야합니다.");
-        }
-    }
-
-    public static void verifyDuplicateUserId(String userId, Function<String, Boolean> existsByUserId) {
-        validateUserId(userId);
-        if (existsByUserId.apply(userId)) {
-            throw new IllegalArgumentException("이미 존재하는 user_id입니다. user_id: " + userId);
-        }
-    }
-
     public static void verifyDuplicateNickname(String nickname, Function<String, Boolean> existsByNickname) {
         validateNickname(nickname);
         if (existsByNickname.apply(nickname)) {
@@ -117,19 +97,5 @@ public final class UserValidator {
 
         return findById.apply(id)
                        .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 user입니다. id: " + id));
-    }
-
-    public static User getUserByUserIdOrThrow(String userId, Function<String, Optional<User>> findByUserId) {
-        validateUserId(userId);
-
-        return findByUserId.apply(userId)
-                       .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 user입니다. uesr_id: " + userId));
-    }
-
-    public static User getUserBySubjectIdOrThrow(String subjectId, Function<String, Optional<User>> findBySubjectId) {
-        validateSubjectId(subjectId);
-
-        return findBySubjectId.apply(subjectId)
-                       .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 subject_id 입니다. subject_id: " + subjectId));
     }
 }

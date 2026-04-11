@@ -7,7 +7,7 @@ import lombok.Builder;
 // 네임스페이스 역할을 하는 외부 Record
 public record UserCreateDto() {
 
-    public record Request(String userId,
+    public record Request(String loginId,
                           String password,
                           String passwordConfirm,
                           String nickname
@@ -16,12 +16,12 @@ public record UserCreateDto() {
     }
 
     @Builder
-    public record Response(String id,
+    public record Response(String userId,
                            OffsetDateTime createdAt) {
 
         public static Response from(UserDto userDto) {
             return Response.builder()
-                           .id(userDto.id().toString())
+                           .userId(userDto.userId().toString())
                            .createdAt(userDto.createdAt())
                            .build();
         }

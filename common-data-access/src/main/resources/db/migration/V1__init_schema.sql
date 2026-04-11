@@ -4,22 +4,33 @@
 DROP TABLE IF EXISTS users;
 CREATE TABLE users
 (
-    id             UUID PRIMARY KEY,
-    user_type      INTEGER   NOT NULL,
-    login_type     INTEGER   NOT NULL,
-    user_id        VARCHAR,
-    password       VARCHAR,
-    sso_provider   VARCHAR,
-    sso_subject_id VARCHAR,
-    nickname       VARCHAR,
-    created_at     TIMESTAMP NOT NULL,
-    updated_at     TIMESTAMP NOT NULL,
-    last_login_at  TIMESTAMP,
-    deleted_at     TIMESTAMP
+    id            UUID PRIMARY KEY,
+    user_type     INTEGER   NOT NULL,
+    nickname      VARCHAR   NOT NULL,
+    created_at    TIMESTAMP NOT NULL,
+    updated_at    TIMESTAMP NOT NULL,
+    last_login_at TIMESTAMP,
+    deleted_at    TIMESTAMP
 );
 
-CREATE UNIQUE INDEX IF NOT EXISTS uq_users_user_id_active ON users (user_id) WHERE deleted_at IS NULL;
-CREATE UNIQUE INDEX IF NOT EXISTS uq_users_user_nickname_active ON users (nickname) WHERE deleted_at IS NULL;
+CREATE UNIQUE INDEX IF NOT EXISTS uk_users_user_nickname_active ON users (nickname) WHERE deleted_at IS NULL;
+
+DROP TABLE IF EXISTS users_authentication;
+CREATE TABLE users_authentication
+(
+    id             UUID PRIMARY KEY,
+    user_id        UUID      NOT NULL,
+    login_provider INTEGER   NOT NULL,
+    identifier     VARCHAR   NOT NULL,
+    credential     VARCHAR,
+    created_at     TIMESTAMP NOT NULL,
+    updated_at     TIMESTAMP NOT NULL,
+    deleted_at     TIMESTAMP,
+
+    CONSTRAINT fk_users_authentication_users FOREIGN KEY (user_id) REFERENCES users (id)
+);
+
+CREATE UNIQUE INDEX IF NOT EXISTS uk_users_authentication_identifier_active ON users_authentication (identifier) WHERE deleted_at IS NULL;
 
 DROP TABLE IF EXISTS post_providers;
 CREATE TABLE post_providers
@@ -71,8 +82,8 @@ CREATE TABLE posts
     comment_count      INTEGER DEFAULT 0,
     total_report_count INTEGER DEFAULT 0,
     status             INTEGER DEFAULT 0,
-    created_at         TIMESTAMP NOT NULL,
-    updated_at         TIMESTAMP NOT NULL
+    created_at         TIMESTAMP           NOT NULL,
+    updated_at         TIMESTAMP           NOT NULL
 );
 
 CREATE INDEX idx_posts_title_provider ON posts (title, provider_id);

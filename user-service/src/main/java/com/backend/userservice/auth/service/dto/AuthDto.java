@@ -19,12 +19,12 @@ public class AuthDto {
     @NoArgsConstructor(access = AccessLevel.PRIVATE)  // Jackson 역직렬화용
     public static class PasswordRequest {
 
-        private String userId;
+        private String loginId;
         private String password;
 
         public static AuthDto.PasswordRequest of(String userId, String password) {
             return AuthDto.PasswordRequest.builder()
-                                          .userId(userId)
+                                          .loginId(userId)
                                           .password(password)
                                           .build();
         }

@@ -1,12 +1,10 @@
 package com.backend.userservice.user.controller.dto;
 
+import java.util.UUID;
+
 public record UserMergeDto() {
 
-    public record Request() {
-
-    }
-
-    public record Response() {
+    public record Request(UUID userId) {
 
     }
 }

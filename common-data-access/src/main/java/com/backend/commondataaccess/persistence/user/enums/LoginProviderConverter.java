@@ -4,24 +4,24 @@ import jakarta.persistence.AttributeConverter;
 import jakarta.persistence.Converter;
 
 @Converter(autoApply = true)
-public class SnsProviderConverter implements AttributeConverter<SnsProvider, Integer> {
+public class LoginProviderConverter implements AttributeConverter<LoginProvider, Integer> {
 
     @Override
-    public Integer convertToDatabaseColumn(SnsProvider snsProvider) {
+    public Integer convertToDatabaseColumn(LoginProvider loginProvider) {
         // null이면 DB에도 null로 들어가도록 방어 로직 추가
-        if (snsProvider == null) {
+        if (loginProvider == null) {
             return null;
         }
-        return snsProvider.getCode();
+        return loginProvider.getCode();
     }
 
     @Override
-    public SnsProvider convertToEntityAttribute(Integer snsProviderCode) {
+    public LoginProvider convertToEntityAttribute(Integer loginProviderCode) {
         // DB 값이 null이거나 빈 문자열일 때의 처리
-        if (snsProviderCode == null) {
+        if (loginProviderCode == null) {
             return null;
         }
 
-        return SnsProvider.from(snsProviderCode);
+        return LoginProvider.from(loginProviderCode);
     }
 }

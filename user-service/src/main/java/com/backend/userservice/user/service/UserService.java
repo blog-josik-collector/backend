@@ -1,19 +1,16 @@
 package com.backend.userservice.user.service;
 
-import static com.backend.commondataaccess.persistence.user.enums.SnsProvider.GOOGLE;
-
 import com.backend.commondataaccess.persistence.user.User;
-import com.backend.commondataaccess.persistence.user.enums.LoginType;
 import com.backend.commondataaccess.persistence.user.enums.UserType;
 import com.backend.userservice.common.validator.ValidationFlow;
 import com.backend.userservice.user.repository.UserQueryRepository;
 import com.backend.userservice.user.repository.UserRepository;
 import com.backend.userservice.user.service.dto.UserDto;
 import com.backend.userservice.user.service.validator.UserValidator;
-import java.util.Optional;
+import com.backend.userservice.userauthentication.service.UserAuthenticationService;
+import com.backend.userservice.utils.NicknameGenerateUtil;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,6 +21,7 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final UserQueryRepository userQueryRepository;
+    private final UserAuthenticationService userAuthenticationService;
 
     public UserDto create(UserDto userDto) {
         ValidationFlow.start(userDto)
@@ -32,37 +30,43 @@ public class UserService {
                       .next(UserValidator.validatePasswordAndPasswordConfirm())
                       .end();
 
-        UserValidator.validateIsSamePasswordAndPasswordConfirm(userDto.password(), userDto.passwordConfirm());
-        UserValidator.verifyDuplicateUserId(userDto.userId(), userRepository::existsByUserId);
         UserValidator.verifyDuplicateNickname(userDto.nickname(), userRepository::existsByNickname);
 
         User user = User.builder()
                         .userType(UserType.USER)
-                        .loginType(LoginType.DIRECT)
-                        .userId(userDto.userId())
-                        .password(userDto.password())
                         .nickname(userDto.nickname())
                         .build();
 
-        return UserDto.from(userRepository.save(user));
+        User savedUser = userRepository.save(user);
+
+        userAuthenticationService.create(savedUser,
+                                         userDto.loginId(),
+                                         userDto.password(),
+                                         userDto.passwordConfirm());
+
+        return UserDto.from(savedUser);
     }
 
     public User create(String subject) {
         UserValidator.validateSubjectId(subject);
 
+        String nickname = getSafeNickname();
+
         User user = User.builder()
                         .userType(UserType.USER)
-                        .loginType(LoginType.SNS)
-                        .ssoProvider(GOOGLE)
-                        .ssoSubjectId(subject)
+                        .nickname(nickname)
                         .build();
 
-        return userRepository.save(user);
+        User savedUser = userRepository.save(user);
+
+        userAuthenticationService.create(savedUser, subject);
+
+        return savedUser;
     }
 
     @Transactional(readOnly = true)
     public UserDto getUserDto(UserDto userDto) {
-        return UserDto.from(getUser(userDto.id()));
+        return UserDto.from(getUser(userDto.userId()));
     }
 
     @Transactional(readOnly = true)
@@ -78,21 +82,21 @@ public class UserService {
     }
 
     @Transactional(readOnly = true)
-    public User getUserByUserId(String userId) {
-        UserValidator.validateUserId(userId);
-        return UserValidator.getUserByUserIdOrThrow(userId, userQueryRepository::findByUserId);
-    }
+    public String getSafeNickname() {
+        String nickname;
+        int maxRetry = 5;
+        int count = 0;
 
-    @Transactional(readOnly = true)
-    public User getUserBySubjectId(String subjectId) {
-        UserValidator.validateSubjectId(subjectId);
-        return UserValidator.getUserBySubjectIdOrThrow(subjectId, userQueryRepository::findBySubjectId);
-    }
+        do {
+            nickname = NicknameGenerateUtil.generate();
+            count++;
+            if (count > maxRetry) {
+                // 5번 이상 충돌 시 더 긴 랜덤값을 붙이거나 예외 처리
+                nickname += System.currentTimeMillis() % 1000;
+            }
+        } while (userRepository.existsByNickname(nickname));
 
-    @Transactional(readOnly = true)
-    public Optional<User> findUser(String subjectId) {
-        UserValidator.validateSubjectId(subjectId);
-        return userQueryRepository.findBySubjectId(subjectId);
+        return nickname;
     }
 
     public void update(UserDto userDto) {
@@ -103,7 +107,7 @@ public class UserService {
 
         UserValidator.verifyDuplicateNickname(userDto.nickname(), userRepository::existsByNickname);
 
-        User user = getUser(userDto.id());
+        User user = getUser(userDto.userId());
 
         user.update(userDto.nickname());
     }
@@ -112,14 +116,14 @@ public class UserService {
         UserValidator.validateId(id);
         UserValidator.validatePassword(password);
         UserValidator.validateNewPassword(newPassword);
+        userAuthenticationService.updatePassword(id, password, newPassword);
+    }
 
-        User user = getUser(id);
+    public void merge(UUID authenticationId, UUID userId) {
+        UserValidator.validateId(userId);
+        User newUser = getUser(userId);
 
-        if (!StringUtils.equals(user.password(), password)) {
-            throw new IllegalArgumentException("사용자의 password와 입력한 password가 다릅니다. 입력한 password: + " + password);
-        }
-
-        user.updatePassword(newPassword);
+        userAuthenticationService.merge(authenticationId, newUser);
     }
 
     public void delete(UUID id) {

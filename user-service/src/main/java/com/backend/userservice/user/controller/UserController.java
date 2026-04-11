@@ -34,7 +34,7 @@ public class UserController {
     @Operation(summary = "직접 회원가입")
     @PostMapping("/users")
     public ResponseEntity<UserCreateDto.Response> create(@RequestBody UserCreateDto.Request request) {
-        UserDto userDto = userService.create(UserDto.of(request.userId(),
+        UserDto userDto = userService.create(UserDto.of(request.loginId(),
                                                         request.password(),
                                                         request.passwordConfirm(),
                                                         request.nickname()));
@@ -45,7 +45,7 @@ public class UserController {
     @Operation(summary = "회원정보 조회(내 정보 조회)")
     @GetMapping("/users/me")
     public ResponseEntity<UserReadDto.Response> getMe(@AuthenticationPrincipal JwtPrincipal authentication) {
-        User user = userService.getUser(authentication.getId());
+        User user = userService.getUser(authentication.getUserId());
         UserDto userDto = UserDto.from(Objects.requireNonNull(user));
         return ResponseEntity.ok(UserReadDto.Response.from(userDto));
     }
@@ -55,7 +55,7 @@ public class UserController {
     public ResponseEntity<UserUpdateDto.Response> update(@AuthenticationPrincipal JwtPrincipal authentication,
                                                          @RequestBody UserUpdateDto.Request request) {
 
-        UserDto userDto = UserDto.of(authentication.getId(), request.nickname());
+        UserDto userDto = UserDto.of(authentication.getUserId(), request.nickname());
         userService.update(userDto);
         return ResponseEntity.ok(Response.from(userService.getUserDto(userDto)));
     }
@@ -65,20 +65,23 @@ public class UserController {
     public ResponseEntity<UserUpdateDto.Response> updatePassword(@AuthenticationPrincipal JwtPrincipal authentication,
                                                                  @RequestBody UserUpdateDto.PasswordRequest request) {
 
-        userService.updatePassword(authentication.getId(), request.password(), request.newPassword());
-        return ResponseEntity.ok(Response.from(userService.getUserDto(authentication.getId())));
+        userService.updatePassword(authentication.getUserId(), request.password(), request.newPassword());
+        return ResponseEntity.ok(Response.from(userService.getUserDto(authentication.getUserId())));
     }
 
     @Operation(summary = "회원정보 통합")
     @PostMapping("/users/me/merge-oauth")
-    public UserMergeDto.Response merge(UserMergeDto.Request request) {
-        return null;
+    public ResponseEntity<Void> merge(@AuthenticationPrincipal JwtPrincipal authentication,
+                                      @RequestBody UserMergeDto.Request request) {
+
+        userService.merge(authentication.getId(), request.userId());
+        return ResponseEntity.accepted().build();
     }
 
     @Operation(summary = "회원탈퇴")
     @DeleteMapping("/users/me")
     public ResponseEntity<Void> delete(@AuthenticationPrincipal JwtPrincipal authentication) {
-        userService.delete(authentication.getId());
-        return ResponseEntity.ok().build();
+        userService.delete(authentication.getUserId());
+        return ResponseEntity.accepted().build();
     }
 }

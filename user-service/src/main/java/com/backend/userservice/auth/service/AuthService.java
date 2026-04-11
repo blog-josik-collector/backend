@@ -1,11 +1,11 @@
 package com.backend.userservice.auth.service;
 
-import com.backend.commondataaccess.persistence.user.User;
+import com.backend.commondataaccess.persistence.user.UserAuthentication;
 import com.backend.commondataaccess.security.JwtAuthenticationToken;
 import com.backend.userservice.auth.service.dto.AuthDto;
 import com.backend.userservice.auth.service.validator.AuthValidator;
 import com.backend.userservice.common.validator.ValidationFlow;
-import com.backend.userservice.user.service.UserService;
+import com.backend.userservice.userauthentication.service.UserAuthenticationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.Authentication;
@@ -18,7 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class AuthService {
 
-    private final UserService userService;
+    private final UserAuthenticationService userAuthenticationService;
     private final AuthenticationManager authenticationManager;
 
     public AuthDto.Response loginWithPassword(AuthDto.PasswordRequest passwordRequest) {
@@ -27,13 +27,13 @@ public class AuthService {
                       .next(AuthValidator.validatePassword())
                       .end();
 
-        JwtAuthenticationToken authToken = JwtAuthenticationToken.of(passwordRequest.getUserId(),
+        JwtAuthenticationToken authToken = JwtAuthenticationToken.of(passwordRequest.getLoginId(),
                                                                      passwordRequest.getPassword());
 
         Authentication authenticate = authenticationManager.authenticate(authToken);
 
-        User user = userService.getUserByUserId(passwordRequest.getUserId());
-        user.login();
+        UserAuthentication userAuthentication = userAuthenticationService.getUserAuthentication(passwordRequest.getLoginId());
+        userAuthentication.user().login();
 
         SecurityContextHolder.getContext().setAuthentication(authenticate);
 
@@ -49,8 +49,8 @@ public class AuthService {
 
         Authentication authenticate = authenticationManager.authenticate(authToken);
 
-        User user = userService.getUserBySubjectId(googleRequest.getSubject());
-        user.login();
+        UserAuthentication userAuthentication = userAuthenticationService.getUserAuthentication(googleRequest.getSubject());
+        userAuthentication.user().login();
 
         SecurityContextHolder.getContext().setAuthentication(authenticate);
 

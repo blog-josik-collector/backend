@@ -17,12 +17,12 @@ public record UserUpdateDto() {
     }
 
     @Builder
-    public record Response(UUID id,
+    public record Response(UUID userId,
                            OffsetDateTime updatedAt) {
 
         public static Response from(UserDto userDto) {
             return Response.builder()
-                           .id(userDto.id())
+                           .userId(userDto.userId())
                            .updatedAt(userDto.updatedAt())
                            .build();
         }
