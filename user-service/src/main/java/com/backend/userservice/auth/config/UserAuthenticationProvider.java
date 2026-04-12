@@ -80,7 +80,6 @@ public class UserAuthenticationProvider implements AuthenticationProvider {
         UserAuthentication userAuthentication = userAuthenticationService.getUserAuthentication(principal);
         String password = credentials.toString();
 
-        //FIXME
         if (!StringUtils.equals(password, userAuthentication.credential())) {
             throw new IllegalArgumentException("Invalid password");
         }

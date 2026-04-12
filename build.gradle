@@ -33,6 +33,10 @@ subprojects {
         }
     }
 
+    test {
+        useJUnitPlatform() // 이 설정이 반드시 있어야 JUnit 5 테스트를 인식합니다.
+    }
+
     dependencies {
         compileOnly "org.projectlombok:lombok"
         annotationProcessor "org.projectlombok:lombok"

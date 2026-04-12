@@ -16,7 +16,7 @@ public class UserQueryRepository {
 
     QUser user = QUser.user;
 
-    public Optional<User> findById(UUID id) {
+    public Optional<User> findOneById(UUID id) {
         User result = queryFactory.select(user)
                                   .from(user)
                                   .where(user.id.eq(id))

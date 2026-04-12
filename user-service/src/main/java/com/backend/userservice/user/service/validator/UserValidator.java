@@ -21,9 +21,9 @@ public final class UserValidator {
         };
     }
 
-    public static UnaryOperator<UserDto> validateUserId() {
+    public static UnaryOperator<UserDto> validateLoginId() {
         return userDto -> {
-            validateUserId(userDto.loginId());
+            validateLoginId(userDto.loginId());
             return userDto;
         };
     }
@@ -49,9 +49,9 @@ public final class UserValidator {
         }
     }
 
-    public static void validateUserId(String userId) {
-        if (StringUtils.isBlank(userId)) {
-            throw new IllegalArgumentException("user_id는 필수 입력값입니다.");
+    public static void validateLoginId(String loginId) {
+        if (StringUtils.isBlank(loginId)) {
+            throw new IllegalArgumentException("login_id는 필수 입력값입니다.");
         }
     }
 

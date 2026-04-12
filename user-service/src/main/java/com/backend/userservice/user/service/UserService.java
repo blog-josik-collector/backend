@@ -25,7 +25,7 @@ public class UserService {
 
     public UserDto create(UserDto userDto) {
         ValidationFlow.start(userDto)
-                      .next(UserValidator.validateUserId())
+                      .next(UserValidator.validateLoginId())
                       .next(UserValidator.validateNickname())
                       .next(UserValidator.validatePasswordAndPasswordConfirm())
                       .end();
@@ -78,7 +78,7 @@ public class UserService {
     @Transactional(readOnly = true)
     public User getUser(UUID id) {
         UserValidator.validateId(id);
-        return UserValidator.getUserOrThrow(id, userQueryRepository::findById);
+        return UserValidator.getUserOrThrow(id, userQueryRepository::findOneById);
     }
 
     @Transactional(readOnly = true)
@@ -130,5 +130,7 @@ public class UserService {
         UserValidator.validateId(id);
         User user = getUser(id);
         user.delete();
+
+        userAuthenticationService.deleteAll(id);
     }
 }

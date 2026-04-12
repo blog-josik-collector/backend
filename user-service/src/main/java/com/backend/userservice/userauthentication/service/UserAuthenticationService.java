@@ -1,5 +1,6 @@
 package com.backend.userservice.userauthentication.service;
 
+import com.backend.commondataaccess.persistence.BaseEntity;
 import com.backend.commondataaccess.persistence.user.User;
 import com.backend.commondataaccess.persistence.user.UserAuthentication;
 import com.backend.commondataaccess.persistence.user.enums.LoginProvider;
@@ -22,18 +23,18 @@ public class UserAuthenticationService {
     private final UserAuthenticationRepository userAuthenticationRepository;
     private final UserAuthenticationQueryRepository queryRepository;
 
-    public UserAuthentication create(User user, String userId, String password, String passwordConfirm) {
+    public UserAuthentication create(User user, String loginId, String password, String passwordConfirm) {
         UserAuthenticationValidator.validateUser(user);
-        UserAuthenticationValidator.validateIdentifier(userId);
+        UserAuthenticationValidator.validateIdentifier(loginId);
         UserAuthenticationValidator.validateCredential(password);
 
         UserAuthenticationValidator.validateIsSameCredentialAndCredentialConfirm(password, passwordConfirm);
-        UserAuthenticationValidator.verifyDuplicateIdentifier(userId, userAuthenticationRepository::existsByIdentifier);
+        UserAuthenticationValidator.verifyDuplicateIdentifier(loginId, userAuthenticationRepository::existsByIdentifier);
 
         UserAuthentication userAuthentication = UserAuthentication.builder()
                                                                   .user(user)
                                                                   .loginProvider(LoginProvider.LOCAL)
-                                                                  .identifier(userId)
+                                                                  .identifier(loginId)
                                                                   .credential(password)
                                                                   .build();
 
@@ -43,6 +44,8 @@ public class UserAuthenticationService {
     public UserAuthentication create(User user, String subject) {
         UserAuthenticationValidator.validateUser(user);
         UserAuthenticationValidator.validateIdentifier(subject);
+
+        UserAuthenticationValidator.verifyDuplicateIdentifier(subject, userAuthenticationRepository::existsByIdentifier);
 
         UserAuthentication userAuthentication = UserAuthentication.builder()
                                                                   .user(user)
@@ -85,7 +88,6 @@ public class UserAuthenticationService {
 
         List<UserAuthentication> userAuthentications = queryRepository.findAllByUserId(userId);
 
-        //FIXME
         UserAuthentication userAuthentication = userAuthentications.stream()
                                                                    .filter(ua -> ua.loginProvider().equals(LoginProvider.LOCAL))
                                                                    .findFirst()
@@ -114,5 +116,11 @@ public class UserAuthenticationService {
         sourceUserAuthentications.forEach(userAuthentication -> userAuthentication.user().delete());
 
         sourceUserAuthentications.forEach(userAuthentication -> userAuthentication.updateUser(targetUser));
+    }
+
+    public void deleteAll(UUID userId) {
+        UserAuthenticationValidator.validateUserId(userId);
+
+        getUserAuthenticationsByUser(userId).forEach(BaseEntity::delete);
     }
 }

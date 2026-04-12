@@ -22,9 +22,9 @@ public class AuthDto {
         private String loginId;
         private String password;
 
-        public static AuthDto.PasswordRequest of(String userId, String password) {
+        public static AuthDto.PasswordRequest of(String loginId, String password) {
             return AuthDto.PasswordRequest.builder()
-                                          .loginId(userId)
+                                          .loginId(loginId)
                                           .password(password)
                                           .build();
         }
