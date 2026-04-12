@@ -15,6 +15,7 @@ import com.backend.userservice.auth.oauth.google.GoogleTokenResponse;
 import com.backend.userservice.auth.service.AuthService;
 import com.backend.userservice.auth.service.dto.AuthDto;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.util.Base64;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -58,9 +59,10 @@ class AuthControllerTest {
     void 직접_로그인을_한다() throws Exception {
         String loginId = "test_login_id";
         String password = "test_password";
+        String base64Password = Base64.getEncoder().encodeToString(password.getBytes());
         String testAccessToken = "test_access_token";
 
-        LoginDto.PasswordRequest request = new LoginDto.PasswordRequest(loginId, password);
+        LoginDto.PasswordRequest request = new LoginDto.PasswordRequest(loginId, base64Password);
         AuthDto.Response response = AuthDto.Response.from(testAccessToken);
 
         Mockito.doReturn(response).when(authService).loginWithPassword(any());

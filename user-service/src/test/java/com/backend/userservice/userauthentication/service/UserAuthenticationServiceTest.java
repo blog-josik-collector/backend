@@ -22,6 +22,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 @DisplayName("UserAuthenticationService 테스트")
 @ExtendWith(MockitoExtension.class)
@@ -36,6 +37,9 @@ class UserAuthenticationServiceTest {
 
     @Mock
     private UserAuthenticationQueryRepository queryRepository;
+
+    @Mock
+    private PasswordEncoder passwordEncoder;
 
     private User mockUser;
 
@@ -59,6 +63,7 @@ class UserAuthenticationServiceTest {
             String loginId = "test_login_id";
             String password = "test_password";
             String passwordConfirm = "test_password";
+            String encodedPassword = "test_encoded_password";
 
             UserAuthentication userAuthentication = UserAuthentication.builder()
                                                                       .id(UUID.randomUUID())
@@ -69,6 +74,7 @@ class UserAuthenticationServiceTest {
                                                                       .build();
 
             Mockito.doReturn(userAuthentication).when(userAuthenticationRepository).save(any());
+            Mockito.doReturn(encodedPassword).when(passwordEncoder).encode(any());
 
             // when
             UserAuthentication savedUserAuthentication = userAuthenticationService.create(mockUser,
@@ -276,8 +282,11 @@ class UserAuthenticationServiceTest {
                                                                       .build();
 
             String newPassword = "test_new_password";
+            String encodedNewPassword = "test_encoded_password";
 
             Mockito.doReturn(List.of(userAuthentication)).when(queryRepository).findAllByUserId(any());
+            Mockito.doReturn(true).when(passwordEncoder).matches(any(), any());
+            Mockito.doReturn(encodedNewPassword).when(passwordEncoder).encode(any());
 
             Assertions.assertThat(userAuthentication.credential()).isEqualTo(password);
 
@@ -285,7 +294,7 @@ class UserAuthenticationServiceTest {
             userAuthenticationService.updatePassword(mockUser.id(), password, newPassword);
 
             // then
-            Assertions.assertThat(userAuthentication.credential()).isEqualTo(newPassword);
+            Assertions.assertThat(userAuthentication.credential()).isEqualTo(encodedNewPassword);
         }
 
         @Test
@@ -306,6 +315,7 @@ class UserAuthenticationServiceTest {
             String newPassword = "test_new_password";
 
             Mockito.doReturn(List.of(userAuthentication)).when(queryRepository).findAllByUserId(any());
+            Mockito.doReturn(false).when(passwordEncoder).matches(any(), any());
 
             // when & then
             Assertions.assertThatThrownBy(() -> userAuthenticationService.updatePassword(mockUser.id(), invalidPassword, newPassword))

@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
-import org.apache.commons.lang3.StringUtils;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,6 +22,7 @@ public class UserAuthenticationService {
 
     private final UserAuthenticationRepository userAuthenticationRepository;
     private final UserAuthenticationQueryRepository queryRepository;
+    private final PasswordEncoder passwordEncoder;
 
     public UserAuthentication create(User user, String loginId, String password, String passwordConfirm) {
         UserAuthenticationValidator.validateUser(user);
@@ -31,11 +32,13 @@ public class UserAuthenticationService {
         UserAuthenticationValidator.validateIsSameCredentialAndCredentialConfirm(password, passwordConfirm);
         UserAuthenticationValidator.verifyDuplicateIdentifier(loginId, userAuthenticationRepository::existsByIdentifier);
 
+        String encodedPassword = passwordEncoder.encode(password);
+
         UserAuthentication userAuthentication = UserAuthentication.builder()
                                                                   .user(user)
                                                                   .loginProvider(LoginProvider.LOCAL)
                                                                   .identifier(loginId)
-                                                                  .credential(password)
+                                                                  .credential(encodedPassword)
                                                                   .build();
 
         return userAuthenticationRepository.save(userAuthentication);
@@ -93,11 +96,14 @@ public class UserAuthenticationService {
                                                                    .findFirst()
                                                                    .orElseThrow(() -> new IllegalArgumentException(LoginProvider.LOCAL.getValue() + " 계정만 비밀번호를 변경할 수 있습니다."));
 
-        if (!StringUtils.equals(userAuthentication.credential(), password)) {
+        // 순서 주의: (평문 비밀번호, DB에 저장된 암호화된 비밀번호)
+        if (!passwordEncoder.matches(password, userAuthentication.credential())) {
             throw new IllegalArgumentException("사용자의 password와 입력한 password가 다릅니다. 입력한 password: " + password);
         }
 
-        userAuthentication.updateCredential(newPassword);
+        String encodedPassword = passwordEncoder.encode(newPassword);
+
+        userAuthentication.updateCredential(encodedPassword);
     }
 
     public void merge(UUID targetId, User sourceUser) {

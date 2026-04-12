@@ -18,6 +18,7 @@ import com.backend.userservice.user.controller.dto.UserUpdateDto;
 import com.backend.userservice.user.service.UserService;
 import com.backend.userservice.user.service.dto.UserDto;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.util.Base64;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -75,10 +76,12 @@ class UserControllerTest {
     void 직접_회원가입을_한다() throws Exception {
         String loginId = "test_login_id";
         String password = "test_password";
+        String base64Password = Base64.getEncoder().encodeToString(password.getBytes());
         String passwordConfirm = "test_password";
+        String base64PasswordConfirm = Base64.getEncoder().encodeToString(passwordConfirm.getBytes());
         String nickname = "test_nickname";
 
-        UserCreateDto.Request request = new Request(loginId, password, passwordConfirm, nickname);
+        UserCreateDto.Request request = new Request(loginId, base64Password, base64PasswordConfirm, nickname);
 
         Mockito.doReturn(createResponseDto(mockUser))
                .when(userService).create(any(UserDto.class));
@@ -125,8 +128,10 @@ class UserControllerTest {
     @Test
     void 비밀번호를_수정_한다() throws Exception {
         String password = "test_password";
+        String base64Password = Base64.getEncoder().encodeToString(password.getBytes());
         String newPassword = "test_new_password";
-        UserUpdateDto.PasswordRequest request = new UserUpdateDto.PasswordRequest(password, newPassword);
+        String base64NewPassword = Base64.getEncoder().encodeToString(newPassword.getBytes());
+        UserUpdateDto.PasswordRequest request = new UserUpdateDto.PasswordRequest(base64Password, base64NewPassword);
 
         Mockito.doNothing().when(userService).updatePassword(any(), any(), any());
         Mockito.doReturn(createResponseDto(mockUser)).when(userService).getUserDto(any(UUID.class));

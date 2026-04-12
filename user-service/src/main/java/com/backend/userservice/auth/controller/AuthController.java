@@ -36,7 +36,7 @@ public class AuthController {
     @Operation(summary = "직접 가입한 계정으로 로그인")
     @PostMapping("/auth/login")
     public ResponseEntity<LoginDto.LoginResponse> func(@RequestBody PasswordRequest loginRequest) {
-        AuthDto.PasswordRequest passwordRequest = AuthDto.PasswordRequest.of(loginRequest.loginId(), loginRequest.password());
+        AuthDto.PasswordRequest passwordRequest = AuthDto.PasswordRequest.of(loginRequest.loginId(), loginRequest.getDecodedPassword());
         AuthDto.Response login = authService.loginWithPassword(passwordRequest);
         LoginResponse response = LoginResponse.from(login);
 

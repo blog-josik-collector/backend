@@ -13,27 +13,27 @@ import com.backend.userservice.userauthentication.service.UserAuthenticationServ
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.ObjectUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.dao.DataAccessException;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 /**
- * 역할: JwtAuthenticationToken.from(loginId, password)로 들어온 로그인 요청을 처리해서, 사용자 검증 후 인증 완료 Authentication + JWT(access token)를 생성하는 Provider. <p> 책임 <p> - UserService로 사용자 조회 <p> - 비밀번호 검증(현재는 문자열 비교) <p>
- * - JwtTokenService를 통해 access token 발급 <p> - 인증 완료 JwtAuthenticationToken 생성 후 details에 토큰을 담아 반환 <p> 비책임(두면 헷갈리는 영역) <p> - 요청에서 Bearer 토큰을 읽어 SecurityContext에 넣는 일(공통 필터 책임) <p>
+ * 역할: JwtAuthenticationToken.from(loginId, password)로 들어온 로그인 요청을 처리해서, 사용자 검증 후 인증 완료 Authentication + JWT(access token)를 생성하는 Provider. <p> 책임 <p> - UserService로 사용자 조회 <p> - 비밀번호 검증(현재는 문자열 비교)
+ * <p> - JwtTokenService를 통해 access token 발급 <p> - 인증 완료 JwtAuthenticationToken 생성 후 details에 토큰을 담아 반환 <p> 비책임(두면 헷갈리는 영역) <p> - 요청에서 Bearer 토큰을 읽어 SecurityContext에 넣는 일(공통 필터 책임) <p>
  */
 @Component
 @RequiredArgsConstructor
 public class UserAuthenticationProvider implements AuthenticationProvider {
 
     private final JwtService jwtService;
-
     private final UserService userService;
     private final UserAuthenticationService userAuthenticationService;
+    private final PasswordEncoder passwordEncoder;
 
     @Override
     public boolean supports(Class<?> authentication) {
@@ -80,7 +80,8 @@ public class UserAuthenticationProvider implements AuthenticationProvider {
         UserAuthentication userAuthentication = userAuthenticationService.getUserAuthentication(principal);
         String password = credentials.toString();
 
-        if (!StringUtils.equals(password, userAuthentication.credential())) {
+        // 순서 주의: (평문 비밀번호, DB에 저장된 암호화된 비밀번호)
+        if (!passwordEncoder.matches(password, userAuthentication.credential())) {
             throw new IllegalArgumentException("Invalid password");
         }
 

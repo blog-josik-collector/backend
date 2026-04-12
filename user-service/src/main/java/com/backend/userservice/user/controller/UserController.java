@@ -35,8 +35,8 @@ public class UserController {
     @PostMapping("/users")
     public ResponseEntity<UserCreateDto.Response> create(@RequestBody UserCreateDto.Request request) {
         UserDto userDto = userService.create(UserDto.of(request.loginId(),
-                                                        request.password(),
-                                                        request.passwordConfirm(),
+                                                        request.getDecodedPassword(),
+                                                        request.getDecodedPasswordConfirm(),
                                                         request.nickname()));
 
         return ResponseEntity.ok(UserCreateDto.Response.from(userDto));
@@ -65,7 +65,7 @@ public class UserController {
     public ResponseEntity<UserUpdateDto.Response> updatePassword(@AuthenticationPrincipal JwtPrincipal authentication,
                                                                  @RequestBody UserUpdateDto.PasswordRequest request) {
 
-        userService.updatePassword(authentication.getUserId(), request.password(), request.newPassword());
+        userService.updatePassword(authentication.getUserId(), request.getDecodedPassword(), request.getDecodedNewPassword());
         return ResponseEntity.ok(Response.from(userService.getUserDto(authentication.getUserId())));
     }
 
