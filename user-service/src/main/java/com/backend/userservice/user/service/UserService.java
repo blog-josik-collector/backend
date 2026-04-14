@@ -2,6 +2,8 @@ package com.backend.userservice.user.service;
 
 import com.backend.commondataaccess.persistence.user.User;
 import com.backend.commondataaccess.persistence.user.enums.UserType;
+import com.backend.commondataaccess.security.jwt.JwtService;
+import com.backend.commondataaccess.security.jwt.JwtService.Claims;
 import com.backend.userservice.common.validator.ValidationFlow;
 import com.backend.userservice.user.repository.UserQueryRepository;
 import com.backend.userservice.user.repository.UserRepository;
@@ -22,6 +24,7 @@ public class UserService {
     private final UserRepository userRepository;
     private final UserQueryRepository userQueryRepository;
     private final UserAuthenticationService userAuthenticationService;
+    private final JwtService jwtService;
 
     public UserDto create(UserDto userDto) {
         ValidationFlow.start(userDto)
@@ -116,12 +119,17 @@ public class UserService {
         UserValidator.validateId(id);
         UserValidator.validatePassword(password);
         UserValidator.validateNewPassword(newPassword);
+
         userAuthenticationService.updatePassword(id, password, newPassword);
     }
 
-    public void merge(UUID authenticationId, UUID userId) {
-        UserValidator.validateId(userId);
-        User newUser = getUser(userId);
+    public void merge(UUID authenticationId, String accessToken) {
+        UserValidator.validateAuthenticationId(authenticationId);
+        UserValidator.validateAccessToken(accessToken);
+
+        Claims verifiedClaims = jwtService.verify(accessToken);
+        UserValidator.validateId(verifiedClaims.getUserId());
+        User newUser = getUser(verifiedClaims.getUserId());
 
         userAuthenticationService.merge(authenticationId, newUser);
     }

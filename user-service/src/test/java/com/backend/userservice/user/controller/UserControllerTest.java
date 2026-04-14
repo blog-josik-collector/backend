@@ -146,7 +146,8 @@ class UserControllerTest {
 
     @Test
     void 회원정보를_통합_한다() throws Exception {
-        UserMergeDto.Request request = new UserMergeDto.Request(UUID.randomUUID());
+        String accessToken = "eyJhbGciOiJIUzUxMiJ9.eyJpc3MiOiJibG9nLWpvc2lrLWNvbGxlY3RvciIsImlhdCI6MTc3NjE3NjU0MCwiZXhwIjoxNzc2MTgzNzQwLCJhdXRoZW50aWNhdGlvbklkIjoiODZjYzU1ZDItNjc1Yy00MDI0LWFhZjMtMjU4ZTQxNDg0YjEwIiwidXNlcklkIjoiZWYwOTZkOTUtMjkwNS00N2ZjLWI4ZjYtNjMyYTU5ZjRmNDk5Iiwibmlja25hbWUiOiLsiJzsiJjtlZxf66qo64ul67aIXzY0MDQ2Iiwicm9sZXMiOlsiVVNFUiJdfQ.MktJ7bTcJyySYwLzfm2HXkL-zr8lHg61Bd_FGRTyT3fukLC_RO9b7-ezyIEjI9WiaLChQuBXE5ed74S_5awbQA";
+        UserMergeDto.Request request = new UserMergeDto.Request(accessToken);
 
         Mockito.doNothing().when(userService).merge(any(), any());
 

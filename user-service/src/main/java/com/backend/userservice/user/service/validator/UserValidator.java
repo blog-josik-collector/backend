@@ -49,6 +49,12 @@ public final class UserValidator {
         }
     }
 
+    public static void validateAuthenticationId(UUID authenticationId) {
+        if (ObjectUtils.isEmpty(authenticationId)) {
+            throw new IllegalArgumentException("authentication_id는 필수 입력값입니다.");
+        }
+    }
+
     public static void validateLoginId(String loginId) {
         if (StringUtils.isBlank(loginId)) {
             throw new IllegalArgumentException("login_id는 필수 입력값입니다.");
@@ -81,7 +87,13 @@ public final class UserValidator {
 
     public static void validateNewPassword(String newPassword) {
         if (StringUtils.isBlank(newPassword)) {
-            throw new IllegalArgumentException("newPassword는 필수 입력값입니다.");
+            throw new IllegalArgumentException("new_password는 필수 입력값입니다.");
+        }
+    }
+
+    public static void validateAccessToken(String accessToken) {
+        if (StringUtils.isBlank(accessToken)) {
+            throw new IllegalArgumentException("access_token은 필수 입력값입니다.");
         }
     }
 

@@ -6,6 +6,8 @@ import com.backend.commondataaccess.persistence.user.User;
 import com.backend.commondataaccess.persistence.user.UserAuthentication;
 import com.backend.commondataaccess.persistence.user.enums.LoginProvider;
 import com.backend.commondataaccess.persistence.user.enums.UserType;
+import com.backend.commondataaccess.security.jwt.JwtService;
+import com.backend.commondataaccess.security.jwt.JwtService.Claims;
 import com.backend.userservice.user.repository.UserQueryRepository;
 import com.backend.userservice.user.repository.UserRepository;
 import com.backend.userservice.user.service.dto.UserDto;
@@ -40,6 +42,9 @@ class UserServiceTest {
 
     @Mock
     private UserAuthenticationService userAuthenticationService;
+
+    @Mock
+    private JwtService jwtService;
 
     private User mockUser;
 
@@ -214,14 +219,10 @@ class UserServiceTest {
             // given
             String loginId = "test_login_id";
             String password = "test_password";
-
-            User mockUser2 = User.builder()
-                                 .id(UUID.randomUUID())
-                                 .userType(UserType.USER)
-                                 .nickname("test_nickname2")
-                                 .build();
+            String accessToken = "eyJhbGciOiJIUzUxMiJ9.eyJpc3MiOiJibG9nLWpvc2lrLWNvbGxlY3RvciIsImlhdCI6MTc3NjE3NjU0MCwiZXhwIjoxNzc2MTgzNzQwLCJhdXRoZW50aWNhdGlvbklkIjoiODZjYzU1ZDItNjc1Yy00MDI0LWFhZjMtMjU4ZTQxNDg0YjEwIiwidXNlcklkIjoiZWYwOTZkOTUtMjkwNS00N2ZjLWI4ZjYtNjMyYTU5ZjRmNDk5Iiwibmlja25hbWUiOiLsiJzsiJjtlZxf66qo64ul67aIXzY0MDQ2Iiwicm9sZXMiOlsiVVNFUiJdfQ.MktJ7bTcJyySYwLzfm2HXkL-zr8lHg61Bd_FGRTyT3fukLC_RO9b7-ezyIEjI9WiaLChQuBXE5ed74S_5awbQA";
 
             UserAuthentication userAuthentication = UserAuthentication.builder()
+                                                                      .id(UUID.randomUUID())
                                                                       .user(mockUser)
                                                                       .loginProvider(LoginProvider.LOCAL)
                                                                       .identifier(loginId)
@@ -231,9 +232,11 @@ class UserServiceTest {
             // userAuthenticationService.merge 메소드에 대한 검증은 UserAuthenticationServiceTest 클래스에서 완료
             Mockito.doNothing().when(userAuthenticationService).merge(any(), any());
             Mockito.doReturn(Optional.of(mockUser)).when(queryRepository).findOneById(any());
+            Claims verifiedClaims = Claims.of(userAuthentication, new String[]{mockUser.userType().name()});
+            Mockito.doReturn(verifiedClaims).when(jwtService).verify(any());
 
             // when
-            userService.merge(userAuthentication.id(), mockUser2.id());
+            userService.merge(userAuthentication.id(), accessToken);
         }
     }
 

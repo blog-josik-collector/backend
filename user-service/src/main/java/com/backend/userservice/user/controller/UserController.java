@@ -74,7 +74,7 @@ public class UserController {
     public ResponseEntity<Void> merge(@AuthenticationPrincipal JwtPrincipal authentication,
                                       @RequestBody UserMergeDto.Request request) {
 
-        userService.merge(authentication.getId(), request.userId());
+        userService.merge(authentication.getId(), request.accessToken());
         return ResponseEntity.accepted().build();
     }
 
