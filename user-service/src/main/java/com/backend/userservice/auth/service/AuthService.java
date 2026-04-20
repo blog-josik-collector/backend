@@ -4,7 +4,7 @@ import com.backend.commondataaccess.persistence.user.UserAuthentication;
 import com.backend.commondataaccess.security.JwtAuthenticationToken;
 import com.backend.userservice.auth.service.dto.AuthDto;
 import com.backend.userservice.auth.service.validator.AuthValidator;
-import com.backend.userservice.common.validator.ValidationFlow;
+import com.backend.commondataaccess.service.validator.ValidationFlow;
 import com.backend.userservice.userauthentication.service.UserAuthenticationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;

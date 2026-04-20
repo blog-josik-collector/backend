@@ -1,4 +1,4 @@
-package com.backend.userservice.common.validator;
+package com.backend.commondataaccess.service.validator;
 
 import java.util.function.Function;
 import java.util.function.UnaryOperator;

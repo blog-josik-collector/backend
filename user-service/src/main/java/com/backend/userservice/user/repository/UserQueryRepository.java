@@ -16,11 +16,13 @@ public class UserQueryRepository {
 
     QUser user = QUser.user;
 
-    public Optional<User> findOneById(UUID id) {
+    public Optional<User> fetchOneById(UUID id) {
         User result = queryFactory.select(user)
                                   .from(user)
-                                  .where(user.id.eq(id))
-                                  .where(user.deletedAt.isNull())
+                                  .where(
+                                          user.id.eq(id),
+                                          user.deletedAt.isNull()
+                                  )
                                   .fetchOne();
 
         return Optional.ofNullable(result);

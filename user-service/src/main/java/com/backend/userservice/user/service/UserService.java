@@ -4,7 +4,7 @@ import com.backend.commondataaccess.persistence.user.User;
 import com.backend.commondataaccess.persistence.user.enums.UserType;
 import com.backend.commondataaccess.security.jwt.JwtService;
 import com.backend.commondataaccess.security.jwt.JwtService.Claims;
-import com.backend.userservice.common.validator.ValidationFlow;
+import com.backend.commondataaccess.service.validator.ValidationFlow;
 import com.backend.userservice.user.repository.UserQueryRepository;
 import com.backend.userservice.user.repository.UserRepository;
 import com.backend.userservice.user.service.dto.UserDto;
@@ -67,6 +67,30 @@ public class UserService {
         return savedUser;
     }
 
+    public UserDto createAdmin(UserDto userDto) {
+        ValidationFlow.start(userDto)
+                      .next(UserValidator.validateLoginId())
+                      .next(UserValidator.validateNickname())
+                      .next(UserValidator.validatePasswordAndPasswordConfirm())
+                      .end();
+
+        UserValidator.verifyDuplicateNickname(userDto.nickname(), userRepository::existsByNickname);
+
+        User user = User.builder()
+                        .userType(UserType.ADMIN)
+                        .nickname(userDto.nickname())
+                        .build();
+
+        User savedUser = userRepository.save(user);
+
+        userAuthenticationService.create(savedUser,
+                                         userDto.loginId(),
+                                         userDto.password(),
+                                         userDto.passwordConfirm());
+
+        return UserDto.from(savedUser);
+    }
+
     @Transactional(readOnly = true)
     public UserDto getUserDto(UserDto userDto) {
         return UserDto.from(getUser(userDto.userId()));
@@ -81,7 +105,7 @@ public class UserService {
     @Transactional(readOnly = true)
     public User getUser(UUID id) {
         UserValidator.validateId(id);
-        return UserValidator.getUserOrThrow(id, userQueryRepository::findOneById);
+        return UserValidator.getUserOrThrow(id, userQueryRepository::fetchOneById);
     }
 
     @Transactional(readOnly = true)

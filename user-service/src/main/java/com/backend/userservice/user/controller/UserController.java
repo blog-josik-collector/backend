@@ -42,6 +42,16 @@ public class UserController {
         return ResponseEntity.ok(UserCreateDto.Response.from(userDto));
     }
 
+    @PostMapping("/admins")
+    public ResponseEntity<UserCreateDto.Response> createAdmin(@RequestBody UserCreateDto.Request request) {
+        UserDto userDto = userService.createAdmin(UserDto.of(request.loginId(),
+                                                             request.getDecodedPassword(),
+                                                             request.getDecodedPasswordConfirm(),
+                                                             request.nickname()));
+
+        return ResponseEntity.ok(UserCreateDto.Response.from(userDto));
+    }
+
     @Operation(summary = "회원정보 조회(내 정보 조회)")
     @GetMapping("/users/me")
     public ResponseEntity<UserReadDto.Response> getMe(@AuthenticationPrincipal JwtPrincipal authentication) {

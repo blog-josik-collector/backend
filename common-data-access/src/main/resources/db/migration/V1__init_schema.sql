@@ -41,8 +41,11 @@ CREATE TABLE post_providers
     base_url    VARCHAR   NOT NULL,
     is_used     BOOLEAN   NOT NULL,
     created_at  TIMESTAMP NOT NULL,
-    updated_at  TIMESTAMP NOT NULL
+    updated_at  TIMESTAMP NOT NULL,
+    deleted_at  TIMESTAMP
 );
+
+CREATE UNIQUE INDEX IF NOT EXISTS uk_post_providers_name_active ON post_providers (name) WHERE deleted_at IS NULL;
 
 DROP TABLE IF EXISTS report_types;
 CREATE TABLE report_types

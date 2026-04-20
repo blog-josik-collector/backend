@@ -21,7 +21,7 @@ import lombok.experimental.Accessors;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)  // Jackson 역직렬화용
 public class UserDto {
 
-    // only request
+    // only for request
     private String loginId;
     private String password;
     private String passwordConfirm;

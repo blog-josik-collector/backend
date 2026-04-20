@@ -131,7 +131,7 @@ class UserServiceTest {
         @Test
         void id를_입력하면_User를_조회할_수_있다() {
             // given
-            Mockito.doReturn(Optional.of(mockUser)).when(queryRepository).findOneById(any());
+            Mockito.doReturn(Optional.of(mockUser)).when(queryRepository).fetchOneById(any());
 
             // when
             User user = userService.getUser(mockUser.id());
@@ -146,7 +146,7 @@ class UserServiceTest {
         @Test
         void id를_입력하면_UserDto를_조회할_수_있다() {
             // given
-            Mockito.doReturn(Optional.of(mockUser)).when(queryRepository).findOneById(any());
+            Mockito.doReturn(Optional.of(mockUser)).when(queryRepository).fetchOneById(any());
 
             // when
             UserDto userDto = userService.getUserDto(mockUser.id());
@@ -163,7 +163,7 @@ class UserServiceTest {
             // given
             UserDto userDto = UserDto.of(mockUser.id(), mockUser.nickname());
 
-            Mockito.doReturn(Optional.of(mockUser)).when(queryRepository).findOneById(any());
+            Mockito.doReturn(Optional.of(mockUser)).when(queryRepository).fetchOneById(any());
 
             // when
             UserDto result = userService.getUserDto(userDto);
@@ -190,7 +190,7 @@ class UserServiceTest {
                                            .build();
 
             Mockito.doReturn(Boolean.FALSE).when(userRepository).existsByNickname(any());
-            Mockito.doReturn(Optional.of(mockUser)).when(queryRepository).findOneById(any());
+            Mockito.doReturn(Optional.of(mockUser)).when(queryRepository).fetchOneById(any());
 
             Assertions.assertThat(mockUser.nickname()).isNotEqualTo(nickName);
 
@@ -231,7 +231,7 @@ class UserServiceTest {
 
             // userAuthenticationService.merge 메소드에 대한 검증은 UserAuthenticationServiceTest 클래스에서 완료
             Mockito.doNothing().when(userAuthenticationService).merge(any(), any());
-            Mockito.doReturn(Optional.of(mockUser)).when(queryRepository).findOneById(any());
+            Mockito.doReturn(Optional.of(mockUser)).when(queryRepository).fetchOneById(any());
             Claims verifiedClaims = Claims.of(userAuthentication, new String[]{mockUser.userType().name()});
             Mockito.doReturn(verifiedClaims).when(jwtService).verify(any());
 
@@ -249,7 +249,7 @@ class UserServiceTest {
             // given
             // userAuthenticationService.merge 메소드에 대한 검증은 UserAuthenticationServiceTest 클래스에서 완료
             Mockito.doNothing().when(userAuthenticationService).deleteAll(any());
-            Mockito.doReturn(Optional.of(mockUser)).when(queryRepository).findOneById(any());
+            Mockito.doReturn(Optional.of(mockUser)).when(queryRepository).fetchOneById(any());
 
             // when
             userService.delete(mockUser.id());

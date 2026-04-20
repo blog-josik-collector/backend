@@ -1,4 +1,4 @@
-package com.backend.userservice.auth.config;
+package com.backend.integratedapi.common.config.security;
 
 import com.backend.commondataaccess.persistence.user.enums.UserType;
 import com.backend.commondataaccess.security.JwtAuthenticationFilter;
@@ -31,11 +31,6 @@ public class SecurityConfig {
 
     private final JwtAuthenticationConverter jwtAuthenticationConverter;
 
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
-
     // 1. HTTP 보안 설정
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -50,12 +45,9 @@ public class SecurityConfig {
 //                )
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/heartbeat",
-                                         "/user/v1/users/**",
-                                         "/user/v1/admins",
-                                         "/auth/v1/auth/login",
-                                         "/auth/v1/oauth/google/callback",
-                                         "/users/swagger-ui/**",
-                                         "/users/v3/api-docs/**").permitAll()
+                                         "/collect/v1/**",
+                                         "/integrated-api/swagger-ui/**",
+                                         "/integrated-api/v3/api-docs/**").permitAll()
                         .requestMatchers("/api/admin/**").hasRole(UserType.ADMIN.name()) // 운영진
                         .requestMatchers("/user/v1/**").hasRole(UserType.USER.name())    // 일반 회원
                         .anyRequest().authenticated()
@@ -74,12 +66,6 @@ public class SecurityConfig {
     public WebSecurityCustomizer webSecurityCustomizer() {
         return (web) -> web.ignoring()
                            .requestMatchers("/swagger-resources/**", "/webjars/**", "/static/**", "/templates/**", "/h2-console/**");
-    }
-
-    // 3. AuthenticationManager 설정 (Provider 등록)
-    @Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
-        return authenticationConfiguration.getAuthenticationManager();
     }
 
     // 4. CORS 설정
