@@ -1,7 +1,7 @@
 package com.backend.commondataaccess.security.jwt;
 
-import com.backend.commondataaccess.security.JwtPrincipal;
 import com.backend.commondataaccess.security.JwtAuthenticationToken;
+import com.backend.commondataaccess.security.JwtPrincipal;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -26,7 +26,7 @@ public class JwtAuthenticationConverter {
         JwtService.Claims claims = jwt.verify(token);
 
         List<GrantedAuthority> authorities = Arrays.stream(claims.getRoles())
-                                                   .map(SimpleGrantedAuthority::new)
+                                                   .map(role -> new SimpleGrantedAuthority("ROLE_" + role))
                                                    .collect(Collectors.toList());
 
         // 앞서 정의한 JwtAuthentication (Principal) 생성

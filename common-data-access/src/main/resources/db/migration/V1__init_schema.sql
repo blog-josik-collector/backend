@@ -27,7 +27,7 @@ CREATE TABLE users_authentication
     updated_at     TIMESTAMP NOT NULL,
     deleted_at     TIMESTAMP,
 
-    CONSTRAINT fk_users_authentication_users FOREIGN KEY (user_id) REFERENCES users (id)
+    CONSTRAINT fk_users_authentication_user_id FOREIGN KEY (user_id) REFERENCES users (id)
 );
 
 CREATE UNIQUE INDEX IF NOT EXISTS uk_users_authentication_identifier_active ON users_authentication (identifier) WHERE deleted_at IS NULL;
@@ -47,6 +47,20 @@ CREATE TABLE post_providers
 
 CREATE UNIQUE INDEX IF NOT EXISTS uk_post_providers_name_active ON post_providers (name) WHERE deleted_at IS NULL;
 
+DROP TABLE IF EXISTS collect_sources;
+CREATE TABLE collect_sources
+(
+    id               UUID PRIMARY KEY,
+    post_provider_id UUID      NOT NULL,
+    cron_expression  VARCHAR(50),
+    is_used          BOOLEAN   NOT NULL,
+    created_at       TIMESTAMP NOT NULL,
+    updated_at       TIMESTAMP NOT NULL,
+    deleted_at       TIMESTAMP,
+
+    CONSTRAINT fk_collect_sources_post_provider_id FOREIGN KEY (post_provider_id) REFERENCES post_providers (id)
+);
+
 DROP TABLE IF EXISTS report_types;
 CREATE TABLE report_types
 (
@@ -56,18 +70,6 @@ CREATE TABLE report_types
     is_used    BOOLEAN   NOT NULL,
     created_at TIMESTAMP NOT NULL,
     updated_at TIMESTAMP NOT NULL
-);
-
--- 2. 1단 참조 테이블 (post_providers, users 등을 참조)
-DROP TABLE IF EXISTS collect_sources;
-CREATE TABLE collect_sources
-(
-    id               UUID PRIMARY KEY,
-    post_provider_id UUID REFERENCES post_providers (id),
-    cron_expression  VARCHAR(50),
-    is_active        BOOLEAN            DEFAULT TRUE,
-    created_at       TIMESTAMP NOT NULL DEFAULT NOW(),
-    updated_at       TIMESTAMP NOT NULL DEFAULT NOW()
 );
 
 DROP TABLE IF EXISTS posts;

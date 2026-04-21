@@ -45,11 +45,9 @@ public class SecurityConfig {
 //                )
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/heartbeat",
-                                         "/collect/v1/**",
                                          "/integrated-api/swagger-ui/**",
                                          "/integrated-api/v3/api-docs/**").permitAll()
-                        .requestMatchers("/api/admin/**").hasRole(UserType.ADMIN.name()) // 운영진
-                        .requestMatchers("/user/v1/**").hasRole(UserType.USER.name())    // 일반 회원
+                        .requestMatchers("/collect/v1/**").hasRole(UserType.ADMIN.name()) // 운영진
                         .anyRequest().authenticated()
                 )
                 .formLogin(AbstractHttpConfigurer::disable)
