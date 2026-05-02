@@ -1,8 +1,8 @@
-package com.backend.integratedapi.source.service.validator;
+package com.backend.integratedapi.collectsource.service.validator;
 
-import com.backend.commondataaccess.persistence.source.CollectSource;
-import com.backend.commondataaccess.persistence.source.enums.ScheduleType;
-import com.backend.integratedapi.source.service.dto.CollectSourceDto;
+import com.backend.commondataaccess.persistence.collectsource.CollectSource;
+import com.backend.commondataaccess.persistence.collectsource.enums.ScheduleType;
+import com.backend.integratedapi.collectsource.service.dto.CollectSourceDto;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Function;

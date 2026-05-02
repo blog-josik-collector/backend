@@ -1,6 +1,6 @@
-package com.backend.integratedapi.source.repository;
+package com.backend.integratedapi.collectsource.repository;
 
-import com.backend.commondataaccess.persistence.source.CollectSource;
+import com.backend.commondataaccess.persistence.collectsource.CollectSource;
 import java.util.UUID;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;

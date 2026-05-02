@@ -1,8 +1,8 @@
-package com.backend.commondataaccess.persistence.source;
+package com.backend.commondataaccess.persistence.collectsource;
 
 import com.backend.commondataaccess.persistence.BaseEntity;
 import com.backend.commondataaccess.persistence.provider.PostProvider;
-import com.backend.commondataaccess.persistence.source.enums.ScheduleType;
+import com.backend.commondataaccess.persistence.collectsource.enums.ScheduleType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;

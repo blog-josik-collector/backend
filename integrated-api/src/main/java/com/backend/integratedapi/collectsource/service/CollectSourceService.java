@@ -1,15 +1,15 @@
-package com.backend.integratedapi.source.service;
+package com.backend.integratedapi.collectsource.service;
 
 import com.backend.commondataaccess.dto.OffsetPageResult;
 import com.backend.commondataaccess.persistence.provider.PostProvider;
-import com.backend.commondataaccess.persistence.source.CollectSource;
-import com.backend.commondataaccess.persistence.source.enums.ScheduleType;
+import com.backend.commondataaccess.persistence.collectsource.CollectSource;
+import com.backend.commondataaccess.persistence.collectsource.enums.ScheduleType;
 import com.backend.commondataaccess.service.validator.ValidationFlow;
 import com.backend.integratedapi.provider.service.PostProviderService;
-import com.backend.integratedapi.source.repository.CollectSourceQueryRepository;
-import com.backend.integratedapi.source.repository.CollectSourceRepository;
-import com.backend.integratedapi.source.service.dto.CollectSourceDto;
-import com.backend.integratedapi.source.service.validator.CollectSourceValidator;
+import com.backend.integratedapi.collectsource.repository.CollectSourceQueryRepository;
+import com.backend.integratedapi.collectsource.repository.CollectSourceRepository;
+import com.backend.integratedapi.collectsource.service.dto.CollectSourceDto;
+import com.backend.integratedapi.collectsource.service.validator.CollectSourceValidator;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.ObjectUtils;

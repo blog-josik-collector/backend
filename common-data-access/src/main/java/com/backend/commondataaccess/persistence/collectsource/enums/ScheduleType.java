@@ -1,4 +1,4 @@
-package com.backend.commondataaccess.persistence.source.enums;
+package com.backend.commondataaccess.persistence.collectsource.enums;
 
 import static java.util.stream.Collectors.toMap;
 

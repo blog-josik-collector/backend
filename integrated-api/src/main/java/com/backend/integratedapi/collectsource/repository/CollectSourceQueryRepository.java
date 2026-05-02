@@ -1,8 +1,8 @@
-package com.backend.integratedapi.source.repository;
+package com.backend.integratedapi.collectsource.repository;
 
 import com.backend.commondataaccess.dto.OffsetPageResult;
-import com.backend.commondataaccess.persistence.source.CollectSource;
-import com.backend.commondataaccess.persistence.source.QCollectSource;
+import com.backend.commondataaccess.persistence.collectsource.CollectSource;
+import com.backend.commondataaccess.persistence.collectsource.QCollectSource;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import java.util.List;
 import java.util.Optional;

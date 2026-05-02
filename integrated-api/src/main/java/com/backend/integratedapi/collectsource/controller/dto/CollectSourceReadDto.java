@@ -1,7 +1,7 @@
-package com.backend.integratedapi.source.controller.dto;
+package com.backend.integratedapi.collectsource.controller.dto;
 
-import com.backend.commondataaccess.persistence.source.enums.ScheduleType;
-import com.backend.integratedapi.source.service.dto.CollectSourceDto;
+import com.backend.commondataaccess.persistence.collectsource.enums.ScheduleType;
+import com.backend.integratedapi.collectsource.service.dto.CollectSourceDto;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import java.time.OffsetDateTime;
 import java.util.UUID;

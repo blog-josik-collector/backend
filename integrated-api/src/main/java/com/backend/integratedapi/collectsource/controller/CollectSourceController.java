@@ -1,11 +1,11 @@
-package com.backend.integratedapi.source.controller;
+package com.backend.integratedapi.collectsource.controller;
 
 import com.backend.commondataaccess.dto.OffsetPageResult;
-import com.backend.integratedapi.source.controller.dto.CollectSourceCreateDto;
-import com.backend.integratedapi.source.controller.dto.CollectSourceReadDto;
-import com.backend.integratedapi.source.controller.dto.CollectSourceUpdateDto;
-import com.backend.integratedapi.source.service.CollectSourceService;
-import com.backend.integratedapi.source.service.dto.CollectSourceDto;
+import com.backend.integratedapi.collectsource.controller.dto.CollectSourceCreateDto;
+import com.backend.integratedapi.collectsource.controller.dto.CollectSourceReadDto;
+import com.backend.integratedapi.collectsource.controller.dto.CollectSourceUpdateDto;
+import com.backend.integratedapi.collectsource.service.CollectSourceService;
+import com.backend.integratedapi.collectsource.service.dto.CollectSourceDto;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.UUID;
