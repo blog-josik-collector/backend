@@ -24,7 +24,7 @@ public class PostProviderDto {
     private String description;
     private boolean isUsed;
 
-    private UUID providerId;
+    private UUID id;
 
     private OffsetDateTime createdAt;
     private OffsetDateTime updatedAt;
@@ -52,7 +52,7 @@ public class PostProviderDto {
     // for update
     public static PostProviderDto of(UUID id, String baseUrl, String description, Boolean isUsed) {
         return PostProviderDto.builder()
-                              .providerId(id)
+                              .id(id)
                               .baseUrl(baseUrl)
                               .description(description)
                               .isUsed(isUsed == null || isUsed)
@@ -61,7 +61,7 @@ public class PostProviderDto {
 
     public static PostProviderDto from(PostProvider postProvider) {
         return PostProviderDto.builder()
-                              .providerId(postProvider.id())
+                              .id(postProvider.id())
                               .name(postProvider.name())
                               .baseUrl(postProvider.baseUrl())
                               .description(postProvider.description())

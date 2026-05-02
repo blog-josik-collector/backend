@@ -2,6 +2,7 @@ package com.backend.commondataaccess.persistence.source;
 
 import com.backend.commondataaccess.persistence.BaseEntity;
 import com.backend.commondataaccess.persistence.provider.PostProvider;
+import com.backend.commondataaccess.persistence.source.enums.ScheduleType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
@@ -34,7 +35,27 @@ public class CollectSource extends BaseEntity {
     @JoinColumn(name = "post_provider_id", nullable = false)
     private PostProvider postProvider;
 
+    private String url;
+
+    private ScheduleType scheduleType;
+
     private String cronExpression;
 
     private boolean isUsed;
+
+    public void updateUrl(String url) {
+        this.url = url;
+    }
+
+    public void updateScheduleType(ScheduleType scheduleType) {
+        this.scheduleType = scheduleType;
+    }
+
+    public void updateCronExpression(String cronExpression) {
+        this.cronExpression = cronExpression;
+    }
+
+    public void updateUsed(boolean isUsed) {
+        this.isUsed = isUsed;
+    }
 }

@@ -52,6 +52,8 @@ CREATE TABLE collect_sources
 (
     id               UUID PRIMARY KEY,
     post_provider_id UUID      NOT NULL,
+    url              VARCHAR,
+    schedule_type    INTEGER   NOT NULL,
     cron_expression  VARCHAR(50),
     is_used          BOOLEAN   NOT NULL,
     created_at       TIMESTAMP NOT NULL,
@@ -59,6 +61,21 @@ CREATE TABLE collect_sources
     deleted_at       TIMESTAMP,
 
     CONSTRAINT fk_collect_sources_post_provider_id FOREIGN KEY (post_provider_id) REFERENCES post_providers (id)
+);
+
+DROP TABLE IF EXISTS collecting_jobs;
+CREATE TABLE collecting_jobs
+(
+    id                UUID PRIMARY KEY,
+    collect_source_id UUID NOT NULL,
+    status            VARCHAR(20),
+    total_count       INTEGER DEFAULT 0,
+    collected_count   INTEGER DEFAULT 0,
+    error_message     TEXT,
+    started_at        TIMESTAMP,
+    ended_at          TIMESTAMP,
+
+    CONSTRAINT fk_collecting_jobs_collect_source_id FOREIGN KEY (collect_source_id) REFERENCES collect_sources (id)
 );
 
 DROP TABLE IF EXISTS report_types;
@@ -93,20 +110,6 @@ CREATE TABLE posts
 
 CREATE INDEX idx_posts_title_provider ON posts (title, provider_id);
 CREATE INDEX idx_posts_provider_id ON posts (provider_id);
-
--- 3. 수집 및 작업 관련 테이블
-DROP TABLE IF EXISTS collecting_jobs;
-CREATE TABLE collecting_jobs
-(
-    id                UUID PRIMARY KEY,
-    collect_source_id UUID REFERENCES collect_sources (id),
-    status            VARCHAR(20),
-    total_count       INTEGER DEFAULT 0,
-    collected_count   INTEGER DEFAULT 0,
-    error_message     TEXT,
-    started_at        TIMESTAMP,
-    ended_at          TIMESTAMP
-);
 
 DROP TABLE IF EXISTS collect_source_posts;
 CREATE TABLE collect_source_posts

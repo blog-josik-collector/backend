@@ -67,7 +67,7 @@ public class PostProviderService {
                       .next(PostProviderValidator.validateId())
                       .end();
 
-        PostProvider provider = getPostProvider(postProviderDto.providerId());
+        PostProvider provider = getPostProvider(postProviderDto.id());
 
         if (StringUtils.isNotBlank(postProviderDto.description())) {
             provider.updateDescription(postProviderDto.description());

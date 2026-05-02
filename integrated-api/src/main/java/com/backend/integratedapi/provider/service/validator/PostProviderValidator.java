@@ -16,7 +16,7 @@ public class PostProviderValidator {
 
     public static UnaryOperator<PostProviderDto> validateId() {
         return postProviderDto -> {
-            validateId(postProviderDto.providerId());
+            validateId(postProviderDto.id());
             return postProviderDto;
         };
     }
