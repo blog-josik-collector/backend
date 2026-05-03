@@ -16,7 +16,7 @@ public class CollectSourceQueryRepository {
 
     private final JPAQueryFactory queryFactory;
 
-    QCollectSource collectSource = QCollectSource.collectSource;
+    private final QCollectSource collectSource = QCollectSource.collectSource;
 
     public OffsetPageResult<CollectSource> fetchCollectSources(int page, int size) {
         List<CollectSource> collectSources = queryFactory

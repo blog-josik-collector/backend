@@ -3,7 +3,6 @@ package com.backend.integratedapi.collectingjob.service.dto;
 import com.backend.commondataaccess.persistence.collectingjob.CollectingJob;
 import com.backend.commondataaccess.persistence.common.enums.CollectingStatus;
 import com.backend.commondataaccess.persistence.common.enums.JobStatus;
-import com.backend.commondataaccess.persistence.common.enums.TriggerType;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import java.time.OffsetDateTime;
 import java.util.UUID;
@@ -28,7 +27,6 @@ public class CollectingJobDto {
     private UUID id;
     private JobStatus jobStatus;
     private CollectingStatus collectingStatus;
-    private TriggerType triggerType;
     private UUID triggeredBy;
     private int totalCount;
     private int collectedCount;
@@ -49,7 +47,6 @@ public class CollectingJobDto {
                                .id(collectingJob.id())
                                .jobStatus(collectingJob.jobStatus())
                                .collectingStatus(collectingJob.collectingStatus())
-                               .triggerType(collectingJob.triggerType())
                                .triggeredBy(collectingJob.triggeredBy())
                                .totalCount(collectingJob.totalCount())
                                .collectedCount(collectingJob.collectedCount())

@@ -1,8 +1,8 @@
 package com.backend.commondataaccess.persistence.collectsource;
 
 import com.backend.commondataaccess.persistence.common.BaseEntity;
-import com.backend.commondataaccess.persistence.provider.PostProvider;
 import com.backend.commondataaccess.persistence.common.enums.ScheduleType;
+import com.backend.commondataaccess.persistence.provider.PostProvider;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
@@ -57,5 +57,13 @@ public class CollectSource extends BaseEntity {
 
     public void updateUsed(boolean isUsed) {
         this.isUsed = isUsed;
+    }
+
+    public void activate() {
+        this.isUsed = true;
+    }
+
+    public void deactivate() {
+        this.isUsed = false;
     }
 }

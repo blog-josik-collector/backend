@@ -16,6 +16,8 @@ jwt:
   client-secret: dGhpcy1pcy1hLXZlcnktbG9uZy1hbmQtc2VjdXJlLWtleS1mb3Itand0LXNpZ25pbmctNTEyLWJpdHMtc3Ryb25nLWVub3VnaA==
   expiry-seconds: 7200  # 액세스 토큰 만료 시간 (2시간 = 7200초)
 
-custom:
-  scheduler:
+scheduler:
+  worker:
+    delay: 60000 # 60초 (밀리초 단위)
+  cron-job-generator:
     delay: 60000 # 60초 (밀리초 단위)

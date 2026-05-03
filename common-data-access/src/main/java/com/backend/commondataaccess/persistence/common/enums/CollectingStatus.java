@@ -1,5 +1,6 @@
 package com.backend.commondataaccess.persistence.common.enums;
 
+import com.fasterxml.jackson.annotation.JsonValue;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -13,4 +14,9 @@ public enum CollectingStatus {
     PARSE_FAILED("정제 텍스트/메타 데이터 추출 실패");
 
     private final String description;
+
+    @JsonValue
+    public String getName() {
+        return this.name().toLowerCase();
+    }
 }

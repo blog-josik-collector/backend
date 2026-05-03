@@ -1,5 +1,6 @@
 package com.backend.commondataaccess.persistence.common.enums;
 
+import com.fasterxml.jackson.annotation.JsonValue;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -11,4 +12,9 @@ public enum IndexingStatus {
     FAILED_INDEX("Elasticsearch에 색인 실패");
 
     private final String description;
+
+    @JsonValue
+    public String getName() {
+        return this.name().toLowerCase();
+    }
 }

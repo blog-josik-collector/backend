@@ -70,8 +70,7 @@ CREATE TABLE collecting_jobs
     collect_source_id UUID        NOT NULL,
     job_status        VARCHAR(20) NOT NULL,
     collecting_status VARCHAR(20),
-    trigger_type      VARCHAR(20) NOT NULL,
-    triggered_by      UUID        NOT NULL,
+    triggered_by      UUID,
     total_count       INTEGER DEFAULT 0,
     collected_count   INTEGER DEFAULT 0,
     attempt_count     INTEGER DEFAULT 0,
@@ -85,9 +84,10 @@ CREATE TABLE collecting_jobs
     CONSTRAINT fk_collecting_jobs_collect_source_id FOREIGN KEY (collect_source_id) REFERENCES collect_sources (id)
 );
 
--- 중복 active job 방지 (PENDING 또는 RUNNING이 이미 있으면 또 만들지 않음)
--- INSERT 시 unique violation 잡아서 "이미 진행중" 에러로 변환.
--- CREATE UNIQUE INDEX IF NOT EXISTS uk_collecting_jobs_active_collecting_job ON collecting_jobs (collect_source_id) WHERE job_status IN ('PENDING', 'RUNNING');
+-- 중복 방지 unique index(PENDING 또는 RUNNING이 이미 있으면 또 만들지 않음)
+-- 같은 collect_source에 대해 active Job이 두 개 동시 존재 불가.
+-- INSERT 시도 시 unique violation으로 막힌다. unique violation 잡으면 그냥 무시하거나 "이미 진행중" 에러로 변환.
+CREATE UNIQUE INDEX IF NOT EXISTS uk_collecting_jobs_collect_source_id_job_status ON collecting_jobs (collect_source_id) WHERE job_status IN ('PENDING', 'RUNNING');
 
 DROP TABLE IF EXISTS collect_source_posts;
 CREATE TABLE collect_source_posts

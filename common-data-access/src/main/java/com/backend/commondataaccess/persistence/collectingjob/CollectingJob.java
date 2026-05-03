@@ -4,7 +4,6 @@ import com.backend.commondataaccess.persistence.common.enums.CollectingStatus;
 import com.backend.commondataaccess.persistence.collectsource.CollectSource;
 import com.backend.commondataaccess.persistence.common.BaseEntity;
 import com.backend.commondataaccess.persistence.common.enums.JobStatus;
-import com.backend.commondataaccess.persistence.common.enums.TriggerType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -45,9 +44,6 @@ public class CollectingJob extends BaseEntity {
 
     @Enumerated(EnumType.STRING)
     private CollectingStatus collectingStatus;
-
-    @Enumerated(EnumType.STRING)
-    private TriggerType triggerType;
 
     private UUID triggeredBy;
 

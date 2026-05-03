@@ -16,7 +16,7 @@ public class PostProviderQueryRepository {
 
     private final JPAQueryFactory queryFactory;
 
-    QPostProvider postProvider = QPostProvider.postProvider;
+    private final QPostProvider postProvider = QPostProvider.postProvider;
 
     public OffsetPageResult<PostProvider> fetchPostProviders(int page, int size) {
         List<PostProvider> postProviders = queryFactory

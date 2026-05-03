@@ -6,8 +6,6 @@ import com.backend.integratedapi.collectingjob.controller.dto.CollectingJobReadD
 import com.backend.integratedapi.collectingjob.controller.dto.CollectingJobStartDto;
 import com.backend.integratedapi.collectingjob.service.CollectingJobService;
 import com.backend.integratedapi.collectingjob.service.dto.CollectingJobDto;
-import com.backend.integratedapi.collectsource.controller.dto.CollectSourceReadDto;
-import com.backend.integratedapi.collectsourcepost.service.CollectSourcePostService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.UUID;
@@ -17,7 +15,6 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -30,23 +27,30 @@ public class CollectingJobController {
 
     private final CollectingJobService collectingJobService;
 
-    @Operation(summary = "수집 작업 실행")
-    @PostMapping("/jobs")
+    @Operation(
+            summary = "수집 작업 시작",
+            description = "MANUAL source는 1회 Job 생성 후 종료. CRON source는 자동 생성 사이클 활성화 + 첫 Job 생성."
+    )
+    @PostMapping("/sources/{source-id}/_start")
     public ResponseEntity<CollectingJobStartDto.Response> start(@AuthenticationPrincipal JwtPrincipal authentication,
-                                                                @RequestBody CollectingJobStartDto.Request request) {
+                                                                @PathVariable("source-id") UUID sourceId) {
 
-        CollectingJobDto collectingJobDto = CollectingJobDto.of(request.sourceId(), authentication.getUserId());
+        CollectingJobDto collectingJobDto = CollectingJobDto.of(sourceId, authentication.getUserId());
         CollectingJobDto startedCollectingJobDto = collectingJobService.start(collectingJobDto);
 
         return ResponseEntity.ok(CollectingJobStartDto.Response.from(startedCollectingJobDto));
     }
 
-    @Operation(summary = "수집 작업 종료")
-    @PostMapping("/jobs/{job-id}/_stop")
-    public ResponseEntity<OffsetPageResult<CollectSourceReadDto.Response>> stop(@RequestParam(value = "page", required = false, defaultValue = "0") int page,
-                                                                                @RequestParam(value = "size", required = false, defaultValue = "10") int size) {
+    @Operation(
+            summary = "수집 작업 종료",
+            description = "CRON source의 자동 생성 사이클을 종료(isUsed=false). MANUAL source 호출시 무시됨."
+    )
+    @PostMapping("/sources/{source-id}/_stop")
+    public ResponseEntity<Void> stop(@PathVariable("source-id") UUID sourceId) {
 
-        return null;
+        collectingJobService.stop(sourceId);
+
+        return ResponseEntity.accepted().build();
     }
 
     @Operation(summary = "수집 작업 상태 목록 조회")

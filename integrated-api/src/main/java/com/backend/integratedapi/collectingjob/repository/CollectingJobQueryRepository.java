@@ -3,6 +3,7 @@ package com.backend.integratedapi.collectingjob.repository;
 import com.backend.commondataaccess.dto.OffsetPageResult;
 import com.backend.commondataaccess.persistence.collectingjob.CollectingJob;
 import com.backend.commondataaccess.persistence.collectingjob.QCollectingJob;
+import com.backend.commondataaccess.persistence.common.enums.JobStatus;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import java.util.List;
 import java.util.Optional;
@@ -47,5 +48,16 @@ public class CollectingJobQueryRepository {
                                            .fetchOne();
 
         return Optional.ofNullable(result);
+    }
+
+    public boolean existsActiveJob(UUID collectSourceId) {
+        List<CollectingJob> results = queryFactory.selectFrom(collectingJob)
+                                                  .where(
+                                                          collectingJob.collectSource.id.eq(collectSourceId),
+                                                          collectingJob.jobStatus.in(JobStatus.PENDING, JobStatus.RUNNING),
+                                                          collectingJob.deletedAt.isNull()
+                                                  ).fetch();
+
+        return !results.isEmpty();
     }
 }

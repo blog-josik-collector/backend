@@ -15,10 +15,10 @@ public class CollectingJobWorker {
     private final CollectingJobPicker picker;
     private final CollectingJobExecutor executor;
 
-//    @Scheduled(fixedDelay = 5000)
-    @Scheduled(fixedDelayString = "${custom.scheduler.delay}")
+    //    @Scheduled(fixedDelay = 5000)
+    @Scheduled(fixedDelayString = "${scheduler.worker.delay}")
     public void poll() {
-        log.info("Collecting job picker started");
+        log.info("CollectingJob Worker call poll()");
         List<UUID> pickedJobIds = picker.pickAndMarkRunning(10);
         for (UUID jobId : pickedJobIds) {
             executor.executeAsync(jobId);

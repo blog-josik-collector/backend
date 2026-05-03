@@ -14,7 +14,7 @@ public class UserQueryRepository {
 
     private final JPAQueryFactory queryFactory;
 
-    QUser user = QUser.user;
+    private final QUser user = QUser.user;
 
     public Optional<User> fetchOneById(UUID id) {
         User result = queryFactory.select(user)

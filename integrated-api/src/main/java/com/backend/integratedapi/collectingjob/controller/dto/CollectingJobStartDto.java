@@ -7,10 +7,6 @@ import lombok.Builder;
 
 public record CollectingJobStartDto() {
 
-    public record Request(UUID sourceId) {
-
-    }
-
     @Builder
     public record Response(UUID jobId, JobStatus jobStatus) {
 
