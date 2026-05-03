@@ -1,6 +1,6 @@
 package com.backend.userservice.userauthentication.service;
 
-import com.backend.commondataaccess.persistence.BaseEntity;
+import com.backend.commondataaccess.persistence.common.BaseEntity;
 import com.backend.commondataaccess.persistence.user.User;
 import com.backend.commondataaccess.persistence.user.UserAuthentication;
 import com.backend.commondataaccess.persistence.user.enums.LoginProvider;

@@ -1,6 +1,6 @@
 package com.backend.commondataaccess.persistence.provider;
 
-import com.backend.commondataaccess.persistence.BaseEntity;
+import com.backend.commondataaccess.persistence.common.BaseEntity;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;

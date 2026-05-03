@@ -1,4 +1,4 @@
-package com.backend.integratedapi.common.config.hibernate;
+package com.backend.integratedworker.common.config.hibernate;
 
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
@@ -13,9 +13,7 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 @Configuration
 @EnableJpaAuditing(dateTimeProviderRef = "auditingDateTimeProvider") // JPA Auditing 활성화
 @EnableJpaRepositories(basePackages = {
-        "com.backend.integratedapi.provider.repository",
-        "com.backend.integratedapi.collectsource.repository",
-        "com.backend.integratedapi.collectingjob.repository"
+        "com.backend.integratedworker.collectingjob.repository"
 })
 @EntityScan(basePackages = "com.backend.commondataaccess.persistence")
 public class JpaConfig {

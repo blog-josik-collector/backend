@@ -67,16 +67,27 @@ DROP TABLE IF EXISTS collecting_jobs;
 CREATE TABLE collecting_jobs
 (
     id                UUID PRIMARY KEY,
-    collect_source_id UUID NOT NULL,
-    status            VARCHAR(20),
+    collect_source_id UUID        NOT NULL,
+    job_status        VARCHAR(20) NOT NULL,
+    collecting_status VARCHAR(20) ,
+    trigger_type      VARCHAR(20) NOT NULL,
+    triggered_by      UUID        NOT NULL,
     total_count       INTEGER DEFAULT 0,
     collected_count   INTEGER DEFAULT 0,
+    attempt_count     INTEGER DEFAULT 0,
     error_message     TEXT,
     started_at        TIMESTAMP,
     ended_at          TIMESTAMP,
+    created_at        TIMESTAMP   NOT NULL,
+    updated_at        TIMESTAMP   NOT NULL,
+    deleted_at        TIMESTAMP,
 
     CONSTRAINT fk_collecting_jobs_collect_source_id FOREIGN KEY (collect_source_id) REFERENCES collect_sources (id)
 );
+
+-- 중복 active job 방지 (PENDING 또는 RUNNING이 이미 있으면 또 만들지 않음)
+-- INSERT 시 unique violation 잡아서 "이미 진행중" 에러로 변환.
+-- CREATE UNIQUE INDEX IF NOT EXISTS uk_collecting_jobs_active_collecting_job ON collecting_jobs (collect_source_id) WHERE job_status IN ('PENDING', 'RUNNING');
 
 DROP TABLE IF EXISTS report_types;
 CREATE TABLE report_types
@@ -134,14 +145,16 @@ DROP TABLE IF EXISTS indexing_jobs;
 CREATE TABLE indexing_jobs
 (
     id                UUID PRIMARY KEY,
-    collecting_job_id UUID REFERENCES collecting_jobs (id),
+    collecting_job_id UUID NOT NULL,
     job_type          VARCHAR(20),
     status            VARCHAR(20),
     total_count       INTEGER DEFAULT 0,
     indexed_count     INTEGER DEFAULT 0,
     error_message     TEXT,
     started_at        TIMESTAMP,
-    ended_at          TIMESTAMP
+    ended_at          TIMESTAMP,
+
+    CONSTRAINT fk_indexing_jobs_collecting_job_id FOREIGN KEY (collecting_job_id) REFERENCES collecting_jobs (id)
 );
 
 -- 4. 사용자 활동 관련 테이블 (post, user 참조)

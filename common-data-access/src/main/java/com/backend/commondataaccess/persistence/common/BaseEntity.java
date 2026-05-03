@@ -1,4 +1,4 @@
-package com.backend.commondataaccess.persistence;
+package com.backend.commondataaccess.persistence.common;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.EntityListeners;

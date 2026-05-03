@@ -4,4 +4,5 @@ plugins {
 
 dependencies {
     implementation project(":common-data-access")
+    runtimeOnly "org.postgresql:postgresql"
 }
