@@ -10,6 +10,8 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -27,15 +29,26 @@ public class CollectingJobController {
 
     private final CollectingJobService collectingJobService;
 
+    @Value("${crawler.default-from-page}")
+    private String defaultFromPage;
+
+    @Value("${crawler.default-to-page}")
+    private String defaultToPage;
+
     @Operation(
             summary = "수집 작업 시작",
             description = "MANUAL source는 1회 Job 생성 후 종료. CRON source는 자동 생성 사이클 활성화 + 첫 Job 생성."
     )
     @PostMapping("/sources/{source-id}/_start")
     public ResponseEntity<CollectingJobStartDto.Response> start(@AuthenticationPrincipal JwtPrincipal authentication,
-                                                                @PathVariable("source-id") UUID sourceId) {
+                                                                @PathVariable("source-id") UUID sourceId,
+                                                                @RequestParam(value = "from_page", required = false) String fromPage,
+                                                                @RequestParam(value = "to_page", required = false) String toPage) {
 
-        CollectingJobDto collectingJobDto = CollectingJobDto.of(sourceId, authentication.getUserId());
+        int from = StringUtils.isEmpty(fromPage) ? Integer.parseInt(defaultFromPage) : Integer.parseInt(fromPage);
+        int to = StringUtils.isEmpty(toPage) ? Integer.parseInt(defaultToPage) : Integer.parseInt(toPage);
+
+        CollectingJobDto collectingJobDto = CollectingJobDto.of(sourceId, authentication.getUserId(), from, to);
         CollectingJobDto startedCollectingJobDto = collectingJobService.start(collectingJobDto);
 
         return ResponseEntity.ok(CollectingJobStartDto.Response.from(startedCollectingJobDto));

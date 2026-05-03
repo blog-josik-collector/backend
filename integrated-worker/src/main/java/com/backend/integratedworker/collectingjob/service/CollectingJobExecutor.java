@@ -44,7 +44,7 @@ public class CollectingJobExecutor {
     protected void doCollect(UUID jobId) {
         CollectingJob collectingJob = CollectingJobValidator.getCollectingJobOrThrow(jobId, queryRepository::fetchOneById);
         CollectSource source = collectingJob.collectSource();
-        List<Post> posts = blogCrawlerService.fetch(source);
+        List<Post> posts = blogCrawlerService.fetch(collectingJob);
         for (Post post : posts) {
             CollectSourcePost collectSourcePost = collectSourcePostService.getCollectSourcePost(post.getUrl());
 

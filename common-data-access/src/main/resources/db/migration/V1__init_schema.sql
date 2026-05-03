@@ -68,6 +68,8 @@ CREATE TABLE collecting_jobs
 (
     id                UUID PRIMARY KEY,
     collect_source_id UUID        NOT NULL,
+    from_page         INTEGER     NOT NULL,
+    to_page           INTEGER     NOT NULL,
     job_status        VARCHAR(20) NOT NULL,
     collecting_status VARCHAR(20),
     triggered_by      UUID,

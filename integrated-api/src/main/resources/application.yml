@@ -32,3 +32,7 @@ springdoc:
     path: /integrated-api/v3/api-docs
   swagger-ui:
     path: /integrated-api/swagger-ui
+
+crawler:
+  default-from-page: 1
+  default-to-page: 10

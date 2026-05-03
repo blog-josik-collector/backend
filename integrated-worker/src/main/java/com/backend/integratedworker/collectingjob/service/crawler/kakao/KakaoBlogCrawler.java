@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 import org.springframework.stereotype.Component;
+import org.springframework.web.util.UriComponentsBuilder;
 
 @Component
 @RequiredArgsConstructor
@@ -15,7 +16,10 @@ public class KakaoBlogCrawler implements CrawlerStrategy<KakaoPost> {
 
     @Override
     public String getCrawlingUrl(PostProvider postProvider, int page) {
-        return postProvider.baseUrl();
+        return UriComponentsBuilder.fromUriString(postProvider.baseUrl())
+                                   .queryParam("page", page)
+                                   .build()
+                                   .toUriString();
     }
 
     @Override

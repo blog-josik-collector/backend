@@ -26,6 +26,8 @@ public class CollectingJobDto {
 
     private UUID id;
     private JobStatus jobStatus;
+    private int fromPage;
+    private int toPage;
     private CollectingStatus collectingStatus;
     private UUID triggeredBy;
     private int totalCount;
@@ -35,10 +37,12 @@ public class CollectingJobDto {
     private OffsetDateTime startedAt;
     private OffsetDateTime endedAt;
 
-    public static CollectingJobDto of(UUID sourceId, UUID userId) {
+    public static CollectingJobDto of(UUID sourceId, UUID userId, int fromPage, int toPage) {
         return CollectingJobDto.builder()
                                .sourceId(sourceId)
                                .userId(userId)
+                               .fromPage(fromPage)
+                               .toPage(toPage)
                                .build();
     }
 
@@ -46,6 +50,8 @@ public class CollectingJobDto {
         return CollectingJobDto.builder()
                                .id(collectingJob.id())
                                .jobStatus(collectingJob.jobStatus())
+                               .fromPage(collectingJob.fromPage())
+                               .toPage(collectingJob.toPage())
                                .collectingStatus(collectingJob.collectingStatus())
                                .triggeredBy(collectingJob.triggeredBy())
                                .totalCount(collectingJob.totalCount())

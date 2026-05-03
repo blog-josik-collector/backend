@@ -29,8 +29,8 @@ public class CollectingJobService {
         CollectSource collectSource = collectSourceService.getCollectSource(dto.sourceId());
 
         return switch (collectSource.scheduleType()) {
-            case CRON -> startCron(collectSource, dto.userId());
-            case MANUAL -> startManual(collectSource, dto.userId());
+            case CRON -> startCron(collectSource, dto.userId(), dto.fromPage(), dto.toPage());
+            case MANUAL -> startManual(collectSource, dto.userId(), dto.fromPage(), dto.toPage());
         };
     }
 
@@ -42,34 +42,38 @@ public class CollectingJobService {
         }
     }
 
-    private CollectingJobDto startCron(CollectSource source, UUID userId) {
+    private CollectingJobDto startCron(CollectSource source, UUID userId, int fromPage, int toPage) {
         source.activate();
-        CollectingJob collectingJob = createPendingJob(source, userId);
+        CollectingJob collectingJob = createPendingJob(source, userId, fromPage, toPage);
         CollectingJob savedCollectingJob = collectingJobRepository.save(collectingJob);
         return CollectingJobDto.from(savedCollectingJob);
     }
 
-    private CollectingJobDto startManual(CollectSource source, UUID userId) {
+    private CollectingJobDto startManual(CollectSource source, UUID userId, int fromPage, int toPage) {
         if (!source.isUsed()) {
             throw new IllegalStateException("비활성 source는 실행할 수 없음");
         }
         if (queryRepository.existsActiveJob(source.id())) {
             throw new IllegalStateException("이미 진행 중인 Job 있음");
         }
-        CollectingJob collectingJob = createPendingJob(source, userId);
+        CollectingJob collectingJob = createPendingJob(source, userId, fromPage, toPage);
         CollectingJob savedCollectingJob = collectingJobRepository.save(collectingJob);
         return CollectingJobDto.from(savedCollectingJob);
     }
 
-    private CollectingJob createPendingJob(CollectSource collectSource, UUID userId) {
+    private CollectingJob createPendingJob(CollectSource collectSource, UUID userId, int fromPage, int toPage) {
         return switch (collectSource.scheduleType()) {
             case CRON -> CollectingJob.builder()
                                       .collectSource(collectSource)
                                       .jobStatus(JobStatus.PENDING)
+                                      .fromPage(fromPage)
+                                      .toPage(toPage)
                                       .build();
             case MANUAL -> CollectingJob.builder()
                                         .collectSource(collectSource)
                                         .jobStatus(JobStatus.PENDING)
+                                        .fromPage(fromPage)
+                                        .toPage(toPage)
                                         .triggeredBy(userId)
                                         .build();
         };

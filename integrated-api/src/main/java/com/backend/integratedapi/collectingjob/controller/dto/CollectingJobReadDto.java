@@ -14,6 +14,8 @@ public record CollectingJobReadDto() {
     @Builder
     public record Response(UUID jobId,
                            JobStatus jobStatus,
+                           int fromPage,
+                           int toPage,
                            CollectingStatus collectingStatus,
                            UUID triggeredBy,
                            int totalCount,
@@ -27,6 +29,8 @@ public record CollectingJobReadDto() {
             return CollectingJobReadDto.Response.builder()
                                                 .jobId(collectingJobDto.id())
                                                 .jobStatus(collectingJobDto.jobStatus())
+                                                .fromPage(collectingJobDto.fromPage())
+                                                .toPage(collectingJobDto.toPage())
                                                 .collectingStatus(collectingJobDto.collectingStatus())
                                                 .triggeredBy(collectingJobDto.triggeredBy())
                                                 .totalCount(collectingJobDto.totalCount())

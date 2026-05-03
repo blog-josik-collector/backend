@@ -1,8 +1,10 @@
 package com.backend.integratedworker.collectingjob.service.crawler;
 
+import com.backend.commondataaccess.persistence.collectingjob.CollectingJob;
 import com.backend.commondataaccess.persistence.collectsource.CollectSource;
 import com.backend.commondataaccess.persistence.provider.PostProvider;
 import com.backend.integratedworker.collectingjob.service.crawler.kakao.KakaoBlogCrawler;
+import com.backend.integratedworker.collectingjob.service.crawler.kakao.KakaoPost;
 import com.backend.integratedworker.collectingjob.service.crawler.strategy.CrawlerStrategy;
 import com.backend.integratedworker.collectingjob.service.dto.Post;
 import io.github.bonigarcia.wdm.WebDriverManager;
@@ -23,9 +25,14 @@ public class BlogCrawlerService {
 
     private final KakaoBlogCrawler kakaoBlogCrawler;
 
-    public List<Post> fetch(CollectSource collectSource) {
-        PostProvider postProvider = collectSource.postProvider();
-        return new ArrayList<>(crawl(kakaoBlogCrawler, postProvider, 1));
+    public List<Post> fetch(CollectingJob collectingJob) {
+        PostProvider postProvider = collectingJob.collectSource().postProvider();
+
+        List<Post> posts = new ArrayList<>();
+        for (int page = collectingJob.fromPage(); page <= collectingJob.toPage(); page++) {
+            posts.addAll(new ArrayList<>(crawl(kakaoBlogCrawler, postProvider, page)));
+        }
+        return posts;
     }
 
     public <T> List<T> crawl(CrawlerStrategy<T> strategy, PostProvider postProvider, int page) {

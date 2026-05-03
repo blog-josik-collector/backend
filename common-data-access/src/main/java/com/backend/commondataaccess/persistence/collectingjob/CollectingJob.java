@@ -39,6 +39,10 @@ public class CollectingJob extends BaseEntity {
     @JoinColumn(name = "collect_source_id", nullable = false)
     private CollectSource collectSource;
 
+    private int fromPage;
+
+    private int toPage;
+
     @Enumerated(EnumType.STRING)
     private JobStatus jobStatus;
 
