@@ -3,7 +3,7 @@ package com.backend.integratedapi.collectsource.service;
 import com.backend.commondataaccess.dto.OffsetPageResult;
 import com.backend.commondataaccess.persistence.provider.PostProvider;
 import com.backend.commondataaccess.persistence.collectsource.CollectSource;
-import com.backend.commondataaccess.persistence.collectsource.enums.ScheduleType;
+import com.backend.commondataaccess.persistence.common.enums.ScheduleType;
 import com.backend.commondataaccess.service.validator.ValidationFlow;
 import com.backend.integratedapi.provider.service.PostProviderService;
 import com.backend.integratedapi.collectsource.repository.CollectSourceQueryRepository;

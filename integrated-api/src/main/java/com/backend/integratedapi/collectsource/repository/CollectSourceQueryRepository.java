@@ -21,11 +21,15 @@ public class CollectSourceQueryRepository {
     public OffsetPageResult<CollectSource> fetchCollectSources(int page, int size) {
         List<CollectSource> collectSources = queryFactory
                 .selectFrom(collectSource)
+                .where(collectSource.deletedAt.isNull())
                 .offset(page)
                 .limit(size)
                 .fetch();
 
-        Long totalCount = queryFactory.select(collectSource.count()).from(collectSource).fetchOne();
+        Long totalCount = queryFactory.select(collectSource.count())
+                                      .from(collectSource)
+                                      .where(collectSource.deletedAt.isNull())
+                                      .fetchOne();
 
         return new OffsetPageResult<>(totalCount != null ? totalCount : 0L,
                                       page,

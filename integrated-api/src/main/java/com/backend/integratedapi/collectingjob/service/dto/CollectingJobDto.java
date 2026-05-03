@@ -1,8 +1,11 @@
 package com.backend.integratedapi.collectingjob.service.dto;
 
 import com.backend.commondataaccess.persistence.collectingjob.CollectingJob;
+import com.backend.commondataaccess.persistence.common.enums.CollectingStatus;
 import com.backend.commondataaccess.persistence.common.enums.JobStatus;
+import com.backend.commondataaccess.persistence.common.enums.TriggerType;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import java.time.OffsetDateTime;
 import java.util.UUID;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -23,10 +26,17 @@ public class CollectingJobDto {
     private UUID sourceId;
 
     private UUID id;
-    private JobStatus status;
+    private JobStatus jobStatus;
+    private CollectingStatus collectingStatus;
+    private TriggerType triggerType;
+    private UUID triggeredBy;
+    private int totalCount;
+    private int collectedCount;
+    private int attemptCount;
+    private String errorMessage;
+    private OffsetDateTime startedAt;
+    private OffsetDateTime endedAt;
 
-
-    //TODO: userId 추가 예정
     public static CollectingJobDto of(UUID sourceId, UUID userId) {
         return CollectingJobDto.builder()
                                .sourceId(sourceId)
@@ -37,7 +47,16 @@ public class CollectingJobDto {
     public static CollectingJobDto from(CollectingJob collectingJob) {
         return CollectingJobDto.builder()
                                .id(collectingJob.id())
-                               .status(collectingJob.jobStatus())
+                               .jobStatus(collectingJob.jobStatus())
+                               .collectingStatus(collectingJob.collectingStatus())
+                               .triggerType(collectingJob.triggerType())
+                               .triggeredBy(collectingJob.triggeredBy())
+                               .totalCount(collectingJob.totalCount())
+                               .collectedCount(collectingJob.collectedCount())
+                               .attemptCount(collectingJob.attemptCount())
+                               .errorMessage(collectingJob.errorMessage())
+                               .startedAt(collectingJob.startedAt())
+                               .endedAt(collectingJob.endedAt())
                                .build();
     }
 }

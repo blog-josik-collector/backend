@@ -69,7 +69,7 @@ CREATE TABLE collecting_jobs
     id                UUID PRIMARY KEY,
     collect_source_id UUID        NOT NULL,
     job_status        VARCHAR(20) NOT NULL,
-    collecting_status VARCHAR(20) ,
+    collecting_status VARCHAR(20),
     trigger_type      VARCHAR(20) NOT NULL,
     triggered_by      UUID        NOT NULL,
     total_count       INTEGER DEFAULT 0,
@@ -88,6 +88,33 @@ CREATE TABLE collecting_jobs
 -- 중복 active job 방지 (PENDING 또는 RUNNING이 이미 있으면 또 만들지 않음)
 -- INSERT 시 unique violation 잡아서 "이미 진행중" 에러로 변환.
 -- CREATE UNIQUE INDEX IF NOT EXISTS uk_collecting_jobs_active_collecting_job ON collecting_jobs (collect_source_id) WHERE job_status IN ('PENDING', 'RUNNING');
+
+DROP TABLE IF EXISTS collect_source_posts;
+CREATE TABLE collect_source_posts
+(
+    id                     UUID PRIMARY KEY,
+    collect_source_id      UUID         NOT NULL,
+    title                  VARCHAR      NOT NULL,
+    url                    VARCHAR(512) NOT NULL,
+    published_at           TIMESTAMP    NOT NULL,
+    thumbnail_url          VARCHAR,
+    summary                TEXT,
+    content                TEXT,
+    content_hash           VARCHAR,
+    indexing_status        VARCHAR(20),
+    indexing_error_count   INTEGER   DEFAULT 0,
+    last_indexed_at        TIMESTAMP DEFAULT NULL,
+    last_collected_at      TIMESTAMP DEFAULT NOW(),
+    last_collecting_job_id UUID,
+    created_at             TIMESTAMP    NOT NULL,
+    updated_at             TIMESTAMP    NOT NULL,
+    deleted_at             TIMESTAMP,
+
+    CONSTRAINT fk_collect_source_posts_collect_source_id FOREIGN KEY (collect_source_id) REFERENCES collect_sources (id),
+    CONSTRAINT fk_collect_source_posts_last_collecting_job_id FOREIGN KEY (last_collecting_job_id) REFERENCES collecting_jobs (id)
+);
+
+CREATE UNIQUE INDEX IF NOT EXISTS uk_collect_source_posts_url ON collect_source_posts (url) WHERE deleted_at IS NULL;
 
 DROP TABLE IF EXISTS report_types;
 CREATE TABLE report_types
@@ -121,25 +148,6 @@ CREATE TABLE posts
 
 CREATE INDEX idx_posts_title_provider ON posts (title, provider_id);
 CREATE INDEX idx_posts_provider_id ON posts (provider_id);
-
-DROP TABLE IF EXISTS collect_source_posts;
-CREATE TABLE collect_source_posts
-(
-    id                     UUID PRIMARY KEY,
-    source_id              UUID REFERENCES collect_sources (id),
-    title                  VARCHAR             NOT NULL,
-    url                    VARCHAR(512) UNIQUE NOT NULL,
-    published_at           TIMESTAMP           NOT NULL,
-    thumbnail_url          VARCHAR             NOT NULL,
-    summary                TEXT                NOT NULL,
-    content                TEXT                NOT NULL,
-    content_hash           VARCHAR             NOT NULL,
-    indexing_status        INTEGER   DEFAULT 0,
-    indexing_error_count   INTEGER   DEFAULT 0,
-    last_indexed_at        TIMESTAMP DEFAULT NULL,
-    last_collected_at      TIMESTAMP DEFAULT NOW(),
-    last_collecting_job_id UUID
-);
 
 DROP TABLE IF EXISTS indexing_jobs;
 CREATE TABLE indexing_jobs

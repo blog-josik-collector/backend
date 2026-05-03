@@ -1,10 +1,14 @@
 package com.backend.commondataaccess.persistence.provider;
 
+import com.backend.commondataaccess.persistence.collectsource.CollectSource;
 import com.backend.commondataaccess.persistence.common.BaseEntity;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -33,6 +37,9 @@ public class PostProvider extends BaseEntity {
     private String baseUrl;
 
     private boolean isUsed;
+
+    @OneToMany(mappedBy = "postProvider")
+    private List<CollectSource> collectSources = new ArrayList<>();
 
     public void updateDescription(String description) {
         this.description = description;

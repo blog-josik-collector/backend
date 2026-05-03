@@ -73,10 +73,10 @@ public class PostProviderValidator {
         }
     }
 
-    public static PostProvider getPostProviderOrThrow(UUID id, Function<UUID, Optional<PostProvider>> findById) {
+    public static PostProvider getPostProviderOrThrow(UUID id, Function<UUID, Optional<PostProvider>> fetchOneById) {
         validateId(id);
 
-        return findById.apply(id)
+        return fetchOneById.apply(id)
                        .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 postProvider입니다. id: " + id));
     }
 }

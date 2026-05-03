@@ -104,10 +104,10 @@ public final class UserValidator {
         }
     }
 
-    public static User getUserOrThrow(UUID id, Function<UUID, Optional<User>> findById) {
+    public static User getUserOrThrow(UUID id, Function<UUID, Optional<User>> fetchOneById) {
         validateId(id);
 
-        return findById.apply(id)
+        return fetchOneById.apply(id)
                        .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 user입니다. id: " + id));
     }
 }

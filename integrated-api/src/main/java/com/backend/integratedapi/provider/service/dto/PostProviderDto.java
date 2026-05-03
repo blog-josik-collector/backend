@@ -1,5 +1,6 @@
 package com.backend.integratedapi.provider.service.dto;
 
+import com.backend.commondataaccess.persistence.collectsource.CollectSource;
 import com.backend.commondataaccess.persistence.provider.PostProvider;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import java.time.OffsetDateTime;
@@ -23,6 +24,8 @@ public class PostProviderDto {
     private String baseUrl;
     private String description;
     private boolean isUsed;
+    private boolean hasUsingCollectSource;
+    private UUID usingCollectSourceId;
 
     private UUID id;
 
@@ -60,12 +63,16 @@ public class PostProviderDto {
     }
 
     public static PostProviderDto from(PostProvider postProvider) {
+        CollectSource collectSource = postProvider.collectSources().stream().filter(CollectSource::isUsed).findFirst().orElse(null);
+
         return PostProviderDto.builder()
                               .id(postProvider.id())
                               .name(postProvider.name())
                               .baseUrl(postProvider.baseUrl())
                               .description(postProvider.description())
                               .isUsed(postProvider.isUsed())
+                              .hasUsingCollectSource(collectSource != null)
+                              .usingCollectSourceId(collectSource == null ? null : collectSource.id())
                               .createdAt(postProvider.createdAt())
                               .updatedAt(postProvider.updatedAt())
                               .build();

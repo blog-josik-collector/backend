@@ -1,6 +1,6 @@
 package com.backend.integratedapi.collectsource.controller.dto;
 
-import com.backend.commondataaccess.persistence.collectsource.enums.ScheduleType;
+import com.backend.commondataaccess.persistence.common.enums.ScheduleType;
 import com.backend.integratedapi.collectsource.service.dto.CollectSourceDto;
 import java.time.OffsetDateTime;
 import java.util.UUID;

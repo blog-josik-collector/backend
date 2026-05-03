@@ -1,6 +1,6 @@
 package com.backend.integratedapi.collectsource.controller.dto;
 
-import com.backend.commondataaccess.persistence.collectsource.enums.ScheduleType;
+import com.backend.commondataaccess.persistence.common.enums.ScheduleType;
 import com.backend.integratedapi.collectsource.service.dto.CollectSourceDto;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import java.time.OffsetDateTime;

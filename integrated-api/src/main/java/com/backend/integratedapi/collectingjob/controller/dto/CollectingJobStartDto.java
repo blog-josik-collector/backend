@@ -12,12 +12,12 @@ public record CollectingJobStartDto() {
     }
 
     @Builder
-    public record Response(UUID jobId, JobStatus status) {
+    public record Response(UUID jobId, JobStatus jobStatus) {
 
         public static Response from(CollectingJobDto collectingJobDto) {
             return CollectingJobStartDto.Response.builder()
                                                  .jobId(collectingJobDto.id())
-                                                 .status(collectingJobDto.status())
+                                                 .jobStatus(collectingJobDto.jobStatus())
                                                  .build();
         }
     }

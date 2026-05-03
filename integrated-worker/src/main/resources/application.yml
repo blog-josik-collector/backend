@@ -18,4 +18,4 @@ jwt:
 
 custom:
   scheduler:
-    delay: 10000 # 10초 (밀리초 단위)
+    delay: 60000 # 60초 (밀리초 단위)

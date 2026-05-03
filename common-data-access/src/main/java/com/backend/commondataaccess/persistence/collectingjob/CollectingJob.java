@@ -1,6 +1,6 @@
 package com.backend.commondataaccess.persistence.collectingjob;
 
-import com.backend.commondataaccess.persistence.collectingjob.enums.CollectingStatus;
+import com.backend.commondataaccess.persistence.common.enums.CollectingStatus;
 import com.backend.commondataaccess.persistence.collectsource.CollectSource;
 import com.backend.commondataaccess.persistence.common.BaseEntity;
 import com.backend.commondataaccess.persistence.common.enums.JobStatus;
@@ -77,11 +77,13 @@ public class CollectingJob extends BaseEntity {
 
     public void markSuccess(OffsetDateTime now) {
         this.jobStatus = JobStatus.SUCCESS;
+        this.collectingStatus = CollectingStatus.PARSED;
         this.endedAt = now;
     }
 
     public void markFailed(OffsetDateTime now, String errorMessage) {
         this.jobStatus = JobStatus.FAILED;
+        this.collectingStatus = CollectingStatus.PARSE_FAILED;
         this.endedAt = now;
         this.errorMessage = errorMessage;
     }

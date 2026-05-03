@@ -63,17 +63,17 @@ public final class UserAuthenticationValidator {
         }
     }
 
-    public static UserAuthentication getUserAuthenticationOrThrow(UUID id, Function<UUID, Optional<UserAuthentication>> findOneById) {
+    public static UserAuthentication getUserAuthenticationOrThrow(UUID id, Function<UUID, Optional<UserAuthentication>> fetchOneById) {
         validateId(id);
 
-        return findOneById.apply(id)
+        return fetchOneById.apply(id)
                           .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 id입니다. id: " + id));
     }
 
-    public static UserAuthentication getUserAuthenticationOrThrow(String identifier, Function<String, Optional<UserAuthentication>> findOneByIdentifier) {
+    public static UserAuthentication getUserAuthenticationOrThrow(String identifier, Function<String, Optional<UserAuthentication>> fetchOneByIdentifier) {
         validateIdentifier(identifier);
 
-        return findOneByIdentifier.apply(identifier)
+        return fetchOneByIdentifier.apply(identifier)
                                   .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 identifier입니다. identifier: " + identifier));
     }
 }

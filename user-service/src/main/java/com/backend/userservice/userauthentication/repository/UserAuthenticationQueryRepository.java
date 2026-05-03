@@ -19,7 +19,7 @@ public class UserAuthenticationQueryRepository {
     private final QUserAuthentication userAuthentication = QUserAuthentication.userAuthentication;
     private final QUser user = QUser.user;
 
-    public Optional<UserAuthentication> findOneById(UUID id) {
+    public Optional<UserAuthentication> fetchOneById(UUID id) {
         return Optional.ofNullable(queryFactory
                                            .selectFrom(userAuthentication)
                                            .join(userAuthentication.user, user).fetchJoin()
@@ -30,7 +30,7 @@ public class UserAuthenticationQueryRepository {
                                            .fetchOne());
     }
 
-    public Optional<UserAuthentication> findOneByIdentifier(String identifier) {
+    public Optional<UserAuthentication> fetchOneByIdentifier(String identifier) {
         return Optional.ofNullable(queryFactory
                                            .selectFrom(userAuthentication)
                                            .join(userAuthentication.user, user).fetchJoin()

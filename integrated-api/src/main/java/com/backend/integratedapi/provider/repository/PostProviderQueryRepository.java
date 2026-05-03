@@ -21,11 +21,15 @@ public class PostProviderQueryRepository {
     public OffsetPageResult<PostProvider> fetchPostProviders(int page, int size) {
         List<PostProvider> postProviders = queryFactory
                 .selectFrom(postProvider)
+                .where(postProvider.deletedAt.isNull())
                 .offset(page)
                 .limit(size)
                 .fetch();
 
-        Long totalCount = queryFactory.select(postProvider.count()).from(postProvider).fetchOne();
+        Long totalCount = queryFactory.select(postProvider.count())
+                                      .from(postProvider)
+                                      .where(postProvider.deletedAt.isNull())
+                                      .fetchOne();
 
         return new OffsetPageResult<>(totalCount != null ? totalCount : 0L,
                                       page,

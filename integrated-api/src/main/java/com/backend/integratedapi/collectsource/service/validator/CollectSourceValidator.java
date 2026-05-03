@@ -1,7 +1,7 @@
 package com.backend.integratedapi.collectsource.service.validator;
 
 import com.backend.commondataaccess.persistence.collectsource.CollectSource;
-import com.backend.commondataaccess.persistence.collectsource.enums.ScheduleType;
+import com.backend.commondataaccess.persistence.common.enums.ScheduleType;
 import com.backend.integratedapi.collectsource.service.dto.CollectSourceDto;
 import java.util.Optional;
 import java.util.UUID;
@@ -67,10 +67,10 @@ public class CollectSourceValidator {
 
     }
 
-    public static CollectSource getCollectSourceOrThrow(UUID id, Function<UUID, Optional<CollectSource>> findById) {
+    public static CollectSource getCollectSourceOrThrow(UUID id, Function<UUID, Optional<CollectSource>> fetchOneById) {
         validateId(id);
 
-        return findById.apply(id)
+        return fetchOneById.apply(id)
                        .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 collectSource입니다. id: " + id));
     }
 }

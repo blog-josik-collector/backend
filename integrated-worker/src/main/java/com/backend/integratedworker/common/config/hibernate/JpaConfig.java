@@ -13,7 +13,8 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 @Configuration
 @EnableJpaAuditing(dateTimeProviderRef = "auditingDateTimeProvider") // JPA Auditing 활성화
 @EnableJpaRepositories(basePackages = {
-        "com.backend.integratedworker.collectingjob.repository"
+        "com.backend.integratedworker.collectingjob.repository",
+        "com.backend.integratedworker.collectsourcepost.repository"
 })
 @EntityScan(basePackages = "com.backend.commondataaccess.persistence")
 public class JpaConfig {

@@ -2,7 +2,17 @@ plugins {
     id "org.springframework.boot"
 }
 
+ext {
+    set('seleniumVersion', '4.20.0')
+    set('webdrivermanagerVersion', '5.8.0')
+}
+
 dependencies {
     implementation project(":common-data-access")
     runtimeOnly "org.postgresql:postgresql"
+
+    implementation "org.seleniumhq.selenium:selenium-java:${seleniumVersion}"
+//    implementation "org.seleniumhq.selenium:selenium-chrome-driver:${seleniumVersion}"
+//    implementation "org.seleniumhq.selenium:selenium-devtools-v141:${seleniumVersion}"
+    implementation "io.github.bonigarcia:webdrivermanager:${webdrivermanagerVersion}"
 }

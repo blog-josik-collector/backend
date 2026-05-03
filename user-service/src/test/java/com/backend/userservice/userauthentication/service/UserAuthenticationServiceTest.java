@@ -165,7 +165,7 @@ class UserAuthenticationServiceTest {
                                                                       .credential(password)
                                                                       .build();
 
-            Mockito.doReturn(Optional.of(userAuthentication)).when(queryRepository).findOneById(any());
+            Mockito.doReturn(Optional.of(userAuthentication)).when(queryRepository).fetchOneById(any());
 
             // when
             UserAuthentication result = userAuthenticationService.getUserAuthentication(userAuthentication.id());
@@ -192,7 +192,7 @@ class UserAuthenticationServiceTest {
                                                                       .credential(password)
                                                                       .build();
 
-            Mockito.doReturn(Optional.of(userAuthentication)).when(queryRepository).findOneByIdentifier(any());
+            Mockito.doReturn(Optional.of(userAuthentication)).when(queryRepository).fetchOneByIdentifier(any());
 
             // when
             UserAuthentication result = userAuthenticationService.getUserAuthentication(userAuthentication.identifier());
@@ -246,7 +246,7 @@ class UserAuthenticationServiceTest {
                                                                       .credential(password)
                                                                       .build();
 
-            Mockito.doReturn(Optional.of(userAuthentication)).when(queryRepository).findOneByIdentifier(any());
+            Mockito.doReturn(Optional.of(userAuthentication)).when(queryRepository).fetchOneByIdentifier(any());
 
             // when
             Optional<UserAuthentication> result = userAuthenticationService.findUserAuthentication(userAuthentication.identifier());
@@ -376,7 +376,7 @@ class UserAuthenticationServiceTest {
                                                                             .identifier(subject)
                                                                             .build();
 
-            Mockito.doReturn(Optional.of(localUserAuthentication)).when(queryRepository).findOneById(localUserAuthentication.id());
+            Mockito.doReturn(Optional.of(localUserAuthentication)).when(queryRepository).fetchOneById(localUserAuthentication.id());
             Mockito.doReturn(List.of(googleUserAuthentication)).when(queryRepository).findAllByUserId(any());
 
             Assertions.assertThat(googleUserAuthentication.user().id()).isEqualTo(mockUser2.id());
@@ -409,7 +409,7 @@ class UserAuthenticationServiceTest {
                                                                            .credential(password)
                                                                            .build();
 
-            Mockito.doReturn(Optional.of(localUserAuthentication)).when(queryRepository).findOneById(localUserAuthentication.id());
+            Mockito.doReturn(Optional.of(localUserAuthentication)).when(queryRepository).fetchOneById(localUserAuthentication.id());
 
             // when & then
             Assertions.assertThatThrownBy(() -> userAuthenticationService.merge(localUserAuthentication.id(), mockUser))

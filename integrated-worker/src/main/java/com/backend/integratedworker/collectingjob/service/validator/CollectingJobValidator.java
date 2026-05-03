@@ -14,10 +14,10 @@ public class CollectingJobValidator {
         }
     }
 
-    public static CollectingJob getCollectingJobOrThrow(UUID id, Function<UUID, Optional<CollectingJob>> findById) {
+    public static CollectingJob getCollectingJobOrThrow(UUID id, Function<UUID, Optional<CollectingJob>> fetchOneById) {
         validateId(id);
 
-        return findById.apply(id)
+        return fetchOneById.apply(id)
                        .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 collecting_job입니다. id: " + id));
     }
 }

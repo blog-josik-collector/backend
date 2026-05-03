@@ -63,14 +63,14 @@ public class UserAuthenticationService {
     public UserAuthentication getUserAuthentication(UUID id) {
         UserAuthenticationValidator.validateId(id);
 
-        return UserAuthenticationValidator.getUserAuthenticationOrThrow(id, queryRepository::findOneById);
+        return UserAuthenticationValidator.getUserAuthenticationOrThrow(id, queryRepository::fetchOneById);
     }
 
     @Transactional(readOnly = true)
     public UserAuthentication getUserAuthentication(String identifier) {
         UserAuthenticationValidator.validateIdentifier(identifier);
 
-        return UserAuthenticationValidator.getUserAuthenticationOrThrow(identifier, queryRepository::findOneByIdentifier);
+        return UserAuthenticationValidator.getUserAuthenticationOrThrow(identifier, queryRepository::fetchOneByIdentifier);
     }
 
     @Transactional(readOnly = true)
@@ -83,7 +83,7 @@ public class UserAuthenticationService {
     @Transactional(readOnly = true)
     public Optional<UserAuthentication> findUserAuthentication(String identifier) {
         UserAuthenticationValidator.validateIdentifier(identifier);
-        return queryRepository.findOneByIdentifier(identifier);
+        return queryRepository.fetchOneByIdentifier(identifier);
     }
 
     public void updatePassword(UUID userId, String password, String newPassword) {

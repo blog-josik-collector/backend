@@ -15,6 +15,8 @@ public record PostProviderReadDto() {
                            String baseUrl,
                            String description,
                            boolean isUsed,
+                           boolean hasUsingCollectSource,
+                           UUID usingCollectSourceId,
                            OffsetDateTime createdAt,
                            OffsetDateTime updatedAt) {
 
@@ -25,6 +27,8 @@ public record PostProviderReadDto() {
                            .baseUrl(postProviderDto.baseUrl())
                            .description(postProviderDto.description())
                            .isUsed(postProviderDto.isUsed())
+                           .hasUsingCollectSource(postProviderDto.hasUsingCollectSource())
+                           .usingCollectSourceId(postProviderDto.usingCollectSourceId())
                            .createdAt(postProviderDto.createdAt())
                            .updatedAt(postProviderDto.updatedAt())
                            .build();
