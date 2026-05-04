@@ -36,7 +36,7 @@ public class CollectingJobController {
     private String defaultToPage;
 
     @Operation(
-            summary = "수집 작업 시작",
+            summary = "수집 작업 실행",
             description = "MANUAL source는 1회 Job 생성 후 종료. CRON source는 자동 생성 사이클 활성화 + 첫 Job 생성."
     )
     @PostMapping("/sources/{source-id}/_start")

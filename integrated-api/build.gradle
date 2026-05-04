@@ -21,4 +21,7 @@ dependencies {
     implementation "org.flywaydb:flyway-core"
     implementation "org.flywaydb:flyway-database-postgresql"
     runtimeOnly "org.postgresql:postgresql"
+
+    // 이 한 줄을 추가하면 :common-data-access의 testFixtures를 가져옵니다.
+    testImplementation testFixtures(project(":common-data-access"))
 }
