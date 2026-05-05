@@ -9,6 +9,15 @@ spring:
     password: postgres
     driver-class-name: org.postgresql.Driver
 
+elasticsearch:
+  host: localhost
+  port: 9200
+  scheme: https
+  username: elastic
+  password: elastic
+  fingerprint:
+  index-name: posts
+
 jwt:
   issuer: blog-josik-collector  # 토큰 발행자 식별자
   # HS512 알고리즘을 안전하게 사용하기 위해 최소 64글자 이상의 임의 문자열 권장
@@ -16,8 +25,14 @@ jwt:
   client-secret: dGhpcy1pcy1hLXZlcnktbG9uZy1hbmQtc2VjdXJlLWtleS1mb3Itand0LXNpZ25pbmctNTEyLWJpdHMtc3Ryb25nLWVub3VnaA==
   expiry-seconds: 7200  # 액세스 토큰 만료 시간 (2시간 = 7200초)
 
-scheduler:
-  worker:
-    delay: 60000 # 60초 (밀리초 단위)
-  cron-job-generator:
-    delay: 60000 # 60초 (밀리초 단위)
+collecting-job-worker:
+  schedule-delay: 60000 # 60초 (밀리초 단위)
+  job-batch-size: 10
+
+collecting-job-cron-generator:
+  schedule-delay: 60000 # 60초 (밀리초 단위)
+
+indexing-job-worker:
+  schedule-delay: 30000 # 30초 (밀리초 단위)
+  job-batch-size: 5
+  post-batch-size: 100

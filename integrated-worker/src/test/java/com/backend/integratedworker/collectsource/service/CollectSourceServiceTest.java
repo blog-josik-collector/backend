@@ -1,14 +1,13 @@
 package com.backend.integratedworker.collectsource.service;
 
 import com.backend.commondataaccess.persistence.collectsource.CollectSource;
-import com.backend.commondataaccess.persistence.common.enums.ScheduleType;
+import com.backend.commondataaccess.persistence.common.enums.CollectScheduleType;
 import com.backend.commondataaccess.persistence.provider.PostProvider;
 import com.backend.integratedworker.collectsource.repository.CollectSourceQueryRepository;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import org.assertj.core.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -50,7 +49,7 @@ class CollectSourceServiceTest {
                                                        .id(UUID.randomUUID())
                                                        .postProvider(postProvider)
                                                        .url("https://test.com/blog/1")
-                                                       .scheduleType(ScheduleType.CRON)
+                                                       .collectScheduleType(CollectScheduleType.CRON)
                                                        .cronExpression("0 0 * * * *")
                                                        .isUsed(true)
                                                        .build();
@@ -64,7 +63,7 @@ class CollectSourceServiceTest {
             Assertions.assertThat(result).isNotNull();
             Assertions.assertThat(result).hasSize(1);
             Assertions.assertThat(result.get(0).id()).isEqualTo(collectSource.id());
-            Assertions.assertThat(result.get(0).scheduleType()).isEqualTo(ScheduleType.CRON);
+            Assertions.assertThat(result.get(0).collectScheduleType()).isEqualTo(CollectScheduleType.CRON);
         }
 
         @Test

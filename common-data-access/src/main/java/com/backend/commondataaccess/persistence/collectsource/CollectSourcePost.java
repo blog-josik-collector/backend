@@ -3,6 +3,7 @@ package com.backend.commondataaccess.persistence.collectsource;
 import com.backend.commondataaccess.persistence.collectingjob.CollectingJob;
 import com.backend.commondataaccess.persistence.common.BaseEntity;
 import com.backend.commondataaccess.persistence.common.enums.IndexingStatus;
+import com.backend.commondataaccess.persistence.indexingjob.IndexingJob;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -66,6 +67,10 @@ public class CollectSourcePost extends BaseEntity {
     @JoinColumn(name = "last_collecting_job_id", nullable = false)
     private CollectingJob lastCollectingJob;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "last_indexing_job_id")
+    private IndexingJob lastIndexingJob;
+
     public void updateTitle(String title) {
         this.title = title;
     }
@@ -89,5 +94,37 @@ public class CollectSourcePost extends BaseEntity {
     public void updateLastCollect(CollectingJob collectingJob, OffsetDateTime offsetDateTime) {
         this.lastCollectingJob = collectingJob;
         this.lastCollectedAt = offsetDateTime;
+    }
+
+    /**
+     * for Indexing
+     */
+    public void markIndexing(IndexingJob indexingJob) {
+        this.indexingStatus = IndexingStatus.INDEXING;
+        this.lastIndexingJob = indexingJob;
+    }
+
+    public void markIndexed(IndexingJob indexingJob, OffsetDateTime now) {
+        this.indexingStatus = IndexingStatus.INDEXED;
+        this.lastIndexedAt = now;
+        this.lastIndexingJob = indexingJob;
+        this.indexingErrorCount = 0;
+    }
+
+    public void markIndexFailed(IndexingJob indexingJob) {
+        this.indexingStatus = IndexingStatus.FAILED;
+        this.lastIndexingJob = indexingJob;
+        this.indexingErrorCount++;
+    }
+
+    public void markIndexSkipped(IndexingJob indexingJob, OffsetDateTime now) {
+        this.indexingStatus = IndexingStatus.SKIPPED;
+        this.lastIndexedAt = now;
+        this.lastIndexingJob = indexingJob;
+    }
+
+    public void resetForReindex() {
+        this.indexingStatus = IndexingStatus.PENDING;
+        this.indexingErrorCount = 0;
     }
 }

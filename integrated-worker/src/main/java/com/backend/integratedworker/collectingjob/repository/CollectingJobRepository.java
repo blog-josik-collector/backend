@@ -18,5 +18,5 @@ public interface CollectingJobRepository extends JpaRepository<CollectingJob, UU
         LIMIT :batchSize
         FOR UPDATE SKIP LOCKED
         """, nativeQuery = true)
-    List<CollectingJob> pickPending(@Param("batchSize") int batchSize);
+    List<CollectingJob> findAllPendingCollectingJob(@Param("batchSize") int batchSize);
 }

@@ -5,9 +5,9 @@ import static org.mockito.ArgumentMatchers.any;
 import com.backend.commondataaccess.persistence.collectingjob.CollectingJob;
 import com.backend.commondataaccess.persistence.collectsource.CollectSource;
 import com.backend.commondataaccess.persistence.collectsource.CollectSourcePost;
+import com.backend.commondataaccess.persistence.common.enums.CollectScheduleType;
 import com.backend.commondataaccess.persistence.common.enums.IndexingStatus;
 import com.backend.commondataaccess.persistence.common.enums.JobStatus;
-import com.backend.commondataaccess.persistence.common.enums.ScheduleType;
 import com.backend.commondataaccess.persistence.provider.PostProvider;
 import com.backend.integratedapi.collectsourcepost.repository.CollectSourcePostQueryRepository;
 import com.backend.integratedapi.collectsourcepost.service.dto.CollectSourcePostDto;
@@ -55,7 +55,7 @@ class CollectSourcePostServiceTest {
                                                    .id(UUID.randomUUID())
                                                    .postProvider(postProvider)
                                                    .url("https://test.com/blog/1")
-                                                   .scheduleType(ScheduleType.MANUAL)
+                                                   .collectScheduleType(CollectScheduleType.MANUAL)
                                                    .isUsed(true)
                                                    .build();
 
@@ -73,7 +73,7 @@ class CollectSourcePostServiceTest {
                                                  .publishedAt(LocalDate.now())
                                                  .thumbnailUrl("https://test.com/thumb.png")
                                                  .summary("test_summary")
-                                                 .indexingStatus(IndexingStatus.INDEX_PENDING)
+                                                 .indexingStatus(IndexingStatus.PENDING)
                                                  .indexingErrorCount(0)
                                                  .lastCollectingJob(collectingJob)
                                                  .build();

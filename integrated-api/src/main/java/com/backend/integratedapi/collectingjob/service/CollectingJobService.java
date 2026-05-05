@@ -1,6 +1,6 @@
 package com.backend.integratedapi.collectingjob.service;
 
-import static com.backend.commondataaccess.persistence.common.enums.ScheduleType.CRON;
+import static com.backend.commondataaccess.persistence.common.enums.CollectScheduleType.CRON;
 
 import com.backend.commondataaccess.dto.OffsetPageResult;
 import com.backend.commondataaccess.persistence.collectingjob.CollectingJob;
@@ -28,7 +28,7 @@ public class CollectingJobService {
     public CollectingJobDto start(CollectingJobDto dto) {
         CollectSource collectSource = collectSourceService.getCollectSource(dto.sourceId());
 
-        return switch (collectSource.scheduleType()) {
+        return switch (collectSource.collectScheduleType()) {
             case CRON -> startCron(collectSource, dto.userId(), dto.fromPage(), dto.toPage());
             case MANUAL -> startManual(collectSource, dto.userId(), dto.fromPage(), dto.toPage());
         };
@@ -37,7 +37,7 @@ public class CollectingJobService {
     public void stop(UUID sourceId) {
         CollectSource collectSource = collectSourceService.getCollectSource(sourceId);
 
-        if (collectSource.scheduleType().equals(CRON)) {
+        if (collectSource.collectScheduleType().equals(CRON)) {
             collectSource.deactivate();
         }
     }
@@ -62,7 +62,7 @@ public class CollectingJobService {
     }
 
     private CollectingJob createPendingJob(CollectSource collectSource, UUID userId, int fromPage, int toPage) {
-        return switch (collectSource.scheduleType()) {
+        return switch (collectSource.collectScheduleType()) {
             case CRON -> CollectingJob.builder()
                                       .collectSource(collectSource)
                                       .jobStatus(JobStatus.PENDING)

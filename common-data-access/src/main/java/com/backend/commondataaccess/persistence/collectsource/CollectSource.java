@@ -1,9 +1,11 @@
 package com.backend.commondataaccess.persistence.collectsource;
 
 import com.backend.commondataaccess.persistence.common.BaseEntity;
-import com.backend.commondataaccess.persistence.common.enums.ScheduleType;
+import com.backend.commondataaccess.persistence.common.enums.CollectScheduleType;
 import com.backend.commondataaccess.persistence.provider.PostProvider;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
@@ -37,7 +39,8 @@ public class CollectSource extends BaseEntity {
 
     private String url;
 
-    private ScheduleType scheduleType;
+    @Enumerated(EnumType.STRING)
+    private CollectScheduleType collectScheduleType;
 
     private String cronExpression;
 
@@ -47,8 +50,8 @@ public class CollectSource extends BaseEntity {
         this.url = url;
     }
 
-    public void updateScheduleType(ScheduleType scheduleType) {
-        this.scheduleType = scheduleType;
+    public void updateScheduleType(CollectScheduleType collectScheduleType) {
+        this.collectScheduleType = collectScheduleType;
     }
 
     public void updateCronExpression(String cronExpression) {

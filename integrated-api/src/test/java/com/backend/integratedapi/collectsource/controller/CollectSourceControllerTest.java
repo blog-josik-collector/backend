@@ -9,7 +9,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.backend.commondataaccess.dto.OffsetPageResult;
-import com.backend.commondataaccess.persistence.common.enums.ScheduleType;
+import com.backend.commondataaccess.persistence.common.enums.CollectScheduleType;
 import com.backend.integratedapi.collectsource.controller.dto.CollectSourceCreateDto;
 import com.backend.integratedapi.collectsource.controller.dto.CollectSourceUpdateDto;
 import com.backend.integratedapi.collectsource.service.CollectSourceService;
@@ -51,7 +51,7 @@ class CollectSourceControllerTest {
                                                .id(UUID.randomUUID())
                                                .providerId(UUID.randomUUID())
                                                .url("https://test.com/blog/1")
-                                               .scheduleType(ScheduleType.CRON)
+                                               .collectScheduleType(CollectScheduleType.CRON)
                                                .cronExpression("0 0 * * * *")
                                                .isUsed(true)
                                                .build();
@@ -63,7 +63,7 @@ class CollectSourceControllerTest {
     void 수집_소스를_등록한다() throws Exception {
         CollectSourceCreateDto.Request request = new CollectSourceCreateDto.Request(mockCollectSourceDto.providerId(),
                                                                                     mockCollectSourceDto.url(),
-                                                                                    mockCollectSourceDto.scheduleType(),
+                                                                                    mockCollectSourceDto.collectScheduleType(),
                                                                                     mockCollectSourceDto.cronExpression());
 
         Mockito.doReturn(mockCollectSourceDto).when(collectSourceService).create(any(CollectSourceDto.class));
@@ -89,7 +89,7 @@ class CollectSourceControllerTest {
                .andExpect(jsonPath("$.items[0].sourceId").value(mockCollectSourceDto.id().toString()))
                .andExpect(jsonPath("$.items[0].providerId").value(mockCollectSourceDto.providerId().toString()))
                .andExpect(jsonPath("$.items[0].url").value(mockCollectSourceDto.url()))
-               .andExpect(jsonPath("$.items[0].scheduleType").value(mockCollectSourceDto.scheduleType().getName()))
+               .andExpect(jsonPath("$.items[0].scheduleType").value(mockCollectSourceDto.collectScheduleType().getName()))
                .andExpect(jsonPath("$.items[0].cronExpression").value(mockCollectSourceDto.cronExpression()));
     }
 
@@ -103,7 +103,7 @@ class CollectSourceControllerTest {
                .andExpect(jsonPath("$.sourceId").value(mockCollectSourceDto.id().toString()))
                .andExpect(jsonPath("$.providerId").value(mockCollectSourceDto.providerId().toString()))
                .andExpect(jsonPath("$.url").value(mockCollectSourceDto.url()))
-               .andExpect(jsonPath("$.scheduleType").value(mockCollectSourceDto.scheduleType().getName()))
+               .andExpect(jsonPath("$.scheduleType").value(mockCollectSourceDto.collectScheduleType().getName()))
                .andExpect(jsonPath("$.cronExpression").value(mockCollectSourceDto.cronExpression()))
                .andExpect(jsonPath("$.isUsed").value(mockCollectSourceDto.isUsed()));
     }
@@ -111,7 +111,7 @@ class CollectSourceControllerTest {
     @Test
     void 수집_소스를_수정한다() throws Exception {
         CollectSourceUpdateDto.Request request = new CollectSourceUpdateDto.Request("https://updated.com",
-                                                                                    ScheduleType.CRON,
+                                                                                    CollectScheduleType.CRON,
                                                                                     "0 30 * * * *",
                                                                                     true);
 

@@ -3,7 +3,7 @@ package com.backend.integratedapi.collectsource.service;
 import com.backend.commondataaccess.dto.OffsetPageResult;
 import com.backend.commondataaccess.persistence.provider.PostProvider;
 import com.backend.commondataaccess.persistence.collectsource.CollectSource;
-import com.backend.commondataaccess.persistence.common.enums.ScheduleType;
+import com.backend.commondataaccess.persistence.common.enums.CollectScheduleType;
 import com.backend.commondataaccess.service.validator.ValidationFlow;
 import com.backend.integratedapi.provider.service.PostProviderService;
 import com.backend.integratedapi.collectsource.repository.CollectSourceQueryRepository;
@@ -32,14 +32,14 @@ public class CollectSourceService {
                       .next(CollectSourceValidator.validateScheduleType())
                       .end();
 
-        CollectSourceValidator.validateScheduleTypeAndCronExpressionPair(collectSourceDto.scheduleType(), collectSourceDto.cronExpression());
+        CollectSourceValidator.validateScheduleTypeAndCronExpressionPair(collectSourceDto.collectScheduleType(), collectSourceDto.cronExpression());
 
         PostProvider postProvider = postProviderService.getPostProvider(collectSourceDto.providerId());
 
         CollectSource collectSource = CollectSource.builder()
                                                    .postProvider(postProvider)
                                                    .url(collectSourceDto.url())
-                                                   .scheduleType(collectSourceDto.scheduleType())
+                                                   .collectScheduleType(collectSourceDto.collectScheduleType())
                                                    .cronExpression(collectSourceDto.cronExpression())
                                                    .isUsed(collectSourceDto.isUsed())
                                                    .build();
@@ -77,12 +77,12 @@ public class CollectSourceService {
             collectSource.updateUrl(collectSourceDto.url());
         }
 
-        if (ObjectUtils.isNotEmpty(collectSourceDto.scheduleType())) {
-            ScheduleType scheduleType = collectSourceDto.scheduleType();
-            CollectSourceValidator.validateScheduleTypeAndCronExpressionPair(scheduleType, collectSourceDto.cronExpression());
-            collectSource.updateScheduleType(collectSourceDto.scheduleType());
+        if (ObjectUtils.isNotEmpty(collectSourceDto.collectScheduleType())) {
+            CollectScheduleType collectScheduleType = collectSourceDto.collectScheduleType();
+            CollectSourceValidator.validateScheduleTypeAndCronExpressionPair(collectScheduleType, collectSourceDto.cronExpression());
+            collectSource.updateScheduleType(collectSourceDto.collectScheduleType());
 
-            if (scheduleType.equals(ScheduleType.MANUAL)) {
+            if (collectScheduleType.equals(CollectScheduleType.MANUAL)) {
                 collectSource.updateCronExpression(StringUtils.EMPTY);
             }
         }

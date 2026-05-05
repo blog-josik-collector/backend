@@ -49,7 +49,7 @@ class CollectSourcePostControllerTest {
                                                        .publishedAt(LocalDate.of(2025, 1, 1))
                                                        .thumbnailUrl("https://test.com/thumb.png")
                                                        .summary("test_summary")
-                                                       .indexingStatus(IndexingStatus.INDEX_PENDING)
+                                                       .indexingStatus(IndexingStatus.PENDING)
                                                        .indexingErrorCount(0)
                                                        .lastCollectingJobId(UUID.randomUUID())
                                                        .build();

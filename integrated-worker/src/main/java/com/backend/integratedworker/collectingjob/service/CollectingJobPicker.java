@@ -20,7 +20,7 @@ public class CollectingJobPicker {
     private final CollectingJobRepository collectingJobRepository;
 
     public List<UUID> pickAndMarkRunning(int batchSize) {
-        List<CollectingJob> jobs = collectingJobRepository.pickPending(batchSize);
+        List<CollectingJob> jobs = collectingJobRepository.findAllPendingCollectingJob(batchSize);
         OffsetDateTime now = OffsetDateTime.now();
 
         for (CollectingJob job : jobs) {

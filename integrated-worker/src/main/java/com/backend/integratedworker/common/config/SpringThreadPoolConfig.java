@@ -16,4 +16,13 @@ public class SpringThreadPoolConfig {
         executor.setThreadNamePrefix("collecting-");
         return executor;
     }
+
+    @Bean("indexingExecutor")
+    public ThreadPoolTaskExecutor indexingExecutor() {
+        var executor = new ThreadPoolTaskExecutor();
+        executor.setCorePoolSize(2);
+        executor.setMaxPoolSize(5);
+        executor.setThreadNamePrefix("indexing-");
+        return executor;
+    }
 }

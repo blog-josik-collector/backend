@@ -26,7 +26,7 @@ public class CollectingJobCronGenerator {
     private final CollectSourceService collectSourceService;
 
     //    @Scheduled(fixedDelay = 5000)
-    @Scheduled(fixedDelayString = "${scheduler.cron-job-generator.delay}")
+    @Scheduled(fixedDelayString = "${collecting-job-cron-generator.schedule-delay}")
     public void generate() {
         log.info("CollectingJob Cron Generator call generate()");
 

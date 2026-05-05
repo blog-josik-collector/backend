@@ -5,7 +5,7 @@ import static org.mockito.ArgumentMatchers.anyInt;
 import com.backend.commondataaccess.persistence.collectingjob.CollectingJob;
 import com.backend.commondataaccess.persistence.collectsource.CollectSource;
 import com.backend.commondataaccess.persistence.common.enums.JobStatus;
-import com.backend.commondataaccess.persistence.common.enums.ScheduleType;
+import com.backend.commondataaccess.persistence.common.enums.CollectScheduleType;
 import com.backend.commondataaccess.persistence.provider.PostProvider;
 import com.backend.integratedworker.collectingjob.repository.CollectingJobRepository;
 import java.util.ArrayList;
@@ -51,7 +51,7 @@ class CollectingJobPickerTest {
                                      .id(UUID.randomUUID())
                                      .postProvider(postProvider)
                                      .url("https://test.com/blog/1")
-                                     .scheduleType(ScheduleType.MANUAL)
+                                     .collectScheduleType(CollectScheduleType.MANUAL)
                                      .isUsed(true)
                                      .build();
     }
@@ -74,7 +74,7 @@ class CollectingJobPickerTest {
             CollectingJob job1 = pendingJob();
             CollectingJob job2 = pendingJob();
 
-            Mockito.doReturn(List.of(job1, job2)).when(collectingJobRepository).pickPending(anyInt());
+            Mockito.doReturn(List.of(job1, job2)).when(collectingJobRepository).findAllPendingCollectingJob(anyInt());
 
             Assertions.assertThat(job1.jobStatus()).isEqualTo(JobStatus.PENDING);
             Assertions.assertThat(job2.jobStatus()).isEqualTo(JobStatus.PENDING);
@@ -95,7 +95,7 @@ class CollectingJobPickerTest {
         @Test
         void pickPending이_빈_리스트를_반환하면_빈_리스트를_반환한다() {
             // given
-            Mockito.doReturn(List.of()).when(collectingJobRepository).pickPending(anyInt());
+            Mockito.doReturn(List.of()).when(collectingJobRepository).findAllPendingCollectingJob(anyInt());
 
             // when
             List<UUID> result = collectingJobPicker.pickAndMarkRunning(10);

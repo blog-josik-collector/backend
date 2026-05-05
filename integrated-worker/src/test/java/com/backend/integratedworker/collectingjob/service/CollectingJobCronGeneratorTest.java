@@ -4,7 +4,7 @@ import static org.mockito.ArgumentMatchers.any;
 
 import com.backend.commondataaccess.persistence.collectingjob.CollectingJob;
 import com.backend.commondataaccess.persistence.collectsource.CollectSource;
-import com.backend.commondataaccess.persistence.common.enums.ScheduleType;
+import com.backend.commondataaccess.persistence.common.enums.CollectScheduleType;
 import com.backend.commondataaccess.persistence.provider.PostProvider;
 import com.backend.integratedworker.collectingjob.repository.CollectingJobQueryRepository;
 import com.backend.integratedworker.collectingjob.repository.CollectingJobRepository;
@@ -59,7 +59,7 @@ class CollectingJobCronGeneratorTest {
                             .id(UUID.randomUUID())
                             .postProvider(postProvider)
                             .url("https://test.com/blog/1")
-                            .scheduleType(ScheduleType.CRON)
+                            .collectScheduleType(CollectScheduleType.CRON)
                             .cronExpression(cronExpression)
                             .isUsed(true)
                             .build();

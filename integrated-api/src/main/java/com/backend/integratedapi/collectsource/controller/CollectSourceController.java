@@ -61,7 +61,7 @@ public class CollectSourceController {
     public ResponseEntity<CollectSourceUpdateDto.Response> update(@PathVariable UUID id,
                                                                   @RequestBody CollectSourceUpdateDto.Request request) {
 
-        CollectSourceDto collectSourceDto = CollectSourceDto.of(id, request.url(), request.scheduleType(), request.cronExpression(), request.isUsed());
+        CollectSourceDto collectSourceDto = CollectSourceDto.of(id, request.url(), request.collectScheduleType(), request.cronExpression(), request.isUsed());
         collectSourceService.update(collectSourceDto);
         return ResponseEntity.ok(CollectSourceUpdateDto.Response.from(collectSourceService.getCollectSourceDto(id)));
     }

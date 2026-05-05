@@ -5,8 +5,8 @@ import static org.mockito.ArgumentMatchers.any;
 import com.backend.commondataaccess.persistence.collectingjob.CollectingJob;
 import com.backend.commondataaccess.persistence.collectsource.CollectSource;
 import com.backend.commondataaccess.persistence.collectsource.CollectSourcePost;
+import com.backend.commondataaccess.persistence.common.enums.CollectScheduleType;
 import com.backend.commondataaccess.persistence.common.enums.JobStatus;
-import com.backend.commondataaccess.persistence.common.enums.ScheduleType;
 import com.backend.commondataaccess.persistence.provider.PostProvider;
 import com.backend.integratedworker.collectingjob.service.crawler.kakao.KakaoPost;
 import com.backend.integratedworker.collectingjob.service.dto.Post;
@@ -61,7 +61,7 @@ class CollectSourcePostServiceTest {
                                      .id(UUID.randomUUID())
                                      .postProvider(postProvider)
                                      .url("https://test.com/blog/1")
-                                     .scheduleType(ScheduleType.MANUAL)
+                                     .collectScheduleType(CollectScheduleType.MANUAL)
                                      .isUsed(true)
                                      .build();
 

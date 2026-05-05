@@ -1,6 +1,6 @@
 package com.backend.integratedapi.collectsource.controller.dto;
 
-import com.backend.commondataaccess.persistence.common.enums.ScheduleType;
+import com.backend.commondataaccess.persistence.common.enums.CollectScheduleType;
 import com.backend.integratedapi.collectsource.service.dto.CollectSourceDto;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import java.time.OffsetDateTime;
@@ -14,7 +14,7 @@ public record CollectSourceReadDto() {
     public record Response(UUID sourceId,
                            UUID providerId,
                            String url,
-                           ScheduleType scheduleType,
+                           CollectScheduleType scheduleType,
                            String cronExpression,
                            boolean isUsed,
                            OffsetDateTime createdAt,
@@ -25,7 +25,7 @@ public record CollectSourceReadDto() {
                                                 .sourceId(collectSourceDto.id())
                                                 .providerId(collectSourceDto.providerId())
                                                 .url(collectSourceDto.url())
-                                                .scheduleType(collectSourceDto.scheduleType())
+                                                .scheduleType(collectSourceDto.collectScheduleType())
                                                 .cronExpression(collectSourceDto.cronExpression())
                                                 .isUsed(collectSourceDto.isUsed())
                                                 .createdAt(collectSourceDto.createdAt())

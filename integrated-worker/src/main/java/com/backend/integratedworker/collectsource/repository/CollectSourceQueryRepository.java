@@ -2,7 +2,7 @@ package com.backend.integratedworker.collectsource.repository;
 
 import com.backend.commondataaccess.persistence.collectsource.CollectSource;
 import com.backend.commondataaccess.persistence.collectsource.QCollectSource;
-import com.backend.commondataaccess.persistence.common.enums.ScheduleType;
+import com.backend.commondataaccess.persistence.common.enums.CollectScheduleType;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -20,7 +20,7 @@ public class CollectSourceQueryRepository {
         return queryFactory.select(collectSource)
                            .from(collectSource)
                            .where(
-                                   collectSource.scheduleType.eq(ScheduleType.CRON),
+                                   collectSource.collectScheduleType.eq(CollectScheduleType.CRON),
                                    collectSource.isUsed.eq(true),
                                    collectSource.deletedAt.isNull()
                            )

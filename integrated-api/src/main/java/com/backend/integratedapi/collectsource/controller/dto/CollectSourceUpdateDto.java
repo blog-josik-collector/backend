@@ -1,6 +1,6 @@
 package com.backend.integratedapi.collectsource.controller.dto;
 
-import com.backend.commondataaccess.persistence.common.enums.ScheduleType;
+import com.backend.commondataaccess.persistence.common.enums.CollectScheduleType;
 import com.backend.integratedapi.collectsource.service.dto.CollectSourceDto;
 import java.time.OffsetDateTime;
 import java.util.UUID;
@@ -8,7 +8,7 @@ import lombok.Builder;
 
 public record CollectSourceUpdateDto() {
 
-    public record Request(String url, ScheduleType scheduleType, String cronExpression, Boolean isUsed) {
+    public record Request(String url, CollectScheduleType collectScheduleType, String cronExpression, Boolean isUsed) {
 
     }
 

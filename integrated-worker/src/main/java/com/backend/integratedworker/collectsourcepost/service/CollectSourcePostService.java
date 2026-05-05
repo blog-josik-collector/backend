@@ -3,6 +3,7 @@ package com.backend.integratedworker.collectsourcepost.service;
 import com.backend.commondataaccess.persistence.collectingjob.CollectingJob;
 import com.backend.commondataaccess.persistence.collectsource.CollectSource;
 import com.backend.commondataaccess.persistence.collectsource.CollectSourcePost;
+import com.backend.commondataaccess.persistence.common.enums.IndexingStatus;
 import com.backend.integratedworker.collectingjob.service.dto.Post;
 import com.backend.integratedworker.collectsourcepost.repository.CollectSourcePostQueryRepository;
 import com.backend.integratedworker.collectsourcepost.repository.CollectSourcePostRepository;
@@ -12,6 +13,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.time.OffsetDateTime;
 import java.util.HexFormat;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -43,6 +45,7 @@ public class CollectSourcePostService {
                                                                .contentHash(contentHash)
                                                                .collectSource(collectSource)
                                                                .lastCollectingJob(collectingJob)
+                                                               .indexingStatus(IndexingStatus.PENDING)
                                                                .build();
 
         return collectSourcePostRepository.save(collectSourcePost);
@@ -98,5 +101,21 @@ public class CollectSourcePostService {
         collectSourcePost.updateLastCollect(collectingJob, OffsetDateTime.now());
 
         //TODO: 재인덱싱 필요 상태로 되돌리기
+        collectSourcePost.resetForReindex();
+    }
+
+    @Transactional(readOnly = true)
+    public List<CollectSourcePost> pickPendingForIndexing(int batchSize) {
+        return collectSourcePostRepository.findAllPendingCollectSourcePosts(batchSize);
+    }
+
+    @Transactional(readOnly = true)
+    public List<CollectSourcePost> getIndexingCollectSourcePosts(UUID indexingJobId) {
+        return queryRepository.fetchIndexingCollectSourcePosts(indexingJobId);
+    }
+
+    @Transactional(readOnly = true)
+    public List<CollectSourcePost> getReindexTargetCollectSourcePosts(UUID sourceId) {
+        return queryRepository.fetchReindexTargets(sourceId);
     }
 }

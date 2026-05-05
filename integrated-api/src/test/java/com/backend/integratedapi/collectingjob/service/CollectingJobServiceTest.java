@@ -6,7 +6,7 @@ import com.backend.commondataaccess.dto.OffsetPageResult;
 import com.backend.commondataaccess.persistence.collectingjob.CollectingJob;
 import com.backend.commondataaccess.persistence.collectsource.CollectSource;
 import com.backend.commondataaccess.persistence.common.enums.JobStatus;
-import com.backend.commondataaccess.persistence.common.enums.ScheduleType;
+import com.backend.commondataaccess.persistence.common.enums.CollectScheduleType;
 import com.backend.commondataaccess.persistence.provider.PostProvider;
 import com.backend.integratedapi.collectingjob.repository.CollectingJobQueryRepository;
 import com.backend.integratedapi.collectingjob.repository.CollectingJobRepository;
@@ -63,7 +63,7 @@ class CollectingJobServiceTest {
                                          .id(UUID.randomUUID())
                                          .postProvider(mockPostProvider)
                                          .url("https://test.com/blog/1")
-                                         .scheduleType(ScheduleType.CRON)
+                                         .collectScheduleType(CollectScheduleType.CRON)
                                          .cronExpression("0 0 * * * *")
                                          .isUsed(false)
                                          .build();
@@ -72,7 +72,7 @@ class CollectingJobServiceTest {
                                            .id(UUID.randomUUID())
                                            .postProvider(mockPostProvider)
                                            .url("https://test.com/blog/2")
-                                           .scheduleType(ScheduleType.MANUAL)
+                                           .collectScheduleType(CollectScheduleType.MANUAL)
                                            .isUsed(true)
                                            .build();
     }
@@ -148,7 +148,7 @@ class CollectingJobServiceTest {
                                                        .id(UUID.randomUUID())
                                                        .postProvider(mockPostProvider)
                                                        .url("https://test.com/blog/3")
-                                                       .scheduleType(ScheduleType.MANUAL)
+                                                       .collectScheduleType(CollectScheduleType.MANUAL)
                                                        .isUsed(false)
                                                        .build();
 

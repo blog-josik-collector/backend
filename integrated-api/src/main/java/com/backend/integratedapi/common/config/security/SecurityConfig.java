@@ -48,6 +48,7 @@ public class SecurityConfig {
                                          "/integrated-api/swagger-ui/**",
                                          "/integrated-api/v3/api-docs/**").permitAll()
                         .requestMatchers("/collect/v1/**").hasRole(UserType.ADMIN.name()) // 운영진
+                        .requestMatchers("/index/v1/**").hasRole(UserType.ADMIN.name()) // 운영진
                         .anyRequest().authenticated()
                 )
                 .formLogin(AbstractHttpConfigurer::disable)

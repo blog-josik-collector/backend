@@ -1,7 +1,7 @@
 package com.backend.integratedapi.collectsource.service.dto;
 
 import com.backend.commondataaccess.persistence.collectsource.CollectSource;
-import com.backend.commondataaccess.persistence.common.enums.ScheduleType;
+import com.backend.commondataaccess.persistence.common.enums.CollectScheduleType;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import java.time.OffsetDateTime;
 import java.util.UUID;
@@ -22,7 +22,7 @@ public class CollectSourceDto {
 
     private UUID providerId;
     private String url;
-    private ScheduleType scheduleType;
+    private CollectScheduleType collectScheduleType;
     private String cronExpression;
     private boolean isUsed;
 
@@ -31,21 +31,21 @@ public class CollectSourceDto {
     private OffsetDateTime createdAt;
     private OffsetDateTime updatedAt;
 
-    public static CollectSourceDto of(UUID providerId, String url, ScheduleType scheduleType, String cronExpression) {
+    public static CollectSourceDto of(UUID providerId, String url, CollectScheduleType collectScheduleType, String cronExpression) {
         return CollectSourceDto.builder()
                                .providerId(providerId)
                                .url(url)
-                               .scheduleType(scheduleType)
+                               .collectScheduleType(collectScheduleType)
                                .cronExpression(cronExpression)
                                .isUsed(true)
                                .build();
     }
 
-    public static CollectSourceDto of(UUID id, String url, ScheduleType scheduleType, String cronExpression, Boolean isUsed) {
+    public static CollectSourceDto of(UUID id, String url, CollectScheduleType collectScheduleType, String cronExpression, Boolean isUsed) {
         return CollectSourceDto.builder()
                                .id(id)
                                .url(url)
-                               .scheduleType(scheduleType)
+                               .collectScheduleType(collectScheduleType)
                                .cronExpression(cronExpression)
                                .isUsed(isUsed == null || isUsed)
                                .build();
@@ -56,7 +56,7 @@ public class CollectSourceDto {
                                .id(collectSource.id())
                                .providerId(collectSource.postProvider().id())
                                .url(collectSource.url())
-                               .scheduleType(collectSource.scheduleType())
+                               .collectScheduleType(collectSource.collectScheduleType())
                                .cronExpression(collectSource.cronExpression())
                                .isUsed(collectSource.isUsed())
                                .createdAt(collectSource.createdAt())

@@ -1,33 +1,36 @@
 package com.backend.integratedworker.collectingjob.service;
 
-import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.eq;
 
 import java.util.List;
 import java.util.UUID;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @DisplayName("CollectingJobWorker 테스트")
 @ExtendWith(MockitoExtension.class)
 class CollectingJobWorkerTest {
 
-    @Spy
-    @InjectMocks
-    private CollectingJobWorker collectingJobWorker;
+    private static final int JOB_BATCH_SIZE = 10;
 
     @Mock
     private CollectingJobPicker picker;
 
     @Mock
     private CollectingJobExecutor executor;
+
+    private CollectingJobWorker collectingJobWorker;
+
+    @BeforeEach
+    void setUp() {
+        collectingJobWorker = new CollectingJobWorker(JOB_BATCH_SIZE, picker, executor);
+    }
 
     @DisplayName("CollectingJob poll 테스트")
     @Nested
@@ -39,7 +42,7 @@ class CollectingJobWorkerTest {
             UUID jobId1 = UUID.randomUUID();
             UUID jobId2 = UUID.randomUUID();
 
-            Mockito.doReturn(List.of(jobId1, jobId2)).when(picker).pickAndMarkRunning(anyInt());
+            Mockito.doReturn(List.of(jobId1, jobId2)).when(picker).pickAndMarkRunning(JOB_BATCH_SIZE);
 
             // when
             collectingJobWorker.poll();
@@ -52,7 +55,7 @@ class CollectingJobWorkerTest {
         @Test
         void picker가_빈_리스트를_반환하면_executor의_executeAsync가_호출되지_않는다() {
             // given
-            Mockito.doReturn(List.of()).when(picker).pickAndMarkRunning(anyInt());
+            Mockito.doReturn(List.of()).when(picker).pickAndMarkRunning(JOB_BATCH_SIZE);
 
             // when
             collectingJobWorker.poll();

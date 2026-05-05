@@ -38,7 +38,7 @@ public class OpenApiSwaggerConfig {
     public GroupedOpenApi IntegratedV1Api() {
         return GroupedOpenApi.builder()
                              .group("integrated-v1")
-                             .pathsToMatch("/collect/v1/**")
+                             .pathsToMatch("/collect/v1/**", "/index/v1/**")
                              .build();
     }
 }

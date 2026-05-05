@@ -4,7 +4,7 @@ import static org.mockito.ArgumentMatchers.any;
 
 import com.backend.commondataaccess.dto.OffsetPageResult;
 import com.backend.commondataaccess.persistence.collectsource.CollectSource;
-import com.backend.commondataaccess.persistence.common.enums.ScheduleType;
+import com.backend.commondataaccess.persistence.common.enums.CollectScheduleType;
 import com.backend.commondataaccess.persistence.provider.PostProvider;
 import com.backend.integratedapi.collectsource.repository.CollectSourceQueryRepository;
 import com.backend.integratedapi.collectsource.repository.CollectSourceRepository;
@@ -61,7 +61,7 @@ class CollectSourceServiceTest {
                                          .id(UUID.randomUUID())
                                          .postProvider(mockPostProvider)
                                          .url("https://test.com/blog/1")
-                                         .scheduleType(ScheduleType.CRON)
+                                         .collectScheduleType(CollectScheduleType.CRON)
                                          .cronExpression("0 0 * * * *")
                                          .isUsed(true)
                                          .build();
@@ -75,9 +75,9 @@ class CollectSourceServiceTest {
         void CRON_스케줄_타입으로_CollectSource를_생성할_수_있다() {
             // given
             CollectSourceDto request = CollectSourceDto.of(mockPostProvider.id(),
-                                                          "https://test.com/blog/1",
-                                                          ScheduleType.CRON,
-                                                          "0 0 * * * *");
+                                                           "https://test.com/blog/1",
+                                                           CollectScheduleType.CRON,
+                                                           "0 0 * * * *");
 
             Mockito.doReturn(mockPostProvider).when(postProviderService).getPostProvider(any());
             Mockito.doReturn(mockCollectSource).when(collectSourceRepository).save(any());
@@ -89,7 +89,7 @@ class CollectSourceServiceTest {
             Assertions.assertThat(created).isNotNull();
             Assertions.assertThat(created.id()).isEqualTo(mockCollectSource.id());
             Assertions.assertThat(created.providerId()).isEqualTo(mockPostProvider.id());
-            Assertions.assertThat(created.scheduleType()).isEqualTo(ScheduleType.CRON);
+            Assertions.assertThat(created.collectScheduleType()).isEqualTo(CollectScheduleType.CRON);
             Assertions.assertThat(created.cronExpression()).isEqualTo("0 0 * * * *");
             Assertions.assertThat(created.isUsed()).isTrue();
         }
@@ -101,14 +101,14 @@ class CollectSourceServiceTest {
                                                              .id(UUID.randomUUID())
                                                              .postProvider(mockPostProvider)
                                                              .url("https://test.com/blog/1")
-                                                             .scheduleType(ScheduleType.MANUAL)
+                                                             .collectScheduleType(CollectScheduleType.MANUAL)
                                                              .isUsed(true)
                                                              .build();
 
             CollectSourceDto request = CollectSourceDto.of(mockPostProvider.id(),
-                                                          "https://test.com/blog/1",
-                                                          ScheduleType.MANUAL,
-                                                          null);
+                                                           "https://test.com/blog/1",
+                                                           CollectScheduleType.MANUAL,
+                                                           null);
 
             Mockito.doReturn(mockPostProvider).when(postProviderService).getPostProvider(any());
             Mockito.doReturn(manualCollectSource).when(collectSourceRepository).save(any());
@@ -118,7 +118,7 @@ class CollectSourceServiceTest {
 
             // then
             Assertions.assertThat(created).isNotNull();
-            Assertions.assertThat(created.scheduleType()).isEqualTo(ScheduleType.MANUAL);
+            Assertions.assertThat(created.collectScheduleType()).isEqualTo(CollectScheduleType.MANUAL);
             Assertions.assertThat(created.cronExpression()).isNull();
         }
 
@@ -126,9 +126,9 @@ class CollectSourceServiceTest {
         void providerId가_null이면_CollectSource_생성에_실패한다() {
             // given
             CollectSourceDto request = CollectSourceDto.of(null,
-                                                          "https://test.com/blog/1",
-                                                          ScheduleType.CRON,
-                                                          "0 0 * * * *");
+                                                           "https://test.com/blog/1",
+                                                           CollectScheduleType.CRON,
+                                                           "0 0 * * * *");
 
             // when & then
             Assertions.assertThatThrownBy(() -> collectSourceService.create(request))
@@ -154,9 +154,9 @@ class CollectSourceServiceTest {
         void scheduleType이_MANUAL인데_cronExpression이_있으면_CollectSource_생성에_실패한다() {
             // given
             CollectSourceDto request = CollectSourceDto.of(mockPostProvider.id(),
-                                                          "https://test.com/blog/1",
-                                                          ScheduleType.MANUAL,
-                                                          "0 0 * * * *");
+                                                           "https://test.com/blog/1",
+                                                           CollectScheduleType.MANUAL,
+                                                           "0 0 * * * *");
 
             // when & then
             Assertions.assertThatThrownBy(() -> collectSourceService.create(request))
@@ -168,9 +168,9 @@ class CollectSourceServiceTest {
         void scheduleType이_CRON인데_cronExpression이_없으면_CollectSource_생성에_실패한다() {
             // given
             CollectSourceDto request = CollectSourceDto.of(mockPostProvider.id(),
-                                                          "https://test.com/blog/1",
-                                                          ScheduleType.CRON,
-                                                          null);
+                                                           "https://test.com/blog/1",
+                                                           CollectScheduleType.CRON,
+                                                           null);
 
             // when & then
             Assertions.assertThatThrownBy(() -> collectSourceService.create(request))
@@ -288,10 +288,10 @@ class CollectSourceServiceTest {
         void scheduleType을_MANUAL로_변경하면_cronExpression이_초기화된다() {
             // given
             CollectSourceDto request = CollectSourceDto.of(mockCollectSource.id(),
-                                                          null,
-                                                          ScheduleType.MANUAL,
-                                                          null,
-                                                          true);
+                                                           null,
+                                                           CollectScheduleType.MANUAL,
+                                                           null,
+                                                           true);
 
             Mockito.doReturn(Optional.of(mockCollectSource)).when(queryRepository).fetchOneById(any());
 
@@ -301,7 +301,7 @@ class CollectSourceServiceTest {
             collectSourceService.update(request);
 
             // then
-            Assertions.assertThat(mockCollectSource.scheduleType()).isEqualTo(ScheduleType.MANUAL);
+            Assertions.assertThat(mockCollectSource.collectScheduleType()).isEqualTo(CollectScheduleType.MANUAL);
             Assertions.assertThat(mockCollectSource.cronExpression()).isEmpty();
         }
 
@@ -312,16 +312,16 @@ class CollectSourceServiceTest {
                                                      .id(UUID.randomUUID())
                                                      .postProvider(mockPostProvider)
                                                      .url("https://test.com/blog/1")
-                                                     .scheduleType(ScheduleType.MANUAL)
+                                                     .collectScheduleType(CollectScheduleType.MANUAL)
                                                      .isUsed(true)
                                                      .build();
 
             String newCron = "0 0 * * * *";
             CollectSourceDto request = CollectSourceDto.of(manualSource.id(),
-                                                          null,
-                                                          ScheduleType.CRON,
-                                                          newCron,
-                                                          true);
+                                                           null,
+                                                           CollectScheduleType.CRON,
+                                                           newCron,
+                                                           true);
 
             Mockito.doReturn(Optional.of(manualSource)).when(queryRepository).fetchOneById(any());
 
@@ -329,14 +329,14 @@ class CollectSourceServiceTest {
             collectSourceService.update(request);
 
             // then
-            Assertions.assertThat(manualSource.scheduleType()).isEqualTo(ScheduleType.CRON);
+            Assertions.assertThat(manualSource.collectScheduleType()).isEqualTo(CollectScheduleType.CRON);
             Assertions.assertThat(manualSource.cronExpression()).isEqualTo(newCron);
         }
 
         @Test
         void id가_null이면_수정에_실패한다() {
             // given
-            CollectSourceDto request = CollectSourceDto.of(null, "https://test.com", ScheduleType.CRON, "0 0 * * * *", true);
+            CollectSourceDto request = CollectSourceDto.of(null, "https://test.com", CollectScheduleType.CRON, "0 0 * * * *", true);
 
             // when & then
             Assertions.assertThatThrownBy(() -> collectSourceService.update(request))
@@ -348,10 +348,10 @@ class CollectSourceServiceTest {
         void scheduleType과_cronExpression의_조합이_올바르지_않으면_수정에_실패한다() {
             // given
             CollectSourceDto request = CollectSourceDto.of(mockCollectSource.id(),
-                                                          null,
-                                                          ScheduleType.CRON,
-                                                          null,
-                                                          true);
+                                                           null,
+                                                           CollectScheduleType.CRON,
+                                                           null,
+                                                           true);
 
             Mockito.doReturn(Optional.of(mockCollectSource)).when(queryRepository).fetchOneById(any());
 

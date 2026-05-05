@@ -15,7 +15,8 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 @EnableJpaRepositories(basePackages = {
         "com.backend.integratedapi.provider.repository",
         "com.backend.integratedapi.collectsource.repository",
-        "com.backend.integratedapi.collectingjob.repository"
+        "com.backend.integratedapi.collectingjob.repository",
+        "com.backend.integratedapi.indexingjob.repository"
 })
 @EntityScan(basePackages = "com.backend.commondataaccess.persistence")
 public class JpaConfig {

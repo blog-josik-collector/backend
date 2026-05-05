@@ -5,6 +5,7 @@ plugins {
 ext {
     set('seleniumVersion', '4.20.0')
     set('webdrivermanagerVersion', '5.8.0')
+    set('elasticsearchVersion', '8.18.0')
 }
 
 dependencies {
@@ -12,7 +13,9 @@ dependencies {
     runtimeOnly "org.postgresql:postgresql"
 
     implementation "org.seleniumhq.selenium:selenium-java:${seleniumVersion}"
-//    implementation "org.seleniumhq.selenium:selenium-chrome-driver:${seleniumVersion}"
-//    implementation "org.seleniumhq.selenium:selenium-devtools-v141:${seleniumVersion}"
     implementation "io.github.bonigarcia:webdrivermanager:${webdrivermanagerVersion}"
+    implementation "co.elastic.clients:elasticsearch-java:${elasticsearchVersion}" // Elasticsearch 공식 Java 클라이언트
+
+    // Jackson이 Java 8의 LocalDate, LocalDateTime, ZonedDateTime 타입을 JSON으로 직렬화할 수 있도록 추가
+    implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310'
 }

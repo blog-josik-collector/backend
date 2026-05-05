@@ -1,7 +1,7 @@
 package com.backend.integratedapi.collectsource.service.validator;
 
 import com.backend.commondataaccess.persistence.collectsource.CollectSource;
-import com.backend.commondataaccess.persistence.common.enums.ScheduleType;
+import com.backend.commondataaccess.persistence.common.enums.CollectScheduleType;
 import com.backend.integratedapi.collectsource.service.dto.CollectSourceDto;
 import java.util.Optional;
 import java.util.UUID;
@@ -25,7 +25,7 @@ public class CollectSourceValidator {
 
     public static UnaryOperator<CollectSourceDto> validateScheduleType() {
         return collectSourceDto -> {
-            validateScheduleType(collectSourceDto.scheduleType());
+            validateScheduleType(collectSourceDto.collectScheduleType());
             return collectSourceDto;
         };
     }
@@ -53,8 +53,8 @@ public class CollectSourceValidator {
         }
     }
 
-    public static void validateScheduleType(ScheduleType scheduleType) {
-        if (ObjectUtils.isEmpty(scheduleType)) {
+    public static void validateScheduleType(CollectScheduleType collectScheduleType) {
+        if (ObjectUtils.isEmpty(collectScheduleType)) {
             throw new IllegalArgumentException("schedule_type은 필수 입력값입니다.");
         }
     }
@@ -65,14 +65,14 @@ public class CollectSourceValidator {
         }
     }
 
-    public static void validateScheduleTypeAndCronExpressionPair(ScheduleType scheduleType, String cronExpression) {
-        validateScheduleType(scheduleType);
+    public static void validateScheduleTypeAndCronExpressionPair(CollectScheduleType collectScheduleType, String cronExpression) {
+        validateScheduleType(collectScheduleType);
 
-        if (scheduleType.equals(ScheduleType.MANUAL) && StringUtils.isNotBlank(cronExpression)) {
+        if (collectScheduleType.equals(CollectScheduleType.MANUAL) && StringUtils.isNotBlank(cronExpression)) {
             throw new IllegalArgumentException("schedule_type이 manual일 때 cron_expression은 입력할 수 없습니다.");
         }
 
-        if (scheduleType.equals(ScheduleType.CRON)) {
+        if (collectScheduleType.equals(CollectScheduleType.CRON)) {
             if (StringUtils.isBlank(cronExpression)) {
                 throw new IllegalArgumentException("schedule_type이 cron일 때 cron_expression은 필수입니다.");
             }
