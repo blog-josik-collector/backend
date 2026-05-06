@@ -1,5 +1,6 @@
 package com.backend.integratedapi.indexingjob.service;
 
+import com.backend.commondataaccess.dto.OffsetPageResult;
 import com.backend.commondataaccess.persistence.collectsource.CollectSource;
 import com.backend.commondataaccess.persistence.collectsource.CollectSourcePost;
 import com.backend.commondataaccess.persistence.common.enums.IndexingJobType;
@@ -9,6 +10,8 @@ import com.backend.integratedapi.collectsource.service.CollectSourceService;
 import com.backend.integratedapi.collectsourcepost.service.CollectSourcePostService;
 import com.backend.integratedapi.indexingjob.repository.IndexingJobQueryRepository;
 import com.backend.integratedapi.indexingjob.repository.IndexingJobRepository;
+import com.backend.integratedapi.indexingjob.service.dto.IndexingJobDto;
+import com.backend.integratedapi.indexingjob.service.validator.IndexingJobValidator;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -55,5 +58,24 @@ public class IndexingJobService {
                                      .build();
 
         return indexingJobRepository.save(job);
+    }
+
+    @Transactional(readOnly = true)
+    public OffsetPageResult<IndexingJobDto> getIndexingJobs(int page, int size) {
+        return queryRepository.fetchIndexingJobs(page, size)
+                              .map(IndexingJobDto::from);
+    }
+
+    @Transactional(readOnly = true)
+    public IndexingJobDto getIndexingJobDto(UUID id) {
+        IndexingJobValidator.validateId(id);
+        IndexingJob indexingJob = getIndexingJob(id);
+        return IndexingJobDto.from(indexingJob);
+    }
+
+    @Transactional(readOnly = true)
+    public IndexingJob getIndexingJob(UUID id) {
+        IndexingJobValidator.validateId(id);
+        return IndexingJobValidator.getIndexingJobOrThrow(id, queryRepository::fetchOneById);
     }
 }

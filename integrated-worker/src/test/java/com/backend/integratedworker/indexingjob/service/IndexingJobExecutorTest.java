@@ -68,18 +68,22 @@ class IndexingJobExecutorTest {
         }
 
         @Test
-        void markSuccess_시점에_Job을_못_찾으면_ifPresent만_건너뛴다() {
-            Mockito.doReturn(Optional.of(runningJob), Optional.empty()).when(queryRepository).fetchOneById(jobId);
+        void markSuccess_시점에_Job을_못_찾으면_markFailed로_실패_처리한다() {
+            Mockito.doReturn(Optional.of(runningJob), Optional.empty(), Optional.of(runningJob))
+                   .when(queryRepository)
+                   .fetchOneById(jobId);
             Mockito.doReturn(new IndexingResult(1, 1)).when(indexingService).executeIndexing(any(IndexingJob.class));
 
             indexingJobExecutor.executeAsync(jobId);
 
             Assertions.assertThat(runningJob.totalCount()).isEqualTo(1);
-            Assertions.assertThat(runningJob.jobStatus()).isNotEqualTo(JobStatus.SUCCESS);
+            Assertions.assertThat(runningJob.indexedCount()).isEqualTo(1);
+            Assertions.assertThat(runningJob.jobStatus()).isEqualTo(JobStatus.FAILED);
+            Assertions.assertThat(runningJob.errorMessage()).contains("존재하지 않는 indexingJob입니다");
         }
 
         @Test
-        void Job이_없으면_IllegalStateException으로_실패_마킹한다() {
+        void Job이_없으면_IllegalArgumentException_메시지로_실패_마킹한다() {
             IndexingJob failedTarget = IndexingJob.builder()
                                                   .id(jobId)
                                                   .indexingJobType(IndexingJobType.MANUAL)
@@ -94,17 +98,19 @@ class IndexingJobExecutorTest {
             indexingJobExecutor.executeAsync(jobId);
 
             Assertions.assertThat(failedTarget.jobStatus()).isEqualTo(JobStatus.FAILED);
-            Assertions.assertThat(failedTarget.errorMessage()).contains("IndexingJob not found");
+            Assertions.assertThat(failedTarget.errorMessage()).contains("존재하지 않는 indexingJob입니다");
         }
 
         @Test
-        void markFailed_시점에_Job을_못_찾으면_ifPresent만_건너뛴다() {
+        void markFailed_시점에_Job을_못_찾으면_getIndexingJobOrThrow_예외가_전파된다() {
             Mockito.when(queryRepository.fetchOneById(jobId))
                    .thenReturn(Optional.of(runningJob))
                    .thenReturn(Optional.empty());
             Mockito.doThrow(new RuntimeException("es down")).when(indexingService).executeIndexing(any(IndexingJob.class));
 
-            indexingJobExecutor.executeAsync(jobId);
+            Assertions.assertThatThrownBy(() -> indexingJobExecutor.executeAsync(jobId))
+                       .isInstanceOf(IllegalArgumentException.class)
+                       .hasMessageContaining("존재하지 않는 indexingJob입니다");
 
             Assertions.assertThat(runningJob.jobStatus()).isEqualTo(JobStatus.RUNNING);
         }

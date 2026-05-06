@@ -3,6 +3,7 @@ package com.backend.integratedworker.indexingjob.service;
 import com.backend.commondataaccess.persistence.indexingjob.IndexingJob;
 import com.backend.integratedworker.indexingjob.repository.IndexingJobQueryRepository;
 import com.backend.integratedworker.indexingjob.service.dto.IndexingResult;
+import com.backend.integratedworker.indexingjob.service.validator.IndexingJobValidator;
 import jakarta.transaction.Transactional;
 import java.time.OffsetDateTime;
 import java.util.UUID;
@@ -35,20 +36,19 @@ public class IndexingJobExecutor {
     }
 
     protected void doIndexing(UUID jobId) {
-        IndexingJob job = queryRepository.fetchOneById(jobId)
-                                         .orElseThrow(() -> new IllegalStateException("IndexingJob not found: " + jobId));
+        IndexingJob job = IndexingJobValidator.getIndexingJobOrThrow(jobId, queryRepository::fetchOneById);
 
         IndexingResult result = indexingService.executeIndexing(job);
         job.updateCounts(result.totalCount(), result.indexedCount());
     }
 
     protected void markSuccess(UUID jobId) {
-        queryRepository.fetchOneById(jobId)
-                       .ifPresent(j -> j.markSuccess(OffsetDateTime.now()));
+        IndexingJob job = IndexingJobValidator.getIndexingJobOrThrow(jobId, queryRepository::fetchOneById);
+        job.markSuccess(OffsetDateTime.now());
     }
 
     protected void markFailed(UUID jobId, Exception e) {
-        queryRepository.fetchOneById(jobId)
-                       .ifPresent(j -> j.markFailed(OffsetDateTime.now(), e.getMessage()));
+        IndexingJob job = IndexingJobValidator.getIndexingJobOrThrow(jobId, queryRepository::fetchOneById);
+        job.markFailed(OffsetDateTime.now(), e.getMessage());
     }
 }
