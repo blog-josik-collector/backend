@@ -16,7 +16,7 @@ elasticsearch:
   username: elastic
   password: elastic
   fingerprint:
-  index-name: posts
+  index-name: techblog-posts-v1
 
 jwt:
   issuer: blog-josik-collector  # 토큰 발행자 식별자

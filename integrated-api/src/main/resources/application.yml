@@ -36,3 +36,12 @@ springdoc:
 crawler:
   default-from-page: 1
   default-to-page: 10
+
+elasticsearch:
+  host: localhost
+  port: 9200
+  scheme: https
+  username: elastic
+  password: elastic
+  fingerprint:
+  index-name: techblog-posts-v1

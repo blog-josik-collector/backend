@@ -12,6 +12,7 @@ jar {
 
 ext {
     set('springDocVersion', "2.8.16")
+    set('elasticsearchVersion', '8.18.0')
 }
 
 dependencies {
@@ -21,6 +22,8 @@ dependencies {
     implementation "org.flywaydb:flyway-core"
     implementation "org.flywaydb:flyway-database-postgresql"
     runtimeOnly "org.postgresql:postgresql"
+
+    implementation "co.elastic.clients:elasticsearch-java:${elasticsearchVersion}" // Elasticsearch 공식 Java 클라이언트
 
     // 이 한 줄을 추가하면 :common-data-access의 testFixtures를 가져옵니다.
     testImplementation testFixtures(project(":common-data-access"))

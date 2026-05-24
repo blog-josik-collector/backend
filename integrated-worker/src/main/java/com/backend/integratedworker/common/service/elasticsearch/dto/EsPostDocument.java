@@ -1,7 +1,9 @@
 package com.backend.integratedworker.common.service.elasticsearch.dto;
 
 import com.backend.commondataaccess.persistence.collectsource.CollectSourcePost;
+import com.backend.commondataaccess.persistence.common.enums.DocumentStatus;
 import java.time.LocalDate;
+import java.time.OffsetDateTime;
 import java.util.UUID;
 
 public record EsPostDocument(UUID id,
@@ -9,8 +11,11 @@ public record EsPostDocument(UUID id,
                              String url,
                              String thumbnailUrl,
                              String summary,
+                             String provider,
+                             DocumentStatus status,
                              LocalDate publishedAt,
-                             String provider) {
+                             OffsetDateTime createdAt,
+                             OffsetDateTime updatedAt) {
 
     public static EsPostDocument from(CollectSourcePost collectSourcePost) {
         return new EsPostDocument(collectSourcePost.id(),
@@ -18,7 +23,10 @@ public record EsPostDocument(UUID id,
                                   collectSourcePost.url(),
                                   collectSourcePost.thumbnailUrl(),
                                   collectSourcePost.summary(),
+                                  collectSourcePost.lastCollectingJob().collectSource().postProvider().name(),
+                                  DocumentStatus.ACTIVE,
                                   collectSourcePost.publishedAt(),
-                                  collectSourcePost.lastCollectingJob().collectSource().postProvider().name());
+                                  collectSourcePost.createdAt(),
+                                  collectSourcePost.updatedAt());
     }
 }
