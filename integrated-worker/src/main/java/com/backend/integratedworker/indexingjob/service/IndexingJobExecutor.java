@@ -1,10 +1,7 @@
 package com.backend.integratedworker.indexingjob.service;
 
 import com.backend.commondataaccess.persistence.indexingjob.IndexingJob;
-import com.backend.integratedworker.indexingjob.repository.IndexingJobQueryRepository;
 import com.backend.integratedworker.indexingjob.service.dto.IndexingResult;
-import com.backend.integratedworker.indexingjob.service.validator.IndexingJobValidator;
-import jakarta.transaction.Transactional;
 import java.time.OffsetDateTime;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -13,42 +10,35 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 /**
- * 비동기 실제 처리
+ * 비동기 실제 처리 오케스트레이터.
+ * <p>
+ * 옵션 B 설계: 자기 자신은 @Transactional을 갖지 않는다. 트랜잭션 경계는
+ * 자식 서비스(IndexingService 하위의 PostService / CollectSourcePostService, IndexingJobService)가
+ * 각자 짧은 트랜잭션으로 관리한다. 그렇게 해야 ES bulkIndex가 트랜잭션 밖에서 수행되고,
+ * posts insert / collect_source_posts 마킹 / IndexingJob 상태 변경이 각각 별도로 커밋된다.
  */
 @Slf4j
-@Transactional
 @Service
 @RequiredArgsConstructor
 public class IndexingJobExecutor {
 
-    private final IndexingJobQueryRepository queryRepository;
     private final IndexingService indexingService;
+    private final IndexingJobService indexingJobService;
 
     @Async("indexingExecutor")
     public void executeAsync(UUID jobId) {
         try {
-            doIndexing(jobId);
-            markSuccess(jobId);
+            IndexingResult result = doIndexing(jobId);
+            indexingJobService.updateCounts(jobId, result.totalCount(), result.indexedCount());
+            indexingJobService.markSuccess(jobId, OffsetDateTime.now());
         } catch (Exception e) {
             log.error("Indexing job failed: jobId={}", jobId, e);
-            markFailed(jobId, e);
+            indexingJobService.markFailed(jobId, OffsetDateTime.now(), e.getMessage());
         }
     }
 
-    protected void doIndexing(UUID jobId) {
-        IndexingJob job = IndexingJobValidator.getIndexingJobOrThrow(jobId, queryRepository::fetchOneById);
-
-        IndexingResult result = indexingService.executeIndexing(job);
-        job.updateCounts(result.totalCount(), result.indexedCount());
-    }
-
-    protected void markSuccess(UUID jobId) {
-        IndexingJob job = IndexingJobValidator.getIndexingJobOrThrow(jobId, queryRepository::fetchOneById);
-        job.markSuccess(OffsetDateTime.now());
-    }
-
-    protected void markFailed(UUID jobId, Exception e) {
-        IndexingJob job = IndexingJobValidator.getIndexingJobOrThrow(jobId, queryRepository::fetchOneById);
-        job.markFailed(OffsetDateTime.now(), e.getMessage());
+    protected IndexingResult doIndexing(UUID jobId) {
+        IndexingJob job = indexingJobService.getJob(jobId);
+        return indexingService.executeIndexing(job);
     }
 }

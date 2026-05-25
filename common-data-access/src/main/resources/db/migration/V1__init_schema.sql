@@ -172,6 +172,19 @@ ALTER TABLE indexing_jobs
     ADD CONSTRAINT fk_indexing_jobs_target_post_id
         FOREIGN KEY (target_post_id) REFERENCES collect_source_posts (id);
 
+CREATE TABLE posts
+(
+    id                 UUID PRIMARY KEY,  -- 수집 원본 ID와 1:1 매핑
+    like_count         INTEGER DEFAULT 0, -- 좋아요 수
+    view_count         INTEGER DEFAULT 0, -- 조회수
+    comment_count      INTEGER DEFAULT 0, -- 댓글 수
+    total_report_count INTEGER DEFAULT 0, -- 신고 수
+    status             VARCHAR             NOT NULL, -- 게시글 상태 (예: ACTIVE, BLOCKED)
+    created_at         TIMESTAMP           NOT NULL,
+    updated_at         TIMESTAMP           NOT NULL,
+    deleted_at         TIMESTAMP
+);
+
 CREATE TABLE report_types
 (
     code       INTEGER PRIMARY KEY,
@@ -181,27 +194,6 @@ CREATE TABLE report_types
     created_at TIMESTAMP NOT NULL,
     updated_at TIMESTAMP NOT NULL
 );
-
-CREATE TABLE posts
-(
-    id                 UUID PRIMARY KEY,
-    provider_id        UUID                NOT NULL REFERENCES post_providers (id),
-    title              VARCHAR             NOT NULL,
-    url                VARCHAR(512) UNIQUE NOT NULL,
-    published_at       TIMESTAMP           NOT NULL,
-    thumbnail_url      VARCHAR             NOT NULL,
-    summary            TEXT                NOT NULL,
-    like_count         INTEGER DEFAULT 0,
-    view_count         INTEGER DEFAULT 0,
-    comment_count      INTEGER DEFAULT 0,
-    total_report_count INTEGER DEFAULT 0,
-    status             INTEGER DEFAULT 0,
-    created_at         TIMESTAMP           NOT NULL,
-    updated_at         TIMESTAMP           NOT NULL
-);
-
-CREATE INDEX idx_posts_title_provider ON posts (title, provider_id);
-CREATE INDEX idx_posts_provider_id ON posts (provider_id);
 
 -- 4. 사용자 활동 관련 테이블 (post, user 참조)
 CREATE TABLE post_likes

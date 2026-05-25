@@ -1,20 +1,29 @@
 package com.backend.integratedworker.collectsourcepost.service;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.eq;
 
 import com.backend.commondataaccess.persistence.collectingjob.CollectingJob;
 import com.backend.commondataaccess.persistence.collectsource.CollectSource;
 import com.backend.commondataaccess.persistence.collectsource.CollectSourcePost;
 import com.backend.commondataaccess.persistence.common.enums.CollectScheduleType;
+import com.backend.commondataaccess.persistence.common.enums.IndexingJobType;
+import com.backend.commondataaccess.persistence.common.enums.IndexingStatus;
 import com.backend.commondataaccess.persistence.common.enums.JobStatus;
+import com.backend.commondataaccess.persistence.indexingjob.IndexingJob;
 import com.backend.commondataaccess.persistence.provider.PostProvider;
 import com.backend.integratedworker.collectingjob.service.crawler.kakao.KakaoPost;
 import com.backend.integratedworker.collectingjob.service.dto.Post;
 import com.backend.integratedworker.collectsourcepost.repository.CollectSourcePostQueryRepository;
 import com.backend.integratedworker.collectsourcepost.repository.CollectSourcePostRepository;
+import com.backend.integratedworker.common.service.elasticsearch.dto.BulkIndexResult;
 import java.time.LocalDate;
+import java.time.OffsetDateTime;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -358,6 +367,288 @@ class CollectSourcePostServiceTest {
             // then
             Assertions.assertThat(existing.thumbnailUrl()).isNull();
             Assertions.assertThat(existing.summary()).isNull();
+        }
+    }
+
+    private CollectSourcePost newCollectSourcePost(IndexingStatus status) {
+        return CollectSourcePost.builder()
+                                .id(UUID.randomUUID())
+                                .collectSource(collectSource)
+                                .title("title")
+                                .url("https://test.com/blog/1/post/" + UUID.randomUUID())
+                                .lastCollectingJob(collectingJob)
+                                .indexingStatus(status)
+                                .build();
+    }
+
+    private IndexingJob runningIndexingJob(IndexingJobType type) {
+        return IndexingJob.builder()
+                          .id(UUID.randomUUID())
+                          .indexingJobType(type)
+                          .jobStatus(JobStatus.RUNNING)
+                          .totalCount(0)
+                          .indexedCount(0)
+                          .build();
+    }
+
+    @DisplayName("pickPendingForIndexing 테스트")
+    @Nested
+    class PickPendingForIndexingTest {
+
+        @Test
+        void repository에서_PENDING_post를_조회해_반환한다() {
+            CollectSourcePost p1 = newCollectSourcePost(IndexingStatus.PENDING);
+            CollectSourcePost p2 = newCollectSourcePost(IndexingStatus.PENDING);
+            Mockito.doReturn(List.of(p1, p2))
+                   .when(collectSourcePostRepository).findAllPendingCollectSourcePosts(50);
+
+            List<CollectSourcePost> result = collectSourcePostService.pickPendingForIndexing(50);
+
+            Assertions.assertThat(result).containsExactly(p1, p2);
+        }
+    }
+
+    @DisplayName("getIndexingCollectSourcePosts 테스트")
+    @Nested
+    class GetIndexingCollectSourcePostsTest {
+
+        @Test
+        void queryRepository로_위임해서_결과를_그대로_반환한다() {
+            UUID jobId = UUID.randomUUID();
+            CollectSourcePost p = newCollectSourcePost(IndexingStatus.INDEXING);
+            Mockito.doReturn(List.of(p)).when(queryRepository).fetchIndexingCollectSourcePosts(jobId);
+
+            List<CollectSourcePost> result = collectSourcePostService.getIndexingCollectSourcePosts(jobId);
+
+            Assertions.assertThat(result).containsExactly(p);
+        }
+    }
+
+    @DisplayName("getReindexTargetCollectSourcePosts 테스트")
+    @Nested
+    class GetReindexTargetCollectSourcePostsTest {
+
+        @Test
+        void queryRepository로_위임해서_결과를_그대로_반환한다() {
+            UUID sourceId = UUID.randomUUID();
+            CollectSourcePost p = newCollectSourcePost(IndexingStatus.INDEXED);
+            Mockito.doReturn(List.of(p)).when(queryRepository).fetchReindexTargets(sourceId);
+
+            List<CollectSourcePost> result = collectSourcePostService.getReindexTargetCollectSourcePosts(sourceId);
+
+            Assertions.assertThat(result).containsExactly(p);
+        }
+    }
+
+    @DisplayName("applyIndexResult 테스트")
+    @Nested
+    class ApplyIndexResultTest {
+
+        @Test
+        void 실패하지_않은_id는_INDEXED로_마킹된다() {
+            IndexingJob job = runningIndexingJob(IndexingJobType.CRON);
+            CollectSourcePost p1 = newCollectSourcePost(IndexingStatus.INDEXING);
+            BulkIndexResult result = new BulkIndexResult(Set.of(), 1);
+            OffsetDateTime now = OffsetDateTime.now();
+
+            Mockito.doReturn(List.of(p1)).when(collectSourcePostRepository).findAllById(List.of(p1.id()));
+
+            collectSourcePostService.applyIndexResult(List.of(p1.id()), result, job, now);
+
+            Assertions.assertThat(p1.indexingStatus()).isEqualTo(IndexingStatus.INDEXED);
+            Assertions.assertThat(p1.lastIndexedAt()).isEqualTo(now);
+            Assertions.assertThat(p1.lastIndexingJob().id()).isEqualTo(job.id());
+        }
+
+        @Test
+        void 실패한_id는_FAILED로_마킹되고_indexingErrorCount가_증가한다() {
+            IndexingJob job = runningIndexingJob(IndexingJobType.CRON);
+            CollectSourcePost p1 = newCollectSourcePost(IndexingStatus.INDEXING);
+            BulkIndexResult result = new BulkIndexResult(Set.of(p1.id()), 0);
+
+            Mockito.doReturn(List.of(p1)).when(collectSourcePostRepository).findAllById(List.of(p1.id()));
+
+            collectSourcePostService.applyIndexResult(List.of(p1.id()), result, job, OffsetDateTime.now());
+
+            Assertions.assertThat(p1.indexingStatus()).isEqualTo(IndexingStatus.FAILED);
+            Assertions.assertThat(p1.indexingErrorCount()).isEqualTo(1);
+        }
+
+        @Test
+        void 성공과_실패가_섞여있으면_각각_INDEXED와_FAILED로_마킹된다() {
+            IndexingJob job = runningIndexingJob(IndexingJobType.CRON);
+            CollectSourcePost ok = newCollectSourcePost(IndexingStatus.INDEXING);
+            CollectSourcePost ng = newCollectSourcePost(IndexingStatus.INDEXING);
+            BulkIndexResult result = new BulkIndexResult(Set.of(ng.id()), 1);
+            OffsetDateTime now = OffsetDateTime.now();
+
+            Mockito.doReturn(List.of(ok, ng))
+                   .when(collectSourcePostRepository).findAllById(List.of(ok.id(), ng.id()));
+
+            collectSourcePostService.applyIndexResult(List.of(ok.id(), ng.id()), result, job, now);
+
+            Assertions.assertThat(ok.indexingStatus()).isEqualTo(IndexingStatus.INDEXED);
+            Assertions.assertThat(ng.indexingStatus()).isEqualTo(IndexingStatus.FAILED);
+        }
+
+        @Test
+        void findAllById_결과가_targetIds보다_작아도_예외없이_있는_것만_마킹한다() {
+            // 중간에 누가 삭제한 경우. log.warn은 검증하지 않고 동작만 확인.
+            IndexingJob job = runningIndexingJob(IndexingJobType.CRON);
+            CollectSourcePost found = newCollectSourcePost(IndexingStatus.INDEXING);
+            UUID missingId = UUID.randomUUID();
+            BulkIndexResult result = new BulkIndexResult(Set.of(), 2);
+
+            Mockito.doReturn(List.of(found))
+                   .when(collectSourcePostRepository).findAllById(List.of(found.id(), missingId));
+
+            Assertions.assertThatCode(() ->
+                collectSourcePostService.applyIndexResult(List.of(found.id(), missingId),
+                                                           result, job, OffsetDateTime.now())
+            ).doesNotThrowAnyException();
+
+            Assertions.assertThat(found.indexingStatus()).isEqualTo(IndexingStatus.INDEXED);
+        }
+
+        @Test
+        void 같은_입력으로_다시_호출해도_같은_상태가_되어_멱등하다() {
+            // 옵션B의 핵심: TX2 재시도 안전성.
+            IndexingJob job = runningIndexingJob(IndexingJobType.CRON);
+            CollectSourcePost p = newCollectSourcePost(IndexingStatus.INDEXING);
+            BulkIndexResult result = new BulkIndexResult(Set.of(), 1);
+            OffsetDateTime now = OffsetDateTime.now();
+
+            Mockito.doReturn(List.of(p)).when(collectSourcePostRepository).findAllById(List.of(p.id()));
+
+            collectSourcePostService.applyIndexResult(List.of(p.id()), result, job, now);
+            IndexingStatus afterFirst = p.indexingStatus();
+
+            collectSourcePostService.applyIndexResult(List.of(p.id()), result, job, now);
+            IndexingStatus afterSecond = p.indexingStatus();
+
+            Assertions.assertThat(afterFirst).isEqualTo(IndexingStatus.INDEXED);
+            Assertions.assertThat(afterSecond).isEqualTo(IndexingStatus.INDEXED);
+        }
+    }
+
+    @DisplayName("markIndexingBatch 테스트")
+    @Nested
+    class MarkIndexingBatchTest {
+
+        @Test
+        void targetSource만_있으면_재색인_대상_전체를_INDEXING으로_마킹한다() {
+            IndexingJob job = IndexingJob.builder()
+                                         .id(UUID.randomUUID())
+                                         .indexingJobType(IndexingJobType.MANUAL)
+                                         .jobStatus(JobStatus.RUNNING)
+                                         .targetSource(collectSource)
+                                         .totalCount(0)
+                                         .indexedCount(0)
+                                         .build();
+
+            CollectSourcePost p1 = newCollectSourcePost(IndexingStatus.INDEXED);
+            CollectSourcePost p2 = newCollectSourcePost(IndexingStatus.FAILED);
+            Mockito.doReturn(List.of(p1, p2)).when(queryRepository).fetchReindexTargets(collectSource.id());
+
+            List<CollectSourcePost> result = collectSourcePostService.markIndexingBatch(job);
+
+            Assertions.assertThat(result).containsExactly(p1, p2);
+            Assertions.assertThat(p1.indexingStatus()).isEqualTo(IndexingStatus.INDEXING);
+            Assertions.assertThat(p2.indexingStatus()).isEqualTo(IndexingStatus.INDEXING);
+            Assertions.assertThat(p1.lastIndexingJob().id()).isEqualTo(job.id());
+            Assertions.assertThat(p2.lastIndexingJob().id()).isEqualTo(job.id());
+        }
+
+        @Test
+        void targetPost만_있으면_id로_재조회해서_INDEXING으로_마킹한다() {
+            CollectSourcePost target = newCollectSourcePost(IndexingStatus.INDEXED);
+            IndexingJob job = IndexingJob.builder()
+                                         .id(UUID.randomUUID())
+                                         .indexingJobType(IndexingJobType.MANUAL)
+                                         .jobStatus(JobStatus.RUNNING)
+                                         .targetPost(target)
+                                         .totalCount(0)
+                                         .indexedCount(0)
+                                         .build();
+
+            // resolveManualTargets가 getCollectSourcePost(targetPost.id())로 재조회한다
+            Mockito.doReturn(Optional.of(target)).when(queryRepository).fetchOneById(target.id());
+
+            List<CollectSourcePost> result = collectSourcePostService.markIndexingBatch(job);
+
+            Assertions.assertThat(result).containsExactly(target);
+            Assertions.assertThat(target.indexingStatus()).isEqualTo(IndexingStatus.INDEXING);
+            Assertions.assertThat(target.lastIndexingJob().id()).isEqualTo(job.id());
+
+            // targetSource 경로는 호출되지 않아야 함
+            Mockito.verify(queryRepository, Mockito.never()).fetchReindexTargets(any());
+        }
+
+        @Test
+        void targetSource와_targetPost가_모두_null이면_IllegalStateException() {
+            IndexingJob job = IndexingJob.builder()
+                                         .id(UUID.randomUUID())
+                                         .indexingJobType(IndexingJobType.MANUAL)
+                                         .jobStatus(JobStatus.PENDING)
+                                         .totalCount(0)
+                                         .indexedCount(0)
+                                         .build();
+
+            Assertions.assertThatThrownBy(() -> collectSourcePostService.markIndexingBatch(job))
+                      .isInstanceOf(IllegalStateException.class)
+                      .hasMessageContaining("MANUAL job 대상이 잘못됨");
+        }
+
+        @Test
+        void targetSource와_targetPost가_모두_있으면_IllegalStateException() {
+            CollectSourcePost target = newCollectSourcePost(IndexingStatus.INDEXED);
+            IndexingJob job = IndexingJob.builder()
+                                         .id(UUID.randomUUID())
+                                         .indexingJobType(IndexingJobType.MANUAL)
+                                         .jobStatus(JobStatus.PENDING)
+                                         .targetSource(collectSource)
+                                         .targetPost(target)
+                                         .totalCount(0)
+                                         .indexedCount(0)
+                                         .build();
+
+            Assertions.assertThatThrownBy(() -> collectSourcePostService.markIndexingBatch(job))
+                      .isInstanceOf(IllegalStateException.class)
+                      .hasMessageContaining("MANUAL job 대상이 잘못됨");
+        }
+    }
+
+    @DisplayName("recoverStaleIndexing 테스트")
+    @Nested
+    class RecoverStaleIndexingTest {
+
+        @Test
+        void stale_post들을_PENDING으로_되돌리고_복구_개수를_반환한다() {
+            OffsetDateTime threshold = OffsetDateTime.now().minusMinutes(15);
+            CollectSourcePost stale1 = newCollectSourcePost(IndexingStatus.INDEXING);
+            CollectSourcePost stale2 = newCollectSourcePost(IndexingStatus.INDEXING);
+
+            Mockito.doReturn(List.of(stale1, stale2))
+                   .when(queryRepository).fetchStaleIndexingTargets(eq(threshold), anyInt());
+
+            int recovered = collectSourcePostService.recoverStaleIndexing(threshold, 100);
+
+            Assertions.assertThat(recovered).isEqualTo(2);
+            Assertions.assertThat(stale1.indexingStatus()).isEqualTo(IndexingStatus.PENDING);
+            Assertions.assertThat(stale2.indexingStatus()).isEqualTo(IndexingStatus.PENDING);
+            Assertions.assertThat(stale1.indexingErrorCount()).isZero();
+            Assertions.assertThat(stale2.indexingErrorCount()).isZero();
+        }
+
+        @Test
+        void stale이_없으면_0을_반환한다() {
+            OffsetDateTime threshold = OffsetDateTime.now().minusMinutes(15);
+            Mockito.doReturn(List.of())
+                   .when(queryRepository).fetchStaleIndexingTargets(eq(threshold), anyInt());
+
+            int recovered = collectSourcePostService.recoverStaleIndexing(threshold, 100);
+
+            Assertions.assertThat(recovered).isZero();
         }
     }
 }

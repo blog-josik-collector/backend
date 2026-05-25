@@ -7,26 +7,26 @@ import com.backend.integratedworker.common.service.elasticsearch.ElasticsearchSe
 import com.backend.integratedworker.common.service.elasticsearch.dto.BulkIndexResult;
 import com.backend.integratedworker.common.service.elasticsearch.dto.EsPostDocument;
 import com.backend.integratedworker.indexingjob.service.dto.IndexingResult;
+import com.backend.integratedworker.post.service.PostService;
 import java.time.OffsetDateTime;
 import java.util.List;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 /**
  * 도메인 로직 <br>
  * <p>
  * CRON과 MANUAL의 처리 차이를 흡수하는 곳
  */
-@Transactional
 @Service
 @RequiredArgsConstructor
 public class IndexingService {
 
     private final ElasticsearchService elasticsearchService;
     private final CollectSourcePostService collectSourcePostService;
+    private final PostService postService;
 
-    @Transactional
     public IndexingResult executeIndexing(IndexingJob job) {
         return switch (job.indexingJobType()) {
             case CRON -> indexingCronJob(job);
@@ -47,30 +47,9 @@ public class IndexingService {
      * MANUAL 재색인: target source의 모든 후보 post를 INDEXING으로 마킹 후 ES bulk index.
      */
     private IndexingResult indexingManualJob(IndexingJob job) {
-        List<CollectSourcePost> targets = resolveManualTargets(job);
+        List<CollectSourcePost> collectSourcePosts = collectSourcePostService.markIndexingBatch(job);
 
-        for (var p : targets) {
-            p.markIndexing(job);
-        }
-        return bulkIndexAndApply(job, targets);
-    }
-
-    private List<CollectSourcePost> resolveManualTargets(IndexingJob job) {
-        if (job.targetSource() != null && job.targetPost() == null) {
-            // collectSource 전체 재색인
-            return collectSourcePostService.getReindexTargetCollectSourcePosts(job.targetSource().id());
-        }
-
-        if (job.targetSource() == null && job.targetPost() != null) {
-            // 단일 collectSourcePost 재색인
-            return List.of(job.targetPost());
-        }
-
-        throw new IllegalStateException(
-                "MANUAL job 대상이 잘못됨: jobId=" + job.id()
-                        + ", targetSource=" + job.targetSource()
-                        + ", targetPost=" + job.targetPost()
-        );
+        return bulkIndexAndApply(job, collectSourcePosts);
     }
 
     private IndexingResult bulkIndexAndApply(IndexingJob job, List<CollectSourcePost> targets) {
@@ -78,23 +57,23 @@ public class IndexingService {
             return new IndexingResult(0, 0);
         }
 
+        List<UUID> targetIds = targets.stream()
+                                 .map(CollectSourcePost::id)
+                                 .toList();
+
         List<EsPostDocument> documents = targets.stream()
                                                 .map(EsPostDocument::from)
                                                 .toList();
 
-        BulkIndexResult bulkResult = elasticsearchService.bulkIndex(documents);
-        applyBulkResult(targets, bulkResult, job);
-        return new IndexingResult(targets.size(), bulkResult.getSuccessCount());
-    }
+        // TX1
+        postService.createPostsIfAbsent(targetIds);
 
-    private void applyBulkResult(List<CollectSourcePost> posts, BulkIndexResult result, IndexingJob job) {
-        OffsetDateTime now = OffsetDateTime.now();
-        for (CollectSourcePost p : posts) {
-            if (result.isFailed(p.id())) {
-                p.markIndexFailed(job);
-            } else {
-                p.markIndexed(job, now);
-            }
-        }
+        // Out of TX
+        BulkIndexResult bulkResult = elasticsearchService.bulkIndex(documents);
+
+        // TX2
+        collectSourcePostService.applyIndexResult(targetIds, bulkResult, job, OffsetDateTime.now());
+
+        return new IndexingResult(targets.size(), bulkResult.getSuccessCount());
     }
 }

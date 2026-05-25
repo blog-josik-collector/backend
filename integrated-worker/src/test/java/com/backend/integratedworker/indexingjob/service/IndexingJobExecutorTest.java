@@ -1,13 +1,14 @@
 package com.backend.integratedworker.indexingjob.service;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.eq;
 
 import com.backend.commondataaccess.persistence.common.enums.IndexingJobType;
 import com.backend.commondataaccess.persistence.common.enums.JobStatus;
 import com.backend.commondataaccess.persistence.indexingjob.IndexingJob;
-import com.backend.integratedworker.indexingjob.repository.IndexingJobQueryRepository;
 import com.backend.integratedworker.indexingjob.service.dto.IndexingResult;
-import java.util.Optional;
+import java.time.OffsetDateTime;
 import java.util.UUID;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -15,25 +16,24 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InOrder;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @DisplayName("IndexingJobExecutor 테스트")
 @ExtendWith(MockitoExtension.class)
 class IndexingJobExecutorTest {
 
-    @Spy
     @InjectMocks
     private IndexingJobExecutor indexingJobExecutor;
 
     @Mock
-    private IndexingJobQueryRepository queryRepository;
+    private IndexingService indexingService;
 
     @Mock
-    private IndexingService indexingService;
+    private IndexingJobService indexingJobService;
 
     private UUID jobId;
     private IndexingJob runningJob;
@@ -55,77 +55,99 @@ class IndexingJobExecutorTest {
     class ExecuteAsyncTest {
 
         @Test
-        void 색인이_성공하면_total_indexed_카운트가_갱신되고_Job을_SUCCESS로_마킹한다() {
-            Mockito.doReturn(Optional.of(runningJob)).when(queryRepository).fetchOneById(jobId);
-            Mockito.doReturn(new IndexingResult(3, 3)).when(indexingService).executeIndexing(any(IndexingJob.class));
+        void 색인이_성공하면_updateCounts_그리고_markSuccess가_순서대로_호출된다() {
+            Mockito.doReturn(runningJob).when(indexingJobService).getJob(jobId);
+            Mockito.doReturn(new IndexingResult(3, 3)).when(indexingService).executeIndexing(runningJob);
 
             indexingJobExecutor.executeAsync(jobId);
 
-            Assertions.assertThat(runningJob.totalCount()).isEqualTo(3);
-            Assertions.assertThat(runningJob.indexedCount()).isEqualTo(3);
-            Assertions.assertThat(runningJob.jobStatus()).isEqualTo(JobStatus.SUCCESS);
-            Assertions.assertThat(runningJob.endedAt()).isNotNull();
+            InOrder inOrder = Mockito.inOrder(indexingJobService, indexingService);
+            inOrder.verify(indexingJobService).getJob(jobId);
+            inOrder.verify(indexingService).executeIndexing(runningJob);
+            inOrder.verify(indexingJobService).updateCounts(jobId, 3, 3);
+            inOrder.verify(indexingJobService).markSuccess(eq(jobId), any(OffsetDateTime.class));
+
+            Mockito.verify(indexingJobService, Mockito.never())
+                   .markFailed(any(UUID.class), any(OffsetDateTime.class), any());
         }
 
         @Test
-        void markSuccess_시점에_Job을_못_찾으면_markFailed로_실패_처리한다() {
-            Mockito.doReturn(Optional.of(runningJob), Optional.empty(), Optional.of(runningJob))
-                   .when(queryRepository)
-                   .fetchOneById(jobId);
-            Mockito.doReturn(new IndexingResult(1, 1)).when(indexingService).executeIndexing(any(IndexingJob.class));
+        void 색인_도중_예외가_나면_markFailed가_예외_메시지와_함께_호출된다() {
+            Mockito.doReturn(runningJob).when(indexingJobService).getJob(jobId);
+            Mockito.doThrow(new RuntimeException("bulk failed"))
+                   .when(indexingService).executeIndexing(runningJob);
 
             indexingJobExecutor.executeAsync(jobId);
 
-            Assertions.assertThat(runningJob.totalCount()).isEqualTo(1);
-            Assertions.assertThat(runningJob.indexedCount()).isEqualTo(1);
-            Assertions.assertThat(runningJob.jobStatus()).isEqualTo(JobStatus.FAILED);
-            Assertions.assertThat(runningJob.errorMessage()).contains("존재하지 않는 indexingJob입니다");
+            Mockito.verify(indexingJobService).markFailed(eq(jobId), any(OffsetDateTime.class), eq("bulk failed"));
+            Mockito.verify(indexingJobService, Mockito.never()).markSuccess(any(), any());
+            Mockito.verify(indexingJobService, Mockito.never()).updateCounts(any(), anyInt(), anyInt());
         }
 
         @Test
-        void Job이_없으면_IllegalArgumentException_메시지로_실패_마킹한다() {
-            IndexingJob failedTarget = IndexingJob.builder()
-                                                  .id(jobId)
-                                                  .indexingJobType(IndexingJobType.MANUAL)
-                                                  .jobStatus(JobStatus.RUNNING)
-                                                  .totalCount(0)
-                                                  .indexedCount(0)
-                                                  .build();
-            Mockito.when(queryRepository.fetchOneById(jobId))
-                   .thenReturn(Optional.empty())
-                   .thenReturn(Optional.of(failedTarget));
+        void getJob_시점에_예외가_나면_markFailed가_예외_메시지와_함께_호출된다() {
+            Mockito.doThrow(new IllegalArgumentException("존재하지 않는 indexingJob입니다. id: " + jobId))
+                   .when(indexingJobService).getJob(jobId);
 
             indexingJobExecutor.executeAsync(jobId);
 
-            Assertions.assertThat(failedTarget.jobStatus()).isEqualTo(JobStatus.FAILED);
-            Assertions.assertThat(failedTarget.errorMessage()).contains("존재하지 않는 indexingJob입니다");
+            Mockito.verify(indexingService, Mockito.never()).executeIndexing(any());
+            Mockito.verify(indexingJobService).markFailed(eq(jobId), any(OffsetDateTime.class),
+                                                          Mockito.contains("존재하지 않는 indexingJob입니다"));
         }
 
         @Test
-        void markFailed_시점에_Job을_못_찾으면_getIndexingJobOrThrow_예외가_전파된다() {
-            Mockito.when(queryRepository.fetchOneById(jobId))
-                   .thenReturn(Optional.of(runningJob))
-                   .thenReturn(Optional.empty());
-            Mockito.doThrow(new RuntimeException("es down")).when(indexingService).executeIndexing(any(IndexingJob.class));
+        void updateCounts에서_예외가_나도_markFailed가_호출된다() {
+            Mockito.doReturn(runningJob).when(indexingJobService).getJob(jobId);
+            Mockito.doReturn(new IndexingResult(2, 2)).when(indexingService).executeIndexing(runningJob);
+            Mockito.doThrow(new RuntimeException("count update failed"))
+                   .when(indexingJobService).updateCounts(jobId, 2, 2);
+
+            indexingJobExecutor.executeAsync(jobId);
+
+            Mockito.verify(indexingJobService).markFailed(eq(jobId), any(OffsetDateTime.class), eq("count update failed"));
+            Mockito.verify(indexingJobService, Mockito.never()).markSuccess(any(), any());
+        }
+
+        @Test
+        void markSuccess에서_예외가_나도_markFailed가_호출된다() {
+            Mockito.doReturn(runningJob).when(indexingJobService).getJob(jobId);
+            Mockito.doReturn(new IndexingResult(1, 1)).when(indexingService).executeIndexing(runningJob);
+            Mockito.doThrow(new RuntimeException("success mark failed"))
+                   .when(indexingJobService).markSuccess(eq(jobId), any(OffsetDateTime.class));
+
+            indexingJobExecutor.executeAsync(jobId);
+
+            Mockito.verify(indexingJobService).markFailed(eq(jobId), any(OffsetDateTime.class), eq("success mark failed"));
+        }
+
+        @Test
+        void markFailed에서_또_예외가_나면_예외가_밖으로_전파된다() {
+            // 옵션B 한계점: markFailed도 실패하면 더 이상 복구 수단이 없음. uncaught로 던져진다.
+            Mockito.doReturn(runningJob).when(indexingJobService).getJob(jobId);
+            Mockito.doThrow(new RuntimeException("es down")).when(indexingService).executeIndexing(runningJob);
+            Mockito.doThrow(new RuntimeException("DB also down"))
+                   .when(indexingJobService).markFailed(eq(jobId), any(OffsetDateTime.class), Mockito.anyString());
 
             Assertions.assertThatThrownBy(() -> indexingJobExecutor.executeAsync(jobId))
-                       .isInstanceOf(IllegalArgumentException.class)
-                       .hasMessageContaining("존재하지 않는 indexingJob입니다");
-
-            Assertions.assertThat(runningJob.jobStatus()).isEqualTo(JobStatus.RUNNING);
+                      .isInstanceOf(RuntimeException.class)
+                      .hasMessageContaining("DB also down");
         }
+    }
+
+    @DisplayName("doIndexing 테스트")
+    @Nested
+    class DoIndexingTest {
 
         @Test
-        void 색인_중_예외가_나면_Job을_FAILED로_마킹한다() {
-            String err = "bulk failed";
-            Mockito.doReturn(Optional.of(runningJob)).when(queryRepository).fetchOneById(jobId);
-            Mockito.doThrow(new RuntimeException(err)).when(indexingService).executeIndexing(any(IndexingJob.class));
+        void getJob한_뒤_executeIndexing의_결과를_그대로_반환한다() {
+            Mockito.doReturn(runningJob).when(indexingJobService).getJob(jobId);
+            IndexingResult expected = new IndexingResult(5, 4);
+            Mockito.doReturn(expected).when(indexingService).executeIndexing(runningJob);
 
-            indexingJobExecutor.executeAsync(jobId);
+            IndexingResult actual = indexingJobExecutor.doIndexing(jobId);
 
-            Assertions.assertThat(runningJob.jobStatus()).isEqualTo(JobStatus.FAILED);
-            Assertions.assertThat(runningJob.endedAt()).isNotNull();
-            Assertions.assertThat(runningJob.errorMessage()).isEqualTo(err);
+            Assertions.assertThat(actual).isSameAs(expected);
         }
     }
 }
