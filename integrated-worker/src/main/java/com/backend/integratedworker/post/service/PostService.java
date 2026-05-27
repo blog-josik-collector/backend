@@ -1,6 +1,6 @@
 package com.backend.integratedworker.post.service;
 
-import com.backend.commondataaccess.persistence.common.enums.DocumentStatus;
+import com.backend.commondataaccess.persistence.common.enums.PostStatus;
 import com.backend.commondataaccess.persistence.post.Post;
 import com.backend.integratedworker.post.repository.PostRepository;
 import java.util.ArrayList;
@@ -33,7 +33,7 @@ public class PostService {
         for (UUID postId : difference) {
             Post post = Post.builder()
                             .id(postId)
-                            .status(DocumentStatus.ACTIVE)
+                            .postStatus(PostStatus.ACTIVE)
                             .likeCount(0)
                             .viewCount(0)
                             .commentCount(0)

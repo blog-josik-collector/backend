@@ -6,7 +6,7 @@ import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
-public enum DocumentStatus {
+public enum PostCommentStatus {
     ACTIVE("정상"),
     BLOCKED("숨김/차단"),
     DELETED("삭제");

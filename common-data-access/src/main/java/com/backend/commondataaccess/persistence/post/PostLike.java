@@ -1,11 +1,12 @@
 package com.backend.commondataaccess.persistence.post;
 
 import com.backend.commondataaccess.persistence.common.BaseEntity;
-import com.backend.commondataaccess.persistence.common.enums.PostStatus;
+import com.backend.commondataaccess.persistence.user.User;
 import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import java.util.UUID;
 import lombok.AccessLevel;
@@ -20,21 +21,27 @@ import lombok.experimental.Accessors;
 @Builder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-@Table(name = "posts")
+@Table(name = "post_likes")
 @Entity
-public class Post extends BaseEntity {
+public class PostLike extends BaseEntity {
 
     @Id
+    @GeneratedValue
     private UUID id;
 
-    @Enumerated(EnumType.STRING)
-    private PostStatus postStatus;
+    @ManyToOne(fetch = FetchType.LAZY)
+    private User user;
 
-    private int likeCount;
+    @ManyToOne(fetch = FetchType.LAZY)
+    private Post post;
 
-    private int viewCount;
+    private boolean isEnable;
 
-    private int commentCount;
+    public void activate() {
+        this.isEnable = true;
+    }
 
-    private int totalReportCount;
+    public void deactivate() {
+        this.isEnable = false;
+    }
 }

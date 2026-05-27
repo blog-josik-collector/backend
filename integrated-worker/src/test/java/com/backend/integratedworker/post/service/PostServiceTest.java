@@ -2,7 +2,7 @@ package com.backend.integratedworker.post.service;
 
 import static org.mockito.ArgumentMatchers.any;
 
-import com.backend.commondataaccess.persistence.common.enums.DocumentStatus;
+import com.backend.commondataaccess.persistence.common.enums.PostStatus;
 import com.backend.commondataaccess.persistence.post.Post;
 import com.backend.integratedworker.post.repository.PostRepository;
 import java.util.Collections;
@@ -61,7 +61,7 @@ class PostServiceTest {
                       .containsExactlyInAnyOrder(id1, id2);
             Assertions.assertThat(saved)
                       .allSatisfy(p -> {
-                          Assertions.assertThat(p.status()).isEqualTo(DocumentStatus.ACTIVE);
+                          Assertions.assertThat(p.postStatus()).isEqualTo(PostStatus.ACTIVE);
                           Assertions.assertThat(p.likeCount()).isZero();
                           Assertions.assertThat(p.viewCount()).isZero();
                           Assertions.assertThat(p.commentCount()).isZero();
@@ -73,8 +73,8 @@ class PostServiceTest {
         void 모두_존재하는_id이면_saveAll이_빈_리스트로_호출된다() {
             UUID id1 = UUID.randomUUID();
             UUID id2 = UUID.randomUUID();
-            Post existing1 = Post.builder().id(id1).status(DocumentStatus.ACTIVE).build();
-            Post existing2 = Post.builder().id(id2).status(DocumentStatus.ACTIVE).build();
+            Post existing1 = Post.builder().id(id1).postStatus(PostStatus.ACTIVE).build();
+            Post existing2 = Post.builder().id(id2).postStatus(PostStatus.ACTIVE).build();
 
             Mockito.doReturn(List.of(existing1, existing2)).when(postRepository).findAllById(any());
 
@@ -87,7 +87,7 @@ class PostServiceTest {
         void 일부만_존재하면_없는_id만_insert된다() {
             UUID existingId = UUID.randomUUID();
             UUID newId = UUID.randomUUID();
-            Post existing = Post.builder().id(existingId).status(DocumentStatus.ACTIVE).build();
+            Post existing = Post.builder().id(existingId).postStatus(PostStatus.ACTIVE).build();
 
             Mockito.doReturn(List.of(existing)).when(postRepository).findAllById(any());
 
@@ -121,8 +121,8 @@ class PostServiceTest {
             // 옵션B의 핵심: 재시도 시 멱등성. 첫 번째 호출 후 같은 id로 다시 호출해도 추가 insert 없음.
             UUID id1 = UUID.randomUUID();
             UUID id2 = UUID.randomUUID();
-            Post existing1 = Post.builder().id(id1).status(DocumentStatus.ACTIVE).build();
-            Post existing2 = Post.builder().id(id2).status(DocumentStatus.ACTIVE).build();
+            Post existing1 = Post.builder().id(id1).postStatus(PostStatus.ACTIVE).build();
+            Post existing2 = Post.builder().id(id2).postStatus(PostStatus.ACTIVE).build();
 
             // 1차 호출: 모두 신규
             Mockito.doReturn(List.of()).when(postRepository).findAllById(any());

@@ -174,17 +174,71 @@ ALTER TABLE indexing_jobs
 
 CREATE TABLE posts
 (
-    id                 UUID PRIMARY KEY,  -- 수집 원본 ID와 1:1 매핑
-    like_count         INTEGER DEFAULT 0, -- 좋아요 수
-    view_count         INTEGER DEFAULT 0, -- 조회수
-    comment_count      INTEGER DEFAULT 0, -- 댓글 수
-    total_report_count INTEGER DEFAULT 0, -- 신고 수
-    status             VARCHAR             NOT NULL, -- 게시글 상태 (예: ACTIVE, BLOCKED)
-    created_at         TIMESTAMP           NOT NULL,
-    updated_at         TIMESTAMP           NOT NULL,
+    id                 UUID PRIMARY KEY,   -- 수집 원본 ID와 1:1 매핑
+    like_count         INTEGER DEFAULT 0,  -- 좋아요 수
+    view_count         INTEGER DEFAULT 0,  -- 조회수
+    comment_count      INTEGER DEFAULT 0,  -- 댓글 수
+    total_report_count INTEGER DEFAULT 0,  -- 신고 수
+    post_status        VARCHAR   NOT NULL, -- 게시글 상태 (예: ACTIVE, BLOCKED)
+    created_at         TIMESTAMP NOT NULL,
+    updated_at         TIMESTAMP NOT NULL,
     deleted_at         TIMESTAMP
 );
 
+-- 4. 사용자 활동 관련 테이블 (post, user 참조)
+CREATE TABLE post_likes
+(
+    id         UUID PRIMARY KEY,
+    user_id    UUID      NOT NULL,
+    post_id    UUID      NOT NULL,
+    is_enable  BOOLEAN   NOT NULL,
+    created_at TIMESTAMP NOT NULL,
+    updated_at TIMESTAMP NOT NULL,
+    deleted_at TIMESTAMP,
+
+    CONSTRAINT fk_post_likes_user_id FOREIGN KEY (user_id) REFERENCES users (id),
+    CONSTRAINT fk_post_likes_post_id FOREIGN KEY (post_id) REFERENCES posts (id)
+);
+
+-- UNIQUE 제약 조건 추가
+CREATE UNIQUE INDEX IF NOT EXISTS uk_post_likes_user_id_post_id ON post_likes (user_id, post_id) WHERE deleted_at IS NULL;
+
+CREATE TABLE post_bookmarks
+(
+    id         UUID PRIMARY KEY,
+    user_id    UUID      NOT NULL,
+    post_id    UUID      NOT NULL,
+    is_enable  BOOLEAN   NOT NULL,
+    created_at TIMESTAMP NOT NULL,
+    updated_at TIMESTAMP NOT NULL,
+    deleted_at TIMESTAMP,
+
+    CONSTRAINT fk_post_bookmarks_user_id FOREIGN KEY (user_id) REFERENCES users (id),
+    CONSTRAINT fk_post_bookmarks_post_id FOREIGN KEY (post_id) REFERENCES posts (id)
+);
+
+-- UNIQUE 제약 조건 추가
+CREATE UNIQUE INDEX IF NOT EXISTS uk_post_bookmarks_user_id_post_id ON post_bookmarks (user_id, post_id) WHERE deleted_at IS NULL;
+
+CREATE TABLE post_comments
+(
+    id                  UUID PRIMARY KEY,
+    user_id             UUID      NOT NULL,
+    post_id             UUID      NOT NULL,
+    parent_comment_id   UUID,
+    content             VARCHAR   NOT NULL,
+    total_report_count  INTEGER DEFAULT 0,
+    post_comment_status VARCHAR   NOT NULL, -- 댓글 상태 (예: ACTIVE, BLOCKED)
+    created_at          TIMESTAMP NOT NULL,
+    updated_at          TIMESTAMP NOT NULL,
+    deleted_at          TIMESTAMP,
+
+    CONSTRAINT fk_post_comments_user_id FOREIGN KEY (user_id) REFERENCES users (id),
+    CONSTRAINT fk_post_comments_post_id FOREIGN KEY (post_id) REFERENCES posts (id),
+    CONSTRAINT fk_post_comments_parent_comment_id FOREIGN KEY (parent_comment_id) REFERENCES post_comments (id)
+);
+
+-- 5. 신고 관련 테이블
 CREATE TABLE report_types
 (
     code       INTEGER PRIMARY KEY,
@@ -195,45 +249,6 @@ CREATE TABLE report_types
     updated_at TIMESTAMP NOT NULL
 );
 
--- 4. 사용자 활동 관련 테이블 (post, user 참조)
-CREATE TABLE post_likes
-(
-    id         UUID PRIMARY KEY,
-    user_id    UUID      NOT NULL REFERENCES users (id),
-    post_id    UUID      NOT NULL REFERENCES posts (id),
-    is_enable  BOOLEAN   NOT NULL,
-    created_at TIMESTAMP NOT NULL,
-
-    -- UNIQUE 제약 조건 추가
-    CONSTRAINT uk_post_likes_user_id_post_id UNIQUE (user_id, post_id)
-);
-
-CREATE TABLE post_bookmarks
-(
-    id         UUID PRIMARY KEY,
-    user_id    UUID      NOT NULL REFERENCES users (id),
-    post_id    UUID      NOT NULL REFERENCES posts (id),
-    is_enable  BOOLEAN   NOT NULL,
-    created_at TIMESTAMP NOT NULL,
-
-    -- UNIQUE 제약 조건 추가
-    CONSTRAINT uk_post_bookmarks_user_id_post_id UNIQUE (user_id, post_id)
-);
-
-CREATE TABLE post_comments
-(
-    id                 UUID PRIMARY KEY,
-    user_id            UUID      NOT NULL REFERENCES users (id),
-    post_id            UUID      NOT NULL REFERENCES posts (id),
-    parent_comment_id  UUID REFERENCES post_comments (id),
-    content            VARCHAR   NOT NULL,
-    total_report_count INTEGER DEFAULT 0,
-    status             INTEGER DEFAULT 0,
-    created_at         TIMESTAMP NOT NULL,
-    updated_at         TIMESTAMP NOT NULL
-);
-
--- 5. 신고 관련 테이블
 CREATE TABLE post_reports
 (
     id               UUID PRIMARY KEY,
