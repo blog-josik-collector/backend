@@ -30,6 +30,14 @@ public class PostCommentService {
     private final UserService userService;
 
     /**
+     * 활성 상태인 댓글/대댓글 단건을 가져온다. 다른 도메인(예: 댓글 신고)에서 PostComment 인스턴스가 필요할 때 사용한다.
+     */
+    @Transactional(readOnly = true)
+    public PostComment getComment(UUID commentId) {
+        return PostCommentValidator.getPostCommentOrThrow(commentId, queryRepository::fetchOneById);
+    }
+
+    /**
      * 1. 댓글 작성. 1-depth 댓글로 만든다.
      */
     public PostCommentDto createComment(UUID userId, UUID postId, String content) {

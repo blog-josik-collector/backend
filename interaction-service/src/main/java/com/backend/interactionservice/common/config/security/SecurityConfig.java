@@ -43,7 +43,8 @@ public class SecurityConfig {
                         .requestMatchers("/api/heartbeat",
                                          "/interaction/swagger-ui/**",
                                          "/interaction/v3/api-docs/**").permitAll()
-                        .requestMatchers("/interaction/v1/**").hasAnyRole(UserType.ADMIN.name(), UserType.USER.name()) // 운영진
+                        .requestMatchers("/interaction/v1/admin/**").hasRole(UserType.ADMIN.name()) // 운영자만 사용가능
+                        .requestMatchers("/interaction/v1/**").hasAnyRole(UserType.ADMIN.name(), UserType.USER.name()) // 인증된 사용자만 사용가능
                         .anyRequest().authenticated()
                 )
                 .formLogin(AbstractHttpConfigurer::disable)
