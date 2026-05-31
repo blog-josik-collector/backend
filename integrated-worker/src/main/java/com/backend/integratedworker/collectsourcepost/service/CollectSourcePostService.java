@@ -9,7 +9,7 @@ import com.backend.integratedworker.collectingjob.service.dto.Post;
 import com.backend.integratedworker.collectsourcepost.repository.CollectSourcePostQueryRepository;
 import com.backend.integratedworker.collectsourcepost.repository.CollectSourcePostRepository;
 import com.backend.integratedworker.collectsourcepost.service.validator.CollectSourcePostValidator;
-import com.backend.integratedworker.common.service.elasticsearch.dto.BulkIndexResult;
+import com.backend.commonelasticsearch.bulk.BulkOperationResult;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -125,7 +125,7 @@ public class CollectSourcePostService {
         return queryRepository.fetchReindexTargets(sourceId);
     }
 
-    public void applyIndexResult(List<UUID> targetIds, BulkIndexResult result, IndexingJob job, OffsetDateTime now) {
+    public void applyIndexResult(List<UUID> targetIds, BulkOperationResult result, IndexingJob job, OffsetDateTime now) {
         List<CollectSourcePost> posts = collectSourcePostRepository.findAllById(targetIds);
 
         if (posts.size() < targetIds.size()) {

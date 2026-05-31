@@ -45,8 +45,7 @@ public class PostCommentQueryRepository {
     public OffsetPageResult<PostComment> fetchCommentsByPostId(UUID postId, Pageable pageable) {
         BooleanBuilder where = new BooleanBuilder()
                 .and(postComment.post.id.eq(postId))
-                .and(postComment.parentComment.isNull())
-                .and(isActive());
+                .and(postComment.parentComment.isNull());
 
         return fetchPage(where, pageable);
     }
@@ -56,8 +55,7 @@ public class PostCommentQueryRepository {
      */
     public OffsetPageResult<PostComment> fetchRepliesByParentId(UUID parentCommentId, Pageable pageable) {
         BooleanBuilder where = new BooleanBuilder()
-                .and(postComment.parentComment.id.eq(parentCommentId))
-                .and(isActive());
+                .and(postComment.parentComment.id.eq(parentCommentId));
 
         return fetchPage(where, pageable);
     }
@@ -109,6 +107,17 @@ public class PostCommentQueryRepository {
         return Set.copyOf(result);
     }
 
+    /**
+     * post_comments.total_report_count를 1 증가시킨다. "누적 신고 건수" 의미로 createReport 시점에만 호출되며, 이후 신고 상태 변경에는 영향을 받지 않는다. soft-delete 된 댓글에는 적용하지 않는다.
+     */
+    public long incrementTotalReportCount(UUID commentId) {
+        return queryFactory.update(postComment)
+                           .set(postComment.totalReportCount, postComment.totalReportCount.add(1))
+                           .where(postComment.id.eq(commentId),
+                                  postComment.deletedAt.isNull())
+                           .execute();
+    }
+
     private OffsetPageResult<PostComment> fetchPage(BooleanBuilder where, Pageable pageable) {
         int offset = (int) pageable.getOffset();
         int size = pageable.getPageSize();
@@ -132,7 +141,8 @@ public class PostCommentQueryRepository {
     }
 
     private BooleanExpression isActive() {
-        return postComment.deletedAt.isNull()
-                                    .and(postComment.postCommentStatus.eq(PostCommentStatus.ACTIVE));
+        return postComment.postCommentStatus.eq(PostCommentStatus.ACTIVE);
+//        return postComment.deletedAt.isNull()
+//                                    .and(postComment.postCommentStatus.eq(PostCommentStatus.ACTIVE));
     }
 }

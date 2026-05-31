@@ -1,4 +1,4 @@
-package com.backend.integratedworker.common.service.elasticsearch.dto;
+package com.backend.integratedworker.indexingjob.repository.dto;
 
 import com.backend.commondataaccess.persistence.collectsource.CollectSourcePost;
 import com.backend.commondataaccess.persistence.common.enums.PostStatus;

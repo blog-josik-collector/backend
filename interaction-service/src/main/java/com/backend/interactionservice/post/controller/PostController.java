@@ -5,7 +5,9 @@ import com.backend.commondataaccess.security.JwtPrincipal;
 import com.backend.interactionservice.post.repository.query.SearchCondition;
 import com.backend.interactionservice.post.service.PostService;
 import com.backend.interactionservice.post.service.dto.PostListItem;
+import com.backend.interactionservice.post.service.PostViewCountService;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import java.util.Optional;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
@@ -25,6 +27,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class PostController {
 
     private final PostService postSearchService;
+    private final PostViewCountService postViewCountService;
 
     /**
      * 기술 블로그 포스팅 키워드 검색 및 필터링, 정렬 페이징 API
@@ -54,6 +57,8 @@ public class PostController {
      * <p>
      * 응답에는 현재 사용자의 좋아요/북마크 여부(likesOfMe, bookmarksOfMe)가 포함된다.
      * 인증되지 않은 호출의 경우 두 값은 항상 false 이며, 해당 포스팅이 존재하지 않으면 404를 반환한다.
+     * <p>
+     * 정상 조회된 경우(found == true)에 한해 view 카운트를 1 증가시킨다 (Redis 누적, DB 반영은 PostViewCountFlushWorker 가 일괄 처리).
      */
     @GetMapping("/postings/{postId}")
     public ResponseEntity<PostListItem> searchPost(@PathVariable UUID postId,
@@ -61,8 +66,10 @@ public class PostController {
 
         UUID userId = principal != null ? principal.getUserId() : null;
 
-        return postSearchService.searchPost(postId, userId)
-                                .map(ResponseEntity::ok)
-                                .orElseGet(() -> ResponseEntity.notFound().build());
+        Optional<PostListItem> result = postSearchService.searchPost(postId, userId);
+        result.ifPresent(item -> postViewCountService.recordView(postId));
+
+        return result.map(ResponseEntity::ok)
+                     .orElseGet(() -> ResponseEntity.notFound().build());
     }
 }

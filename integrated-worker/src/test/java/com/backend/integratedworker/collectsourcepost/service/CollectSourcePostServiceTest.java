@@ -17,7 +17,7 @@ import com.backend.integratedworker.collectingjob.service.crawler.kakao.KakaoPos
 import com.backend.integratedworker.collectingjob.service.dto.Post;
 import com.backend.integratedworker.collectsourcepost.repository.CollectSourcePostQueryRepository;
 import com.backend.integratedworker.collectsourcepost.repository.CollectSourcePostRepository;
-import com.backend.integratedworker.common.service.elasticsearch.dto.BulkIndexResult;
+import com.backend.commonelasticsearch.bulk.BulkOperationResult;
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
@@ -448,7 +448,7 @@ class CollectSourcePostServiceTest {
         void 실패하지_않은_id는_INDEXED로_마킹된다() {
             IndexingJob job = runningIndexingJob(IndexingJobType.CRON);
             CollectSourcePost p1 = newCollectSourcePost(IndexingStatus.INDEXING);
-            BulkIndexResult result = new BulkIndexResult(Set.of(), 1);
+            BulkOperationResult result = new BulkOperationResult(Set.of(), 1);
             OffsetDateTime now = OffsetDateTime.now();
 
             Mockito.doReturn(List.of(p1)).when(collectSourcePostRepository).findAllById(List.of(p1.id()));
@@ -464,7 +464,7 @@ class CollectSourcePostServiceTest {
         void 실패한_id는_FAILED로_마킹되고_indexingErrorCount가_증가한다() {
             IndexingJob job = runningIndexingJob(IndexingJobType.CRON);
             CollectSourcePost p1 = newCollectSourcePost(IndexingStatus.INDEXING);
-            BulkIndexResult result = new BulkIndexResult(Set.of(p1.id()), 0);
+            BulkOperationResult result = new BulkOperationResult(Set.of(p1.id()), 0);
 
             Mockito.doReturn(List.of(p1)).when(collectSourcePostRepository).findAllById(List.of(p1.id()));
 
@@ -479,7 +479,7 @@ class CollectSourcePostServiceTest {
             IndexingJob job = runningIndexingJob(IndexingJobType.CRON);
             CollectSourcePost ok = newCollectSourcePost(IndexingStatus.INDEXING);
             CollectSourcePost ng = newCollectSourcePost(IndexingStatus.INDEXING);
-            BulkIndexResult result = new BulkIndexResult(Set.of(ng.id()), 1);
+            BulkOperationResult result = new BulkOperationResult(Set.of(ng.id()), 1);
             OffsetDateTime now = OffsetDateTime.now();
 
             Mockito.doReturn(List.of(ok, ng))
@@ -497,7 +497,7 @@ class CollectSourcePostServiceTest {
             IndexingJob job = runningIndexingJob(IndexingJobType.CRON);
             CollectSourcePost found = newCollectSourcePost(IndexingStatus.INDEXING);
             UUID missingId = UUID.randomUUID();
-            BulkIndexResult result = new BulkIndexResult(Set.of(), 2);
+            BulkOperationResult result = new BulkOperationResult(Set.of(), 2);
 
             Mockito.doReturn(List.of(found))
                    .when(collectSourcePostRepository).findAllById(List.of(found.id(), missingId));
@@ -515,7 +515,7 @@ class CollectSourcePostServiceTest {
             // 옵션B의 핵심: TX2 재시도 안전성.
             IndexingJob job = runningIndexingJob(IndexingJobType.CRON);
             CollectSourcePost p = newCollectSourcePost(IndexingStatus.INDEXING);
-            BulkIndexResult result = new BulkIndexResult(Set.of(), 1);
+            BulkOperationResult result = new BulkOperationResult(Set.of(), 1);
             OffsetDateTime now = OffsetDateTime.now();
 
             Mockito.doReturn(List.of(p)).when(collectSourcePostRepository).findAllById(List.of(p.id()));

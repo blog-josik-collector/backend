@@ -1,0 +1,22 @@
+plugins {
+    id "java-library"
+    id "org.springframework.boot"
+}
+
+bootJar {
+    enabled = false
+}
+
+jar {
+    enabled = true
+}
+
+ext {
+    set('elasticsearchVersion', '8.18.0')
+}
+
+dependencies {
+    api "co.elastic.clients:elasticsearch-java:${elasticsearchVersion}"
+    api "org.springframework.boot:spring-boot-starter-json"
+    implementation "com.fasterxml.jackson.datatype:jackson-datatype-jsr310"
+}

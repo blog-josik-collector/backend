@@ -13,9 +13,9 @@ import com.backend.commondataaccess.persistence.common.enums.JobStatus;
 import com.backend.commondataaccess.persistence.indexingjob.IndexingJob;
 import com.backend.commondataaccess.persistence.provider.PostProvider;
 import com.backend.integratedworker.collectsourcepost.service.CollectSourcePostService;
-import com.backend.integratedworker.common.service.elasticsearch.ElasticsearchService;
-import com.backend.integratedworker.common.service.elasticsearch.dto.BulkIndexResult;
-import com.backend.integratedworker.common.service.elasticsearch.dto.EsPostDocument;
+import com.backend.integratedworker.indexingjob.repository.PostElasticsearchRepository;
+import com.backend.commonelasticsearch.bulk.BulkOperationResult;
+import com.backend.integratedworker.indexingjob.repository.dto.EsPostDocument;
 import com.backend.integratedworker.indexingjob.service.dto.IndexingResult;
 import com.backend.integratedworker.post.service.PostService;
 import java.time.OffsetDateTime;
@@ -44,7 +44,7 @@ class IndexingServiceTest {
     private IndexingService indexingService;
 
     @Mock
-    private ElasticsearchService elasticsearchService;
+    private PostElasticsearchRepository postElasticsearchRepository;
 
     @Mock
     private CollectSourcePostService collectSourcePostService;
@@ -120,7 +120,7 @@ class IndexingServiceTest {
             Assertions.assertThat(result.totalCount()).isZero();
             Assertions.assertThat(result.indexedCount()).isZero();
             Mockito.verify(postService, Mockito.never()).createPostsIfAbsent(any());
-            Mockito.verify(elasticsearchService, Mockito.never()).bulkIndex(any());
+            Mockito.verify(postElasticsearchRepository, Mockito.never()).bulkIndex(any());
             Mockito.verify(collectSourcePostService, Mockito.never())
                    .applyIndexResult(any(), any(), any(), any());
         }
@@ -129,10 +129,10 @@ class IndexingServiceTest {
         void bulk_성공하면_TX1_ES_TX2_순서로_호출되고_indexed_카운트가_반환된다() {
             IndexingJob job = cronJob();
             CollectSourcePost post = newPost();
-            BulkIndexResult bulkResult = new BulkIndexResult(Set.of(), 1);
+            BulkOperationResult bulkResult = new BulkOperationResult(Set.of(), 1);
 
             Mockito.doReturn(List.of(post)).when(collectSourcePostService).getIndexingCollectSourcePosts(job.id());
-            Mockito.doReturn(bulkResult).when(elasticsearchService).bulkIndex(any());
+            Mockito.doReturn(bulkResult).when(postElasticsearchRepository).bulkIndex(any());
 
             IndexingResult result = indexingService.executeIndexing(job);
 
@@ -140,9 +140,9 @@ class IndexingServiceTest {
             Assertions.assertThat(result.indexedCount()).isEqualTo(1);
 
             // 옵션B의 핵심: TX1(posts insert) → ES → TX2(mark) 순서 보장
-            InOrder inOrder = Mockito.inOrder(postService, elasticsearchService, collectSourcePostService);
+            InOrder inOrder = Mockito.inOrder(postService, postElasticsearchRepository, collectSourcePostService);
             inOrder.verify(postService).createPostsIfAbsent(eq(List.of(post.id())));
-            inOrder.verify(elasticsearchService).bulkIndex(any());
+            inOrder.verify(postElasticsearchRepository).bulkIndex(any());
             inOrder.verify(collectSourcePostService).applyIndexResult(eq(List.of(post.id())),
                                                                       eq(bulkResult),
                                                                       eq(job),
@@ -154,10 +154,10 @@ class IndexingServiceTest {
             IndexingJob job = cronJob();
             CollectSourcePost p1 = newPost();
             CollectSourcePost p2 = newPost();
-            BulkIndexResult bulkResult = new BulkIndexResult(Set.of(p2.id()), 1);
+            BulkOperationResult bulkResult = new BulkOperationResult(Set.of(p2.id()), 1);
 
             Mockito.doReturn(List.of(p1, p2)).when(collectSourcePostService).getIndexingCollectSourcePosts(job.id());
-            Mockito.doReturn(bulkResult).when(elasticsearchService).bulkIndex(any());
+            Mockito.doReturn(bulkResult).when(postElasticsearchRepository).bulkIndex(any());
 
             IndexingResult result = indexingService.executeIndexing(job);
 
@@ -178,13 +178,13 @@ class IndexingServiceTest {
             CollectSourcePost p2 = newPost();
 
             Mockito.doReturn(List.of(p1, p2)).when(collectSourcePostService).getIndexingCollectSourcePosts(job.id());
-            Mockito.doReturn(new BulkIndexResult(Set.of(), 2)).when(elasticsearchService).bulkIndex(any());
+            Mockito.doReturn(new BulkOperationResult(Set.of(), 2)).when(postElasticsearchRepository).bulkIndex(any());
 
             indexingService.executeIndexing(job);
 
             @SuppressWarnings("unchecked")
             ArgumentCaptor<List<EsPostDocument>> docsCaptor = ArgumentCaptor.forClass(List.class);
-            Mockito.verify(elasticsearchService).bulkIndex(docsCaptor.capture());
+            Mockito.verify(postElasticsearchRepository).bulkIndex(docsCaptor.capture());
 
             List<EsPostDocument> docs = docsCaptor.getValue();
             Assertions.assertThat(docs).hasSize(2);
@@ -228,27 +228,27 @@ class IndexingServiceTest {
 
             Assertions.assertThat(result.totalCount()).isZero();
             Assertions.assertThat(result.indexedCount()).isZero();
-            Mockito.verify(elasticsearchService, Mockito.never()).bulkIndex(any());
+            Mockito.verify(postElasticsearchRepository, Mockito.never()).bulkIndex(any());
         }
 
         @Test
         void targetSource로부터_대상을_받아_TX1_ES_TX2_순서로_처리한다() {
             IndexingJob job = manualJobWithSource();
             CollectSourcePost post = newPost();
-            BulkIndexResult bulkResult = new BulkIndexResult(Set.of(), 1);
+            BulkOperationResult bulkResult = new BulkOperationResult(Set.of(), 1);
 
             Mockito.doReturn(List.of(post)).when(collectSourcePostService).markIndexingBatch(job);
-            Mockito.doReturn(bulkResult).when(elasticsearchService).bulkIndex(any());
+            Mockito.doReturn(bulkResult).when(postElasticsearchRepository).bulkIndex(any());
 
             IndexingResult result = indexingService.executeIndexing(job);
 
             Assertions.assertThat(result.totalCount()).isEqualTo(1);
             Assertions.assertThat(result.indexedCount()).isEqualTo(1);
 
-            InOrder inOrder = Mockito.inOrder(collectSourcePostService, postService, elasticsearchService);
+            InOrder inOrder = Mockito.inOrder(collectSourcePostService, postService, postElasticsearchRepository);
             inOrder.verify(collectSourcePostService).markIndexingBatch(job);
             inOrder.verify(postService).createPostsIfAbsent(eq(List.of(post.id())));
-            inOrder.verify(elasticsearchService).bulkIndex(any());
+            inOrder.verify(postElasticsearchRepository).bulkIndex(any());
             inOrder.verify(collectSourcePostService).applyIndexResult(eq(List.of(post.id())),
                                                                       eq(bulkResult),
                                                                       eq(job),
@@ -259,10 +259,10 @@ class IndexingServiceTest {
         void targetPost가_있으면_markIndexingBatch를_통해_단건_색인된다() {
             CollectSourcePost post = newPost();
             IndexingJob job = manualJobWithPost(post);
-            BulkIndexResult bulkResult = new BulkIndexResult(Set.of(), 1);
+            BulkOperationResult bulkResult = new BulkOperationResult(Set.of(), 1);
 
             Mockito.doReturn(List.of(post)).when(collectSourcePostService).markIndexingBatch(job);
-            Mockito.doReturn(bulkResult).when(elasticsearchService).bulkIndex(any());
+            Mockito.doReturn(bulkResult).when(postElasticsearchRepository).bulkIndex(any());
 
             IndexingResult result = indexingService.executeIndexing(job);
 

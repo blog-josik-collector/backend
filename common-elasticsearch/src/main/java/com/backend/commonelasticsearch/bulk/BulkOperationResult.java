@@ -1,21 +1,18 @@
-package com.backend.integratedworker.common.service.elasticsearch.dto;
+package com.backend.commonelasticsearch.bulk;
 
 import co.elastic.clients.elasticsearch.core.BulkResponse;
 import co.elastic.clients.elasticsearch.core.bulk.BulkResponseItem;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 
-@Getter
-@RequiredArgsConstructor
-public class BulkIndexResult {
+public record BulkOperationResult(Set<UUID> failedIds, int successCount) {
 
-    private final Set<UUID> failedIds;
-    private final int successCount;
+    public static BulkOperationResult empty() {
+        return new BulkOperationResult(Set.of(), 0);
+    }
 
-    public static BulkIndexResult of(BulkResponse response) {
+    public static BulkOperationResult of(BulkResponse response) {
         Set<UUID> failed = new HashSet<>();
         int success = 0;
         for (BulkResponseItem item : response.items()) {
@@ -25,14 +22,10 @@ public class BulkIndexResult {
                 success++;
             }
         }
-        return new BulkIndexResult(failed, success);
+        return new BulkOperationResult(Set.copyOf(failed), success);
     }
 
     public boolean isFailed(UUID id) {
         return failedIds.contains(id);
-    }
-
-    public static BulkIndexResult empty() {
-        return new BulkIndexResult(Set.of(), 0);
     }
 }

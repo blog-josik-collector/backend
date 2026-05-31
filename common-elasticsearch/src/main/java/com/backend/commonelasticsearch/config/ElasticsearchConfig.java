@@ -1,10 +1,11 @@
-package com.backend.integratedapi.common.config.elasticsearch;
+package com.backend.commonelasticsearch.config;
 
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import co.elastic.clients.json.jackson.JacksonJsonpMapper;
 import co.elastic.clients.transport.ElasticsearchTransport;
 import co.elastic.clients.transport.rest_client.RestClientTransport;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.apache.http.HttpHost;
 import org.elasticsearch.client.RestClient;
@@ -29,15 +30,11 @@ public class ElasticsearchConfig {
 
     @Bean
     public ElasticsearchTransport elasticsearchTransport(RestClient restClient) {
-        // 1. LocalDate를 지원하는 ObjectMapper 생성 및 모듈 등록
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.registerModule(new JavaTimeModule());
-        // 날짜를 배열[2024, 5, 5]이 아닌 문자열"2024-05-05"로 직렬화
-        objectMapper.disable(com.fasterxml.jackson.databind.SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+        objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
 
-        // 2. 생성한 ObjectMapper를 JacksonJsonpMapper에 주입
         JacksonJsonpMapper jsonpMapper = new JacksonJsonpMapper(objectMapper);
-
         return new RestClientTransport(restClient, jsonpMapper);
     }
 

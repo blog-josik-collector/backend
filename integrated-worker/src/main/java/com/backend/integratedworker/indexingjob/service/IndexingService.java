@@ -3,9 +3,9 @@ package com.backend.integratedworker.indexingjob.service;
 import com.backend.commondataaccess.persistence.collectsource.CollectSourcePost;
 import com.backend.commondataaccess.persistence.indexingjob.IndexingJob;
 import com.backend.integratedworker.collectsourcepost.service.CollectSourcePostService;
-import com.backend.integratedworker.common.service.elasticsearch.ElasticsearchService;
-import com.backend.integratedworker.common.service.elasticsearch.dto.BulkIndexResult;
-import com.backend.integratedworker.common.service.elasticsearch.dto.EsPostDocument;
+import com.backend.commonelasticsearch.bulk.BulkOperationResult;
+import com.backend.integratedworker.indexingjob.repository.PostElasticsearchRepository;
+import com.backend.integratedworker.indexingjob.repository.dto.EsPostDocument;
 import com.backend.integratedworker.indexingjob.service.dto.IndexingResult;
 import com.backend.integratedworker.post.service.PostService;
 import java.time.OffsetDateTime;
@@ -23,7 +23,7 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class IndexingService {
 
-    private final ElasticsearchService elasticsearchService;
+    private final PostElasticsearchRepository postElasticsearchRepository;
     private final CollectSourcePostService collectSourcePostService;
     private final PostService postService;
 
@@ -58,8 +58,8 @@ public class IndexingService {
         }
 
         List<UUID> targetIds = targets.stream()
-                                 .map(CollectSourcePost::id)
-                                 .toList();
+                                      .map(CollectSourcePost::id)
+                                      .toList();
 
         List<EsPostDocument> documents = targets.stream()
                                                 .map(EsPostDocument::from)
@@ -69,11 +69,11 @@ public class IndexingService {
         postService.createPostsIfAbsent(targetIds);
 
         // Out of TX
-        BulkIndexResult bulkResult = elasticsearchService.bulkIndex(documents);
+        BulkOperationResult bulkResult = postElasticsearchRepository.bulkIndex(documents);
 
         // TX2
         collectSourcePostService.applyIndexResult(targetIds, bulkResult, job, OffsetDateTime.now());
 
-        return new IndexingResult(targets.size(), bulkResult.getSuccessCount());
+        return new IndexingResult(targets.size(), bulkResult.successCount());
     }
 }

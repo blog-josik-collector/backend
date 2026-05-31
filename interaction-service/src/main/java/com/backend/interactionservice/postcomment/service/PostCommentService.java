@@ -5,6 +5,7 @@ import com.backend.commondataaccess.persistence.common.enums.PostCommentStatus;
 import com.backend.commondataaccess.persistence.post.Post;
 import com.backend.commondataaccess.persistence.post.PostComment;
 import com.backend.commondataaccess.persistence.user.User;
+import com.backend.interactionservice.post.repository.PostQueryRepository;
 import com.backend.interactionservice.post.service.PostService;
 import com.backend.interactionservice.postcomment.repository.PostCommentQueryRepository;
 import com.backend.interactionservice.postcomment.repository.PostCommentRepository;
@@ -26,6 +27,7 @@ public class PostCommentService {
 
     private final PostCommentRepository postCommentRepository;
     private final PostCommentQueryRepository queryRepository;
+    private final PostQueryRepository postQueryRepository;
     private final PostService postService;
     private final UserService userService;
 
@@ -57,6 +59,7 @@ public class PostCommentService {
                                          .build();
 
         PostComment saved = postCommentRepository.save(comment);
+        postQueryRepository.incrementCommentCount(postId);
         return PostCommentDto.from(saved);
     }
 
@@ -94,6 +97,7 @@ public class PostCommentService {
         PostCommentValidator.validateOwnership(comment, userId);
 
         comment.softDelete();
+        postQueryRepository.decrementCommentCount(comment.post().id());
     }
 
     /**
@@ -116,6 +120,7 @@ public class PostCommentService {
                                        .build();
 
         PostComment saved = postCommentRepository.save(reply);
+        postQueryRepository.incrementCommentCount(parent.post().id());
         return PostCommentDto.from(saved);
     }
 
@@ -153,6 +158,7 @@ public class PostCommentService {
         PostCommentValidator.validateOwnership(reply, userId);
 
         reply.softDelete();
+        postQueryRepository.decrementCommentCount(reply.post().id());
     }
 
     /**

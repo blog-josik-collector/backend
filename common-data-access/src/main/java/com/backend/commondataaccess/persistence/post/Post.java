@@ -37,4 +37,12 @@ public class Post extends BaseEntity {
     private int commentCount;
 
     private int totalReportCount;
+
+    /**
+     * 관리자 조치 등으로 게시글을 삭제 처리한다. status를 DELETED 로 바꾸고 deleted_at 도 함께 채운다.
+     */
+    public void markDeleted() {
+        this.postStatus = PostStatus.DELETED;
+        this.delete();
+    }
 }

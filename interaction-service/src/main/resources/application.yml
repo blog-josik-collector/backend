@@ -16,6 +16,11 @@ spring:
     locations: classpath:db/migration
   jackson:
     property-naming-strategy: SNAKE_CASE
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      hash-key: post_view:pending
 
 jwt:
   issuer: blog-josik-collector  # 토큰 발행자 식별자
@@ -39,3 +44,12 @@ elasticsearch:
   password: elastic
   fingerprint:
   index-name: techblog-posts-v1
+
+post-view-flusher:
+  schedule-delay: 30000  # 30초 (밀리초 단위) - Redis에 누적된 view_count를 DB로 flush하는 주기
+  initial-delay: 30000   # 애플리케이션 기동 직후 첫 flush 까지의 지연
+
+post-count-sync-worker:
+  schedule-delay: 30000  # 30초 (밀리초 단위) - posts 카운트를 Elasticsearch로 upsert하는 주기
+  initial-delay: 30000   # 애플리케이션 기동 직후 첫 sync 까지의 지연
+  post-batch-size: 100   # 한 번의 bulk upsert 에 포함할 post 최대 개수

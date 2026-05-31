@@ -2,6 +2,7 @@ package com.backend.interactionservice.commentreport.service;
 
 import com.backend.commondataaccess.dto.OffsetPageResult;
 import com.backend.commondataaccess.persistence.common.enums.CommentReportType;
+import com.backend.commondataaccess.persistence.common.enums.PostCommentStatus;
 import com.backend.commondataaccess.persistence.common.enums.ReportStatus;
 import com.backend.commondataaccess.persistence.post.PostComment;
 import com.backend.commondataaccess.persistence.report.CommentReport;
@@ -10,6 +11,8 @@ import com.backend.interactionservice.commentreport.repository.CommentReportQuer
 import com.backend.interactionservice.commentreport.repository.CommentReportRepository;
 import com.backend.interactionservice.commentreport.service.dto.CommentReportDto;
 import com.backend.interactionservice.commentreport.service.validator.CommentReportValidator;
+import com.backend.interactionservice.post.repository.PostQueryRepository;
+import com.backend.interactionservice.postcomment.repository.PostCommentQueryRepository;
 import com.backend.interactionservice.postcomment.service.PostCommentService;
 import com.backend.interactionservice.user.service.UserService;
 import java.time.LocalDate;
@@ -33,6 +36,8 @@ public class CommentReportService {
 
     private final CommentReportRepository commentReportRepository;
     private final CommentReportQueryRepository queryRepository;
+    private final PostQueryRepository postQueryRepository;
+    private final PostCommentQueryRepository postCommentQueryRepository;
     private final PostCommentService postCommentService;
     private final UserService userService;
 
@@ -60,6 +65,7 @@ public class CommentReportService {
 
         try {
             CommentReport saved = commentReportRepository.saveAndFlush(report);
+            postCommentQueryRepository.incrementTotalReportCount(commentId);
             return CommentReportDto.from(saved);
         } catch (DataIntegrityViolationException e) {
             throw new IllegalStateException("이미 신고한 댓글입니다.");
@@ -87,12 +93,24 @@ public class CommentReportService {
 
     /**
      * 6. 댓글 신고 상태 변경. PENDING 신고만 변경할 수 있고, 다시 PENDING 으로 되돌릴 수는 없다.
+     * RESOLVED_DELETED 로 처리하면 신고 대상 댓글의 PostCommentStatus 도 DELETED 로 변경한다.
      */
     public CommentReportDto changeStatus(UUID reportId, ReportStatus newStatus) {
         CommentReportValidator.validateNewStatus(newStatus);
 
         CommentReport report = CommentReportValidator.getCommentReportOrThrow(reportId, queryRepository::fetchOneById);
         report.changeStatus(newStatus);
+
+        if (newStatus == ReportStatus.RESOLVED_DELETED) {
+            PostComment comment = report.comment();
+            if (comment.postCommentStatus() != PostCommentStatus.DELETED) {
+                boolean wasActive = comment.postCommentStatus() == PostCommentStatus.ACTIVE;
+                comment.softDelete();
+                if (wasActive) {
+                    postQueryRepository.decrementCommentCount(comment.post().id());
+                }
+            }
+        }
 
         return CommentReportDto.from(report);
     }

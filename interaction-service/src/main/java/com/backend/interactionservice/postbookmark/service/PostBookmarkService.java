@@ -1,18 +1,23 @@
 package com.backend.interactionservice.postbookmark.service;
 
+import com.backend.commondataaccess.dto.OffsetPageResult;
 import com.backend.commondataaccess.persistence.post.Post;
 import com.backend.commondataaccess.persistence.post.PostBookmark;
 import com.backend.commondataaccess.persistence.user.User;
 import com.backend.interactionservice.post.service.PostService;
+import com.backend.interactionservice.post.service.dto.PostDocument;
+import com.backend.interactionservice.postbookmark.repository.PostBookmarkElasticsearchRepository;
 import com.backend.interactionservice.postbookmark.repository.PostBookmarkQueryRepository;
 import com.backend.interactionservice.postbookmark.repository.PostBookmarkRepository;
 import com.backend.interactionservice.postbookmark.service.validator.PostBookmarkValidator;
 import com.backend.interactionservice.user.service.UserService;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,6 +29,7 @@ public class PostBookmarkService {
 
     private final PostBookmarkRepository postBookmarkRepository;
     private final PostBookmarkQueryRepository queryRepository;
+    private final PostBookmarkElasticsearchRepository postBookmarkElasticsearchRepository;
     private final PostService postService;
     private final UserService userService;
 
@@ -92,5 +98,30 @@ public class PostBookmarkService {
         }
 
         postBookmark.deactivate();
+    }
+
+    /**
+     * 내 즐겨찾기 목록 조회. DB에서 활성 북마크 post_id 를 페이지네이션한 뒤, ES 에서 PostDocument 를 조회한다.
+     * 북마크 순서(createdAt 내림차순)를 유지하며, ES 에 없는 문서는 결과에서 제외한다.
+     */
+    @Transactional(readOnly = true)
+    public OffsetPageResult<PostDocument> getMyBookmarks(UUID userId, Pageable pageable) {
+        PostBookmarkValidator.validateUserId(userId);
+
+        OffsetPageResult<UUID> bookmarkPage = queryRepository.fetchActivePostIdsByUserId(userId, pageable);
+        List<UUID> postIds = bookmarkPage.getItems();
+
+        if (postIds.isEmpty()) {
+            return new OffsetPageResult<>(bookmarkPage.getTotalCount(),
+                                          bookmarkPage.getPage(),
+                                          bookmarkPage.getSize(),
+                                          List.of());
+        }
+
+        List<PostDocument> documents = postBookmarkElasticsearchRepository.findByIdsInOrder(postIds);
+        return new OffsetPageResult<>(bookmarkPage.getTotalCount(),
+                                      bookmarkPage.getPage(),
+                                      bookmarkPage.getSize(),
+                                      documents);
     }
 }

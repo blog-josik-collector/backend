@@ -2,10 +2,12 @@ package com.backend.interactionservice.postreport.service;
 
 import com.backend.commondataaccess.dto.OffsetPageResult;
 import com.backend.commondataaccess.persistence.common.enums.PostReportType;
+import com.backend.commondataaccess.persistence.common.enums.PostStatus;
 import com.backend.commondataaccess.persistence.common.enums.ReportStatus;
 import com.backend.commondataaccess.persistence.post.Post;
 import com.backend.commondataaccess.persistence.report.PostReport;
 import com.backend.commondataaccess.persistence.user.User;
+import com.backend.interactionservice.post.repository.PostQueryRepository;
 import com.backend.interactionservice.post.service.PostService;
 import com.backend.interactionservice.postreport.repository.PostReportQueryRepository;
 import com.backend.interactionservice.postreport.repository.PostReportRepository;
@@ -33,6 +35,7 @@ public class PostReportService {
 
     private final PostReportRepository postReportRepository;
     private final PostReportQueryRepository queryRepository;
+    private final PostQueryRepository postQueryRepository;
     private final PostService postService;
     private final UserService userService;
 
@@ -60,6 +63,7 @@ public class PostReportService {
 
         try {
             PostReport saved = postReportRepository.saveAndFlush(report);
+            postQueryRepository.incrementTotalReportCount(postId);
             return PostReportDto.from(saved);
         } catch (DataIntegrityViolationException e) {
             throw new IllegalStateException("이미 신고한 게시글입니다.");
@@ -87,12 +91,20 @@ public class PostReportService {
 
     /**
      * 4. 게시글 신고 상태 변경. PENDING 신고만 변경할 수 있고, 다시 PENDING 으로 되돌릴 수는 없다.
+     * RESOLVED_DELETED 로 처리하면 신고 대상 게시글의 PostStatus 도 DELETED 로 변경한다.
      */
     public PostReportDto changeStatus(UUID reportId, ReportStatus newStatus) {
         PostReportValidator.validateNewStatus(newStatus);
 
         PostReport report = PostReportValidator.getPostReportOrThrow(reportId, queryRepository::fetchOneById);
         report.changeStatus(newStatus);
+
+        if (newStatus == ReportStatus.RESOLVED_DELETED) {
+            Post post = report.post();
+            if (post.postStatus() != PostStatus.DELETED) {
+                post.markDeleted();
+            }
+        }
 
         return PostReportDto.from(report);
     }
