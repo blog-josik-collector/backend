@@ -39,7 +39,7 @@ public class OpenApiSwaggerConfig {
     public GroupedOpenApi userV1Api() {
         return GroupedOpenApi.builder()
                 .group("user-v1")
-                .pathsToMatch("/user/v1/**")
+                .pathsToMatch("/user/v1/**", "/auth/v1/**")
                 .build();
     }
 }

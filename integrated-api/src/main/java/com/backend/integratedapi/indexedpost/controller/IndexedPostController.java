@@ -2,6 +2,7 @@ package com.backend.integratedapi.indexedpost.controller;
 
 import com.backend.integratedapi.indexedpost.service.IndexedPostService;
 import com.backend.integratedapi.indexedpost.service.dto.IndexedPost;
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -19,6 +20,7 @@ public class IndexedPostController {
 
     private final IndexedPostService indexedPostService;
 
+    @Operation(summary = "색인 대상 문서 색인 상태 조회")
     @GetMapping("/{posting-id}")
     public ResponseEntity<IndexedPost> getIndexedPost(@PathVariable("posting-id") UUID postingId) {
 

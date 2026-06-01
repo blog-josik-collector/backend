@@ -4,6 +4,7 @@ import com.backend.commondataaccess.dto.OffsetPageResult;
 import com.backend.commondataaccess.security.JwtPrincipal;
 import com.backend.interactionservice.post.service.dto.PostDocument;
 import com.backend.interactionservice.postbookmark.service.PostBookmarkService;
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -29,6 +30,7 @@ public class PostBookmarkController {
     /**
      * 포스팅 즐겨찾기 API. 멱등하다.
      */
+    @Operation(summary = "즐겨찾기 등록")
     @PostMapping("/postings/{postId}/bookmarks")
     public ResponseEntity<Void> bookmark(@PathVariable UUID postId,
                                          @AuthenticationPrincipal JwtPrincipal principal) {
@@ -40,6 +42,7 @@ public class PostBookmarkController {
     /**
      * 포스팅 즐겨찾기 취소 API. 멱등하다.
      */
+    @Operation(summary = "즐겨찾기 삭제")
     @DeleteMapping("/postings/{postId}/bookmarks")
     public ResponseEntity<Void> unBookmark(@PathVariable UUID postId,
                                            @AuthenticationPrincipal JwtPrincipal principal) {
@@ -51,6 +54,7 @@ public class PostBookmarkController {
     /**
      * 내 즐겨찾기 목록 조회. 북마크 등록 시각 내림차순으로 페이지네이션한다.
      */
+    @Operation(summary = "내 즐겨찾기 목록 조회")
     @GetMapping("/me/bookmarks")
     public ResponseEntity<OffsetPageResult<PostDocument>> getMyBookmarks(@PageableDefault(size = 20) Pageable pageable,
                                                                          @AuthenticationPrincipal JwtPrincipal principal) {

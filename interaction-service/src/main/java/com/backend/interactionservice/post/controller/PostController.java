@@ -6,6 +6,7 @@ import com.backend.interactionservice.post.repository.query.SearchCondition;
 import com.backend.interactionservice.post.service.PostService;
 import com.backend.interactionservice.post.service.PostViewCountService;
 import com.backend.interactionservice.post.service.dto.PostListItem;
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -33,6 +34,7 @@ public class PostController {
      * <p>
      * 응답에는 현재 사용자의 좋아요/북마크 여부(likesOfMe, bookmarksOfMe)가 포함된다. 인증되지 않은 호출의 경우 두 값은 항상 false 이다.
      */
+    @Operation(summary = "포스팅 목록 조회 + 내 상호작용 상태")
     @GetMapping("/postings")
     public ResponseEntity<OffsetPageResult<PostListItem>> searchPostings(@RequestParam(required = false) String title,
                                                                          @RequestParam(required = false) String provider,
@@ -57,6 +59,7 @@ public class PostController {
      * <p>
      * 정상 조회된 경우(found == true)에 한해 view 카운트를 1 증가시킨다 (Redis 누적, DB 반영은 PostViewCountFlushWorker 가 일괄 처리).
      */
+    @Operation(summary = "포스팅 한 건 조회 + 내 상호작용 상태")
     @GetMapping("/postings/{postId}")
     public ResponseEntity<PostListItem> searchPost(@PathVariable UUID postId,
                                                    @AuthenticationPrincipal JwtPrincipal principal) {

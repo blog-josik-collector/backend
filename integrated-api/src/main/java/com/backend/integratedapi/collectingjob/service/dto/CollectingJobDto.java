@@ -33,16 +33,22 @@ public class CollectingJobDto {
     private int totalCount;
     private int collectedCount;
     private int attemptCount;
+    private boolean forceRecollect;
     private String errorMessage;
     private OffsetDateTime startedAt;
     private OffsetDateTime endedAt;
 
     public static CollectingJobDto of(UUID sourceId, UUID userId, int fromPage, int toPage) {
+        return of(sourceId, userId, fromPage, toPage, false);
+    }
+
+    public static CollectingJobDto of(UUID sourceId, UUID userId, int fromPage, int toPage, boolean forceRecollect) {
         return CollectingJobDto.builder()
                                .sourceId(sourceId)
                                .userId(userId)
                                .fromPage(fromPage)
                                .toPage(toPage)
+                               .forceRecollect(forceRecollect)
                                .build();
     }
 
@@ -57,6 +63,7 @@ public class CollectingJobDto {
                                .totalCount(collectingJob.totalCount())
                                .collectedCount(collectingJob.collectedCount())
                                .attemptCount(collectingJob.attemptCount())
+                               .forceRecollect(collectingJob.forceRecollect())
                                .errorMessage(collectingJob.errorMessage())
                                .startedAt(collectingJob.startedAt())
                                .endedAt(collectingJob.endedAt())

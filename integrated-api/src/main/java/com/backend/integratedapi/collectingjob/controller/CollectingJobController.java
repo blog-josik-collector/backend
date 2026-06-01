@@ -43,12 +43,13 @@ public class CollectingJobController {
     public ResponseEntity<CollectingJobStartDto.Response> start(@AuthenticationPrincipal JwtPrincipal authentication,
                                                                 @PathVariable("source-id") UUID sourceId,
                                                                 @RequestParam(value = "from_page", required = false) String fromPage,
-                                                                @RequestParam(value = "to_page", required = false) String toPage) {
+                                                                @RequestParam(value = "to_page", required = false) String toPage,
+                                                                @RequestParam(value = "force_recollect", defaultValue = "false") boolean forceRecollect) {
 
         int from = StringUtils.isEmpty(fromPage) ? Integer.parseInt(defaultFromPage) : Integer.parseInt(fromPage);
         int to = StringUtils.isEmpty(toPage) ? Integer.parseInt(defaultToPage) : Integer.parseInt(toPage);
 
-        CollectingJobDto collectingJobDto = CollectingJobDto.of(sourceId, authentication.getUserId(), from, to);
+        CollectingJobDto collectingJobDto = CollectingJobDto.of(sourceId, authentication.getUserId(), from, to, forceRecollect);
         CollectingJobDto startedCollectingJobDto = collectingJobService.start(collectingJobDto);
 
         return ResponseEntity.ok(CollectingJobStartDto.Response.from(startedCollectingJobDto));

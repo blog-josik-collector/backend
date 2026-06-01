@@ -8,6 +8,7 @@ import com.backend.interactionservice.commentreport.controller.dto.CommentReport
 import com.backend.interactionservice.commentreport.controller.dto.CommentReportUpdateDto;
 import com.backend.interactionservice.commentreport.service.CommentReportService;
 import com.backend.interactionservice.commentreport.service.dto.CommentReportDto;
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.time.LocalDate;
 import java.util.UUID;
@@ -37,6 +38,7 @@ public class CommentReportController {
     /**
      * 2. 댓글 신고 등록. 인증된 사용자 누구나 신고할 수 있다.
      */
+    @Operation(summary = "댓글 신고 등록")
     @PostMapping("/comments/{commentId}/reports")
     public ResponseEntity<CommentReportCreateDto.Response> createReport(@PathVariable UUID commentId,
                                                                         @RequestBody CommentReportCreateDto.Request request,
@@ -55,6 +57,7 @@ public class CommentReportController {
      * <p>
      * - start_date / end_date: created_at 기준 날짜 범위 (KST 기준 양 끝 inclusive). 형식: yyyy-MM-dd. 예: 2026-05-01
      */
+    @Operation(summary = "댓글 신고 목록 조회")
     @GetMapping("/admin/reports/comments")
     public ResponseEntity<OffsetPageResult<CommentReportDto>> getReports(@RequestParam(required = false) ReportStatus status,
                                                                          @RequestParam(name = "report_type", required = false) CommentReportType reportType,
@@ -68,6 +71,7 @@ public class CommentReportController {
     /**
      * 6. 댓글 신고 상태 변경 (관리자). PENDING 신고를 RESOLVED_DELETED 또는 REJECTED_KEEP 으로만 변경 가능.
      */
+    @Operation(summary = "댓글 신고 상태 변경")
     @PatchMapping("/admin/reports/comments/{reportId}")
     public ResponseEntity<CommentReportUpdateDto.Response> changeStatus(@PathVariable UUID reportId,
                                                                         @RequestBody CommentReportUpdateDto.Request request) {

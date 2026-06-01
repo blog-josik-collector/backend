@@ -8,6 +8,7 @@ import com.backend.interactionservice.postreport.controller.dto.PostReportCreate
 import com.backend.interactionservice.postreport.controller.dto.PostReportUpdateDto;
 import com.backend.interactionservice.postreport.service.PostReportService;
 import com.backend.interactionservice.postreport.service.dto.PostReportDto;
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.time.LocalDate;
 import java.util.UUID;
@@ -37,6 +38,7 @@ public class PostReportController {
     /**
      * 1. 게시글 신고 등록. 인증된 사용자 누구나 신고할 수 있다.
      */
+    @Operation(summary = "게시글 신고(게시글이 이상해요) 등록")
     @PostMapping("/postings/{postId}/reports")
     public ResponseEntity<PostReportCreateDto.Response> createReport(@PathVariable UUID postId,
                                                                      @RequestBody PostReportCreateDto.Request request,
@@ -55,6 +57,7 @@ public class PostReportController {
      * <p>
      * - start_date / end_date: created_at 기준 날짜 범위 (KST 기준 양 끝 inclusive). 형식: yyyy-MM-dd. 예: 2026-05-01
      */
+    @Operation(summary = "게시글 신고 목록 조회")
     @GetMapping("/admin/reports/postings")
     public ResponseEntity<OffsetPageResult<PostReportDto>> getReports(@RequestParam(required = false) ReportStatus status,
                                                                       @RequestParam(name = "report_type", required = false) PostReportType reportType,
@@ -68,6 +71,7 @@ public class PostReportController {
     /**
      * 4. 게시글 신고 상태 변경 (관리자). PENDING 신고를 RESOLVED_DELETED 또는 REJECTED_KEEP 으로만 변경 가능.
      */
+    @Operation(summary = "게시글 신고 상태 변경")
     @PatchMapping("/admin/reports/postings/{reportId}")
     public ResponseEntity<PostReportUpdateDto.Response> changeStatus(@PathVariable UUID reportId,
                                                                      @RequestBody PostReportUpdateDto.Request request) {

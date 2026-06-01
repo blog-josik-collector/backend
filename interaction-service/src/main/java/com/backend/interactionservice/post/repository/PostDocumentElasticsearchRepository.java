@@ -75,7 +75,7 @@ public class PostDocumentElasticsearchRepository {
                                                              .query(new Query(boolQueryBuilder.build()))
                                                              .from(from)
                                                              .size(size)
-                                                             .sort(so -> so.field(f -> f.field("likeCount")
+                                                             .sort(so -> so.field(f -> f.field("publishedAt")
                                                                                         .order(SortOrder.Desc))));
 
         log.info("[ES Search] Request Query From: {}, Size: {}", from, size);

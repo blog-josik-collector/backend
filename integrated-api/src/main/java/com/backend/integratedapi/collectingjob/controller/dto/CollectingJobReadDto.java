@@ -21,6 +21,7 @@ public record CollectingJobReadDto() {
                            int totalCount,
                            int collectedCount,
                            int attemptCount,
+                           boolean forceRecollect,
                            String errorMessage,
                            OffsetDateTime startedAt,
                            OffsetDateTime endedAt) {
@@ -36,6 +37,7 @@ public record CollectingJobReadDto() {
                                                 .totalCount(collectingJobDto.totalCount())
                                                 .collectedCount(collectingJobDto.collectedCount())
                                                 .attemptCount(collectingJobDto.attemptCount())
+                                                .forceRecollect(collectingJobDto.forceRecollect())
                                                 .errorMessage(collectingJobDto.errorMessage())
                                                 .startedAt(collectingJobDto.startedAt())
                                                 .endedAt(collectingJobDto.endedAt())

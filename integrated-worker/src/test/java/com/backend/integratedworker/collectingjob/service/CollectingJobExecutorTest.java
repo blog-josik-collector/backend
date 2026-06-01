@@ -146,6 +146,44 @@ class CollectingJobExecutorTest {
         }
 
         @Test
+        void forceRecollect가_true이면_해시가_같아도_update를_호출한다() {
+            // given
+            collectingJob = CollectingJob.builder()
+                                         .id(collectingJob.id())
+                                         .collectSource(collectSource)
+                                         .jobStatus(JobStatus.RUNNING)
+                                         .fromPage(1)
+                                         .toPage(1)
+                                         .forceRecollect(true)
+                                         .build();
+
+            Post post = newPost("https://test.com/blog/1/post/exists");
+            String sameHash = "same_hash_value";
+
+            CollectSourcePost existing = CollectSourcePost.builder()
+                                                          .id(UUID.randomUUID())
+                                                          .collectSource(collectSource)
+                                                          .url(post.getUrl())
+                                                          .title("title")
+                                                          .contentHash(sameHash)
+                                                          .lastCollectingJob(collectingJob)
+                                                          .build();
+
+            Mockito.doReturn(Optional.of(collectingJob)).when(queryRepository).fetchOneById(any());
+            Mockito.doReturn(List.of(post)).when(blogCrawlerService).fetch(any());
+            Mockito.doReturn(existing).when(collectSourcePostService).getCollectSourcePost(anyString());
+
+            // when
+            collectingJobExecutor.executeAsync(collectingJob.id());
+
+            // then
+            Mockito.verify(collectSourcePostService).update(eq(existing.id()), eq(post), eq(collectingJob));
+            Mockito.verify(collectSourcePostService, Mockito.never()).createContentHash(any());
+            Mockito.verify(collectSourcePostService, Mockito.never()).create(any(), any(), any());
+            Assertions.assertThat(collectingJob.jobStatus()).isEqualTo(JobStatus.SUCCESS);
+        }
+
+        @Test
         void 기존_Post와_콘텐츠_해시가_다르면_update를_호출하고_Job을_SUCCESS로_마킹한다() {
             // given
             Post post = newPost("https://test.com/blog/1/post/changed");

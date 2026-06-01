@@ -88,6 +88,22 @@ class CollectingJobControllerTest {
     }
 
     @Test
+    void force_recollect가_true이면_DTO에_반영된다() throws Exception {
+        UUID sourceId = mockCollectingJobDto.sourceId();
+
+        Mockito.doReturn(mockCollectingJobDto).when(collectingJobService).start(any(CollectingJobDto.class));
+
+        mockMvc.perform(post("/collect/v1/sources/{source-id}/_start", sourceId)
+                                .param("force_recollect", "true")
+                                .contentType(MediaType.APPLICATION_JSON))
+               .andExpect(status().isOk());
+
+        ArgumentCaptor<CollectingJobDto> captor = ArgumentCaptor.forClass(CollectingJobDto.class);
+        Mockito.verify(collectingJobService).start(captor.capture());
+        org.assertj.core.api.Assertions.assertThat(captor.getValue().forceRecollect()).isTrue();
+    }
+
+    @Test
     void from_page와_to_page를_생략하면_기본값으로_수집_작업을_시작한다() throws Exception {
         UUID sourceId = mockCollectingJobDto.sourceId();
 
@@ -103,6 +119,7 @@ class CollectingJobControllerTest {
         CollectingJobDto captured = captor.getValue();
         org.assertj.core.api.Assertions.assertThat(captured.fromPage()).isEqualTo(1);
         org.assertj.core.api.Assertions.assertThat(captured.toPage()).isEqualTo(10);
+        org.assertj.core.api.Assertions.assertThat(captured.forceRecollect()).isFalse();
     }
 
     @Test

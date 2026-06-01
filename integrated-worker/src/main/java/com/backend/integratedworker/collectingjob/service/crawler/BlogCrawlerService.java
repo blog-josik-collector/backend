@@ -1,11 +1,12 @@
 package com.backend.integratedworker.collectingjob.service.crawler;
 
+import com.backend.commondataaccess.exception.CrawlingException;
 import com.backend.commondataaccess.persistence.collectingjob.CollectingJob;
-import com.backend.commondataaccess.persistence.collectsource.CollectSource;
 import com.backend.commondataaccess.persistence.provider.PostProvider;
 import com.backend.integratedworker.collectingjob.service.crawler.kakao.KakaoBlogCrawler;
-import com.backend.integratedworker.collectingjob.service.crawler.kakao.KakaoPost;
+import com.backend.integratedworker.collectingjob.service.crawler.line.LineBlogCrawler;
 import com.backend.integratedworker.collectingjob.service.crawler.strategy.CrawlerStrategy;
+import com.backend.integratedworker.collectingjob.service.crawler.toss.TossBlogCrawler;
 import com.backend.integratedworker.collectingjob.service.dto.Post;
 import io.github.bonigarcia.wdm.WebDriverManager;
 import java.util.ArrayList;
@@ -24,15 +25,31 @@ import org.springframework.stereotype.Service;
 public class BlogCrawlerService {
 
     private final KakaoBlogCrawler kakaoBlogCrawler;
+    private final LineBlogCrawler lineBlogCrawler;
+    private final TossBlogCrawler tossBlogCrawler;
 
     public List<Post> fetch(CollectingJob collectingJob) {
         PostProvider postProvider = collectingJob.collectSource().postProvider();
+        CrawlerStrategy<? extends Post> strategy = resolveStrategy(postProvider);
 
         List<Post> posts = new ArrayList<>();
         for (int page = collectingJob.fromPage(); page <= collectingJob.toPage(); page++) {
-            posts.addAll(new ArrayList<>(crawl(kakaoBlogCrawler, postProvider, page)));
+            posts.addAll(crawlPosts(strategy, postProvider, page));
         }
         return posts;
+    }
+
+    private CrawlerStrategy<? extends Post> resolveStrategy(PostProvider postProvider) {
+        return switch (postProvider.name()) {
+            case "kakao" -> kakaoBlogCrawler;
+            case "line" -> lineBlogCrawler;
+            case "toss" -> tossBlogCrawler;
+            default -> throw new CrawlingException("Unsupported post provider: " + postProvider.name());
+        };
+    }
+
+    private List<Post> crawlPosts(CrawlerStrategy<? extends Post> strategy, PostProvider postProvider, int page) {
+        return new ArrayList<>(crawl(strategy, postProvider, page));
     }
 
     public <T> List<T> crawl(CrawlerStrategy<T> strategy, PostProvider postProvider, int page) {

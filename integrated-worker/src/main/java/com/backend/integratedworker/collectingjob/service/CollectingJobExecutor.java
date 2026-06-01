@@ -54,6 +54,12 @@ public class CollectingJobExecutor {
                 continue;
             }
 
+            if (collectingJob.forceRecollect()) {
+                log.info("Force recollect enabled, go to update without hash check");
+                collectSourcePostService.update(collectSourcePost.id(), post, collectingJob);
+                continue;
+            }
+
             String contentHash = collectSourcePostService.createContentHash(post);
 
             if (StringUtils.equals(contentHash, collectSourcePost.contentHash())) {

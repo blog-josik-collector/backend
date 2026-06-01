@@ -58,6 +58,8 @@ public class CollectingJob extends BaseEntity {
 
     private int attemptCount;
 
+    private boolean forceRecollect;
+
     private String errorMessage;
 
     private OffsetDateTime startedAt;

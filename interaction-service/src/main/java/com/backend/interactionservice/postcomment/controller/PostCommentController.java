@@ -7,6 +7,7 @@ import com.backend.interactionservice.postcomment.controller.dto.PostCommentRead
 import com.backend.interactionservice.postcomment.controller.dto.PostCommentUpdateDto;
 import com.backend.interactionservice.postcomment.service.PostCommentService;
 import com.backend.interactionservice.postcomment.service.dto.PostCommentDto;
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -34,6 +35,7 @@ public class PostCommentController {
     /**
      * 1. 댓글 작성.
      */
+    @Operation(summary = "댓글 작성")
     @PostMapping("/postings/{postId}/comments")
     public ResponseEntity<PostCommentCreateDto.Response> createComment(@PathVariable UUID postId,
                                                                        @RequestBody PostCommentCreateDto.Request request,
@@ -47,6 +49,7 @@ public class PostCommentController {
     /**
      * 2. 포스팅의 댓글(1-depth) 목록 조회. 생성 순(오래된 순)으로 페이지네이션.
      */
+    @Operation(summary = "댓글 목록 조회")
     @GetMapping("/postings/{postId}/comments")
     public ResponseEntity<OffsetPageResult<PostCommentReadDto.Response>> getComments(@PathVariable UUID postId,
                                                                                      @PageableDefault(size = 20) Pageable pageable) {
@@ -57,6 +60,7 @@ public class PostCommentController {
     /**
      * 3. 댓글 수정. 본인만 가능.
      */
+    @Operation(summary = "댓글 수정")
     @PatchMapping("/comments/{commentId}")
     public ResponseEntity<PostCommentUpdateDto.Response> updateComment(@PathVariable UUID commentId,
                                                                        @RequestBody PostCommentUpdateDto.Request request,
@@ -70,6 +74,7 @@ public class PostCommentController {
     /**
      * 4. 댓글 삭제. 본인만 가능. soft-delete.
      */
+    @Operation(summary = "댓글 삭제")
     @DeleteMapping("/comments/{commentId}")
     public ResponseEntity<Void> deleteComment(@PathVariable UUID commentId,
                                               @AuthenticationPrincipal JwtPrincipal principal) {
@@ -81,6 +86,7 @@ public class PostCommentController {
     /**
      * 5. 대댓글 작성. 부모는 1-depth 댓글이어야 한다.
      */
+    @Operation(summary = "대댓글 작성")
     @PostMapping("/comments/{commentId}/replies")
     public ResponseEntity<PostCommentCreateDto.ReplyResponse> createReply(@PathVariable UUID commentId,
                                                                           @RequestBody PostCommentCreateDto.Request request,
@@ -94,6 +100,7 @@ public class PostCommentController {
     /**
      * 6. 특정 댓글의 대댓글 목록 조회. 생성 순(오래된 순)으로 페이지네이션.
      */
+    @Operation(summary = "대댓글 조회")
     @GetMapping("/comments/{commentId}/replies")
     public ResponseEntity<OffsetPageResult<PostCommentReadDto.Response>> getReplies(@PathVariable UUID commentId,
                                                                                     @PageableDefault(size = 20) Pageable pageable) {
@@ -104,6 +111,7 @@ public class PostCommentController {
     /**
      * 7. 대댓글 수정. 본인만 가능.
      */
+    @Operation(summary = "대댓글 수정")
     @PatchMapping("/replies/{replyId}")
     public ResponseEntity<PostCommentUpdateDto.Response> updateReply(@PathVariable UUID replyId,
                                                                      @RequestBody PostCommentUpdateDto.Request request,
@@ -117,6 +125,7 @@ public class PostCommentController {
     /**
      * 8. 대댓글 삭제. 본인만 가능. soft-delete.
      */
+    @Operation(summary = "대댓글 삭제")
     @DeleteMapping("/replies/{replyId}")
     public ResponseEntity<Void> deleteReply(@PathVariable UUID replyId,
                                             @AuthenticationPrincipal JwtPrincipal principal) {
@@ -128,6 +137,7 @@ public class PostCommentController {
     /**
      * 9. 내가 작성한 댓글/대댓글 조회. 최신 순으로 페이지네이션.
      */
+    @Operation(summary = "내가 작성한 댓글/대댓글 조회")
     @GetMapping("/me/comments")
     public ResponseEntity<OffsetPageResult<PostCommentReadDto.Response>> getMyComments(@PageableDefault(size = 20) Pageable pageable,
                                                                                        @AuthenticationPrincipal JwtPrincipal principal) {

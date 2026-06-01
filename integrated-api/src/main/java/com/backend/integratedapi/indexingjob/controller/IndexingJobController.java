@@ -28,7 +28,7 @@ public class IndexingJobController {
 
     private final IndexingJobService indexingJobService;
 
-    @Operation(summary = "이 source의 전체 post 재색인")
+    @Operation(summary = "이 '수집 소스'에 포함된 전체 post 재색인")
     @PostMapping("/sources/{source-id}/_reindex")
     public ResponseEntity<IndexingJobStartDto.Response> reindexSource(@AuthenticationPrincipal JwtPrincipal principal,
                                                                       @PathVariable("source-id") UUID sourceId) {
