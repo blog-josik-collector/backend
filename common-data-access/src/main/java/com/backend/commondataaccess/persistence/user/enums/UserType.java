@@ -2,6 +2,7 @@ package com.backend.commondataaccess.persistence.user.enums;
 
 import static java.util.stream.Collectors.toMap;
 
+import com.backend.commondataaccess.exception.BadRequestException;
 import java.util.Map;
 import java.util.stream.Stream;
 import lombok.AllArgsConstructor;
@@ -23,7 +24,7 @@ public enum UserType {
     public static UserType from(int JoinStateCode) {
         UserType joinState = UserTypeMap.get(JoinStateCode);
         if (ObjectUtils.isEmpty(joinState)) {
-            throw new IllegalArgumentException("잘못된 UserType 타입입니다.");
+            throw new BadRequestException("잘못된 UserType 타입입니다.");
         }
 
         return joinState;

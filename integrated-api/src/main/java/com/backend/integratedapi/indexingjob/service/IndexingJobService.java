@@ -1,6 +1,7 @@
 package com.backend.integratedapi.indexingjob.service;
 
 import com.backend.commondataaccess.dto.OffsetPageResult;
+import com.backend.commondataaccess.exception.StateConflictException;
 import com.backend.commondataaccess.persistence.collectsource.CollectSource;
 import com.backend.commondataaccess.persistence.collectsource.CollectSourcePost;
 import com.backend.commondataaccess.persistence.common.enums.IndexingJobType;
@@ -46,7 +47,7 @@ public class IndexingJobService {
 
         // 1) 이미 진행 중인 MANUAL post 재색인 Job이 있으면 거부
         if (queryRepository.existsActiveManualJobForPost(postId)) {
-            throw new IllegalStateException("이미 진행 중인 재색인 작업이 있음: postId=" + postId);
+            throw new StateConflictException("이미 진행 중인 재색인 작업이 있음: postId=" + postId);
         }
 
         // 2) MANUAL IndexingJob 생성 (PENDING, target_post_id 채움, target_source_id는 null)

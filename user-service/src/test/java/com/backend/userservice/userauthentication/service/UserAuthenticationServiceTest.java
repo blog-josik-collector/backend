@@ -2,6 +2,10 @@ package com.backend.userservice.userauthentication.service;
 
 import static org.mockito.ArgumentMatchers.any;
 
+import com.backend.commondataaccess.exception.BadRequestException;
+import com.backend.commondataaccess.exception.NotFoundException;
+import com.backend.commondataaccess.exception.StateConflictException;
+import com.backend.commondataaccess.exception.UnauthorizedException;
 import com.backend.commondataaccess.persistence.user.User;
 import com.backend.commondataaccess.persistence.user.UserAuthentication;
 import com.backend.commondataaccess.persistence.user.enums.LoginProvider;
@@ -122,7 +126,7 @@ class UserAuthenticationServiceTest {
 
             // when & then
             Assertions.assertThatThrownBy(() -> userAuthenticationService.create(mockUser, loginId, password, passwordConfirm))
-                      .isInstanceOf(IllegalArgumentException.class)
+                      .isInstanceOf(BadRequestException.class)
                       .hasMessage("credential와 credential_confirm은 값은 동일해야합니다.");
         }
 
@@ -138,11 +142,11 @@ class UserAuthenticationServiceTest {
 
             // when & then
             Assertions.assertThatThrownBy(() -> userAuthenticationService.create(mockUser, duplicatedLoginId, password, passwordConfirm))
-                      .isInstanceOf(IllegalArgumentException.class)
+                      .isInstanceOf(StateConflictException.class)
                       .hasMessageContaining("이미 존재하는 identifier입니다.");
 
             Assertions.assertThatThrownBy(() -> userAuthenticationService.create(mockUser, duplicatedSubject))
-                      .isInstanceOf(IllegalArgumentException.class)
+                      .isInstanceOf(StateConflictException.class)
                       .hasMessageContaining("이미 존재하는 identifier입니다.");
         }
     }
@@ -319,7 +323,7 @@ class UserAuthenticationServiceTest {
 
             // when & then
             Assertions.assertThatThrownBy(() -> userAuthenticationService.updatePassword(mockUser.id(), invalidPassword, newPassword))
-                      .isInstanceOf(IllegalArgumentException.class)
+                      .isInstanceOf(UnauthorizedException.class)
                       .hasMessageContaining("사용자의 password와 입력한 password가 다릅니다.");
         }
 
@@ -343,7 +347,7 @@ class UserAuthenticationServiceTest {
 
             // when & then
             Assertions.assertThatThrownBy(() -> userAuthenticationService.updatePassword(mockUser.id(), password, newPassword))
-                      .isInstanceOf(IllegalArgumentException.class)
+                      .isInstanceOf(NotFoundException.class)
                       .hasMessage("LoginId/Password 입력 방식 계정만 비밀번호를 변경할 수 있습니다.");
         }
 
@@ -413,7 +417,7 @@ class UserAuthenticationServiceTest {
 
             // when & then
             Assertions.assertThatThrownBy(() -> userAuthenticationService.merge(localUserAuthentication.id(), mockUser))
-                      .isInstanceOf(IllegalArgumentException.class)
+                      .isInstanceOf(StateConflictException.class)
                       .hasMessageContaining("동일한 사용자끼리는 정보를 합칠 수 없습니다.");
         }
     }

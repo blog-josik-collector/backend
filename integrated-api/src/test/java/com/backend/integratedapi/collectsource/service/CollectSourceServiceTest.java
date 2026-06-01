@@ -3,6 +3,8 @@ package com.backend.integratedapi.collectsource.service;
 import static org.mockito.ArgumentMatchers.any;
 
 import com.backend.commondataaccess.dto.OffsetPageResult;
+import com.backend.commondataaccess.exception.BadRequestException;
+import com.backend.commondataaccess.exception.NotFoundException;
 import com.backend.commondataaccess.persistence.collectsource.CollectSource;
 import com.backend.commondataaccess.persistence.common.enums.CollectScheduleType;
 import com.backend.commondataaccess.persistence.provider.PostProvider;
@@ -132,7 +134,7 @@ class CollectSourceServiceTest {
 
             // when & then
             Assertions.assertThatThrownBy(() -> collectSourceService.create(request))
-                      .isInstanceOf(IllegalArgumentException.class)
+                      .isInstanceOf(BadRequestException.class)
                       .hasMessageContaining("provider_id는 필수 입력값입니다.");
         }
 
@@ -146,7 +148,7 @@ class CollectSourceServiceTest {
 
             // when & then
             Assertions.assertThatThrownBy(() -> collectSourceService.create(request))
-                      .isInstanceOf(IllegalArgumentException.class)
+                      .isInstanceOf(BadRequestException.class)
                       .hasMessageContaining("schedule_type은 필수 입력값입니다.");
         }
 
@@ -160,7 +162,7 @@ class CollectSourceServiceTest {
 
             // when & then
             Assertions.assertThatThrownBy(() -> collectSourceService.create(request))
-                      .isInstanceOf(IllegalArgumentException.class)
+                      .isInstanceOf(BadRequestException.class)
                       .hasMessageContaining("schedule_type이 manual일 때 cron_expression은 입력할 수 없습니다.");
         }
 
@@ -174,7 +176,7 @@ class CollectSourceServiceTest {
 
             // when & then
             Assertions.assertThatThrownBy(() -> collectSourceService.create(request))
-                      .isInstanceOf(IllegalArgumentException.class)
+                      .isInstanceOf(BadRequestException.class)
                       .hasMessageContaining("schedule_type이 cron일 때 cron_expression은 필수입니다.");
         }
     }
@@ -233,7 +235,7 @@ class CollectSourceServiceTest {
         void id가_null이면_CollectSource_조회에_실패한다() {
             // when & then
             Assertions.assertThatThrownBy(() -> collectSourceService.getCollectSourceDto(null))
-                      .isInstanceOf(IllegalArgumentException.class)
+                      .isInstanceOf(BadRequestException.class)
                       .hasMessageContaining("id는 필수 입력값입니다.");
         }
 
@@ -245,7 +247,7 @@ class CollectSourceServiceTest {
 
             // when & then
             Assertions.assertThatThrownBy(() -> collectSourceService.getCollectSource(id))
-                      .isInstanceOf(IllegalArgumentException.class)
+                      .isInstanceOf(NotFoundException.class)
                       .hasMessageContaining("존재하지 않는 collectSource입니다.");
         }
     }
@@ -340,7 +342,7 @@ class CollectSourceServiceTest {
 
             // when & then
             Assertions.assertThatThrownBy(() -> collectSourceService.update(request))
-                      .isInstanceOf(IllegalArgumentException.class)
+                      .isInstanceOf(BadRequestException.class)
                       .hasMessageContaining("id는 필수 입력값입니다.");
         }
 
@@ -357,7 +359,7 @@ class CollectSourceServiceTest {
 
             // when & then
             Assertions.assertThatThrownBy(() -> collectSourceService.update(request))
-                      .isInstanceOf(IllegalArgumentException.class)
+                      .isInstanceOf(BadRequestException.class)
                       .hasMessageContaining("schedule_type이 cron일 때 cron_expression은 필수입니다.");
         }
     }
@@ -384,7 +386,7 @@ class CollectSourceServiceTest {
         void id가_null이면_삭제에_실패한다() {
             // when & then
             Assertions.assertThatThrownBy(() -> collectSourceService.delete(null))
-                      .isInstanceOf(IllegalArgumentException.class)
+                      .isInstanceOf(BadRequestException.class)
                       .hasMessageContaining("id는 필수 입력값입니다.");
         }
     }

@@ -2,6 +2,7 @@ package com.backend.integratedapi.indexingjob.service;
 
 import static org.mockito.ArgumentMatchers.any;
 
+import com.backend.commondataaccess.exception.StateConflictException;
 import com.backend.commondataaccess.persistence.collectsource.CollectSource;
 import com.backend.commondataaccess.persistence.collectsource.CollectSourcePost;
 import com.backend.commondataaccess.persistence.common.enums.IndexingJobType;
@@ -124,7 +125,7 @@ class IndexingJobServiceTest {
 
             Assertions.assertThatThrownBy(
                               () -> indexingJobService.triggerReindexByCollectSourcePost(collectSourcePost.id(), userId))
-                      .isInstanceOf(IllegalStateException.class)
+                      .isInstanceOf(StateConflictException.class)
                       .hasMessageContaining("이미 진행 중인 재색인 작업이 있음");
         }
     }

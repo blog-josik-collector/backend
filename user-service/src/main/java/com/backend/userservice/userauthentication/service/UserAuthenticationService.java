@@ -1,5 +1,8 @@
 package com.backend.userservice.userauthentication.service;
 
+import com.backend.commondataaccess.exception.NotFoundException;
+import com.backend.commondataaccess.exception.StateConflictException;
+import com.backend.commondataaccess.exception.UnauthorizedException;
 import com.backend.commondataaccess.persistence.common.BaseEntity;
 import com.backend.commondataaccess.persistence.user.User;
 import com.backend.commondataaccess.persistence.user.UserAuthentication;
@@ -94,11 +97,11 @@ public class UserAuthenticationService {
         UserAuthentication userAuthentication = userAuthentications.stream()
                                                                    .filter(ua -> ua.loginProvider().equals(LoginProvider.LOCAL))
                                                                    .findFirst()
-                                                                   .orElseThrow(() -> new IllegalArgumentException(LoginProvider.LOCAL.getValue() + " 계정만 비밀번호를 변경할 수 있습니다."));
+                                                                   .orElseThrow(() -> new NotFoundException(LoginProvider.LOCAL.getValue() + " 계정만 비밀번호를 변경할 수 있습니다."));
 
         // 순서 주의: (평문 비밀번호, DB에 저장된 암호화된 비밀번호)
         if (!passwordEncoder.matches(password, userAuthentication.credential())) {
-            throw new IllegalArgumentException("사용자의 password와 입력한 password가 다릅니다. 입력한 password: " + password);
+            throw new UnauthorizedException("사용자의 password와 입력한 password가 다릅니다.");
         }
 
         String encodedPassword = passwordEncoder.encode(newPassword);
@@ -114,7 +117,7 @@ public class UserAuthenticationService {
         User targetUser = targetUserAuthentication.user();
 
         if (targetUser.id().equals(sourceUser.id())) {
-            throw new IllegalArgumentException("동일한 사용자끼리는 정보를 합칠 수 없습니다. user_id: " + sourceUser.id());
+            throw new StateConflictException("동일한 사용자끼리는 정보를 합칠 수 없습니다. user_id: " + sourceUser.id());
         }
 
         List<UserAuthentication> sourceUserAuthentications = getUserAuthenticationsByUser(sourceUser.id());

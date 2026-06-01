@@ -1,5 +1,9 @@
 package com.backend.userservice.auth.oauth.google;
 
+import com.backend.commondataaccess.exception.BadRequestException;
+import com.backend.commondataaccess.exception.ErrorCode;
+import com.backend.commondataaccess.exception.InfraException;
+import com.backend.commondataaccess.exception.UnauthorizedException;
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier;
 import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
@@ -23,7 +27,7 @@ public class GoogleIdTokenVerifierService {
 
     public GoogleIdTokenVerifierService(@Value("${google.oauth2.client-id}") String clientId) {
         if (!StringUtils.hasText(clientId)) {
-            throw new IllegalStateException("google.oauth2.client-id is required for Google id_token verification");
+            throw new InfraException(ErrorCode.IE_GOOGLE_AUTH_ERROR, "google.oauth2.client-id is required for Google id_token verification");
         }
         try {
             this.verifier = new GoogleIdTokenVerifier.Builder(
@@ -32,7 +36,7 @@ public class GoogleIdTokenVerifierService {
                     .setAudience(Collections.singletonList(clientId))
                     .build();
         } catch (GeneralSecurityException | IOException e) {
-            throw new IllegalStateException("Failed to initialize GoogleIdTokenVerifier", e);
+            throw new InfraException(ErrorCode.IE_GOOGLE_AUTH_ERROR, "Failed to initialize GoogleIdTokenVerifier");
         }
     }
 
@@ -41,16 +45,18 @@ public class GoogleIdTokenVerifierService {
      *
      * @param idTokenString JWT 문자열 (세 부분을 점으로 이은 값)
      * @return 검증된 사용자 클레임
-     * @throws IllegalArgumentException 토큰이 없거나 검증 실패
+     * @throws BadRequestException 토큰이 없거나 비어 있음
+     * @throws UnauthorizedException 검증 실패
+     * @throws InfraException SDK 에러 시
      */
     public GoogleOAuthUserClaims verifyAndParse(String idTokenString) {
         if (!StringUtils.hasText(idTokenString)) {
-            throw new IllegalArgumentException("id_token is null or empty");
+            throw new BadRequestException("id_token is null or empty");
         }
         try {
             GoogleIdToken idToken = verifier.verify(idTokenString);
             if (idToken == null) {
-                throw new IllegalArgumentException("Invalid Google id_token: verification returned null");
+                throw new UnauthorizedException("Invalid Google id_token: verification returned null");
             }
             GoogleIdToken.Payload payload = idToken.getPayload();
             String subject = payload.getSubject();
@@ -67,7 +73,7 @@ public class GoogleIdTokenVerifierService {
                     picture
             );
         } catch (IOException | GeneralSecurityException e) {
-            throw new IllegalArgumentException("Failed to verify Google id_token", e);
+            throw new InfraException(ErrorCode.IE_GOOGLE_AUTH_ERROR, "Failed to verify Google id_token");
         }
     }
 }

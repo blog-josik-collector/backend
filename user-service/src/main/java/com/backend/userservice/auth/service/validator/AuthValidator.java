@@ -1,5 +1,6 @@
 package com.backend.userservice.auth.service.validator;
 
+import com.backend.commondataaccess.exception.BadRequestException;
 import com.backend.userservice.auth.service.dto.AuthDto;
 import java.util.function.UnaryOperator;
 import lombok.AccessLevel;
@@ -32,19 +33,19 @@ public final class AuthValidator {
 
     public static void validateUserId(String userId) {
         if (StringUtils.isBlank(userId)) {
-            throw new IllegalArgumentException("user_id는 필수 입력값입니다.");
+            throw new BadRequestException("user_id는 필수 입력값입니다.");
         }
     }
 
     public static void validatePassword(String password) {
         if (StringUtils.isBlank(password)) {
-            throw new IllegalArgumentException("password는 필수 입력값입니다.");
+            throw new BadRequestException("password는 필수 입력값입니다.");
         }
     }
 
     public static void validateSubject(String subject) {
         if (StringUtils.isBlank(subject)) {
-            throw new IllegalArgumentException("subject는 필수 입력값입니다.");
+            throw new BadRequestException("subject는 필수 입력값입니다.");
         }
     }
 }

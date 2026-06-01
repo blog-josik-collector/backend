@@ -1,5 +1,6 @@
 package com.backend.integratedworker.collectingjob.service.crawler.kakao;
 
+import com.backend.commondataaccess.exception.CrawlingException;
 import com.backend.integratedworker.collectingjob.service.crawler.strategy.PostParser;
 import java.time.LocalDate;
 import java.util.Objects;
@@ -14,7 +15,7 @@ public class KakaoPostParser implements PostParser<KakaoPost> {
     @Override
     public KakaoPost parse(Object rawData) {
         if (!(rawData instanceof WebElement)) {
-            throw new IllegalArgumentException("KakaoPost expects WebElement");
+            throw new CrawlingException("KakaoPost expects WebElement");
         }
 
         WebElement post = (WebElement) rawData;

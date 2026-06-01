@@ -1,5 +1,6 @@
 package com.backend.integratedworker.indexingjob.service;
 
+import com.backend.commondataaccess.exception.NotFoundException;
 import com.backend.commondataaccess.persistence.common.enums.IndexingJobType;
 import com.backend.commondataaccess.persistence.common.enums.JobStatus;
 import com.backend.commondataaccess.persistence.indexingjob.IndexingJob;
@@ -57,11 +58,11 @@ class IndexingJobServiceTest {
         }
 
         @Test
-        void jobId가_없으면_IllegalArgumentException을_던진다() {
+        void jobId가_없으면_NotFoundException을_던진다() {
             Mockito.doReturn(Optional.empty()).when(queryRepository).fetchOneById(jobId);
 
             Assertions.assertThatThrownBy(() -> indexingJobService.getJob(jobId))
-                      .isInstanceOf(IllegalArgumentException.class)
+                      .isInstanceOf(NotFoundException.class)
                       .hasMessageContaining("존재하지 않는 indexingJob입니다");
         }
     }
@@ -85,7 +86,7 @@ class IndexingJobServiceTest {
             Mockito.doReturn(Optional.empty()).when(queryRepository).fetchOneById(jobId);
 
             Assertions.assertThatThrownBy(() -> indexingJobService.updateCounts(jobId, 1, 1))
-                      .isInstanceOf(IllegalArgumentException.class);
+                      .isInstanceOf(NotFoundException.class);
         }
     }
 
@@ -109,7 +110,7 @@ class IndexingJobServiceTest {
             Mockito.doReturn(Optional.empty()).when(queryRepository).fetchOneById(jobId);
 
             Assertions.assertThatThrownBy(() -> indexingJobService.markSuccess(jobId, OffsetDateTime.now()))
-                      .isInstanceOf(IllegalArgumentException.class);
+                      .isInstanceOf(NotFoundException.class);
         }
     }
 
@@ -134,7 +135,7 @@ class IndexingJobServiceTest {
             Mockito.doReturn(Optional.empty()).when(queryRepository).fetchOneById(jobId);
 
             Assertions.assertThatThrownBy(() -> indexingJobService.markFailed(jobId, OffsetDateTime.now(), "err"))
-                      .isInstanceOf(IllegalArgumentException.class);
+                      .isInstanceOf(NotFoundException.class);
         }
     }
 }

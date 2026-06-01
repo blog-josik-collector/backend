@@ -1,15 +1,18 @@
 package com.backend.integratedworker.collectsourcepost.service;
 
+import com.backend.commondataaccess.exception.ErrorCode;
+import com.backend.commondataaccess.exception.InfraException;
+import com.backend.commondataaccess.exception.StateConflictException;
 import com.backend.commondataaccess.persistence.collectingjob.CollectingJob;
 import com.backend.commondataaccess.persistence.collectsource.CollectSource;
 import com.backend.commondataaccess.persistence.collectsource.CollectSourcePost;
 import com.backend.commondataaccess.persistence.common.enums.IndexingStatus;
 import com.backend.commondataaccess.persistence.indexingjob.IndexingJob;
+import com.backend.commonelasticsearch.operation.bulk.BulkOperationResult;
 import com.backend.integratedworker.collectingjob.service.dto.Post;
 import com.backend.integratedworker.collectsourcepost.repository.CollectSourcePostQueryRepository;
 import com.backend.integratedworker.collectsourcepost.repository.CollectSourcePostRepository;
 import com.backend.integratedworker.collectsourcepost.service.validator.CollectSourcePostValidator;
-import com.backend.commonelasticsearch.bulk.BulkOperationResult;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -69,7 +72,7 @@ public class CollectSourcePostService {
             byte[] hashBytes = digest.digest(joined.getBytes(StandardCharsets.UTF_8));
             return HexFormat.of().formatHex(hashBytes);
         } catch (NoSuchAlgorithmException e) {
-            throw new IllegalStateException("지원하지 않는 해시 알고리즘입니다: " + HASH_ALGORITHM, e);
+            throw new InfraException(ErrorCode.BE_INTERNAL_ERROR, "지원하지 않는 해시 알고리즘입니다: " + HASH_ALGORITHM, e);
         }
     }
 
@@ -168,7 +171,7 @@ public class CollectSourcePostService {
             return List.of(getCollectSourcePost(job.targetPost().id()));
         }
 
-        throw new IllegalStateException(
+        throw new StateConflictException(
                 "MANUAL job 대상이 잘못됨: jobId=" + job.id()
                         + ", targetSource=" + job.targetSource()
                         + ", targetPost=" + job.targetPost()
@@ -176,8 +179,7 @@ public class CollectSourcePostService {
     }
 
     /**
-     * INDEXING 상태로 갇힌 post들을 PENDING으로 되돌린다.
-     * TX1 커밋 후 ~ TX2 커밋 전 사이에서 프로세스가 죽었을 때의 안전망.
+     * INDEXING 상태로 갇힌 post들을 PENDING으로 되돌린다. TX1 커밋 후 ~ TX2 커밋 전 사이에서 프로세스가 죽었을 때의 안전망.
      *
      * @return 복구된 row 개수
      */

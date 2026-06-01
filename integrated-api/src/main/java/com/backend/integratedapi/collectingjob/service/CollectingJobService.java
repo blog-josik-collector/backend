@@ -3,6 +3,7 @@ package com.backend.integratedapi.collectingjob.service;
 import static com.backend.commondataaccess.persistence.common.enums.CollectScheduleType.CRON;
 
 import com.backend.commondataaccess.dto.OffsetPageResult;
+import com.backend.commondataaccess.exception.StateConflictException;
 import com.backend.commondataaccess.persistence.collectingjob.CollectingJob;
 import com.backend.commondataaccess.persistence.collectsource.CollectSource;
 import com.backend.commondataaccess.persistence.common.enums.JobStatus;
@@ -51,10 +52,10 @@ public class CollectingJobService {
 
     private CollectingJobDto startManual(CollectSource source, UUID userId, int fromPage, int toPage) {
         if (!source.isUsed()) {
-            throw new IllegalStateException("비활성 source는 실행할 수 없음");
+            throw new StateConflictException("비활성 source는 실행할 수 없음");
         }
         if (queryRepository.existsActiveJob(source.id())) {
-            throw new IllegalStateException("이미 진행 중인 Job 있음");
+            throw new StateConflictException("이미 진행 중인 Job 있음");
         }
         CollectingJob collectingJob = createPendingJob(source, userId, fromPage, toPage);
         CollectingJob savedCollectingJob = collectingJobRepository.save(collectingJob);

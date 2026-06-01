@@ -1,5 +1,6 @@
 package com.backend.commondataaccess.persistence.report;
 
+import com.backend.commondataaccess.exception.StateConflictException;
 import com.backend.commondataaccess.persistence.common.BaseEntity;
 import com.backend.commondataaccess.persistence.common.enums.PostReportType;
 import com.backend.commondataaccess.persistence.common.enums.ReportStatus;
@@ -53,10 +54,10 @@ public class PostReport extends BaseEntity {
      */
     public void changeStatus(ReportStatus newStatus) {
         if (this.reportStatus != ReportStatus.PENDING) {
-            throw new IllegalStateException("이미 처리된 신고는 상태를 변경할 수 없습니다.");
+            throw new StateConflictException("이미 처리된 신고는 상태를 변경할 수 없습니다.");
         }
         if (newStatus == null || newStatus == ReportStatus.PENDING) {
-            throw new IllegalArgumentException("PENDING 으로 되돌리는 변경은 허용되지 않습니다.");
+            throw new StateConflictException("PENDING 으로 되돌리는 변경은 허용되지 않습니다.");
         }
         this.reportStatus = newStatus;
     }

@@ -13,7 +13,9 @@ import com.backend.userservice.auth.oauth.google.GoogleOAuthUserClaims;
 import com.backend.userservice.auth.service.dto.AuthDto;
 import com.backend.userservice.auth.service.dto.AuthDto.GoogleRequest;
 import com.backend.userservice.auth.service.dto.AuthDto.Response;
+import com.backend.userservice.user.service.UserService;
 import com.backend.userservice.userauthentication.service.UserAuthenticationService;
+import java.util.Optional;
 import java.util.UUID;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -26,7 +28,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 @DisplayName("AuthService 테스트")
 @ExtendWith(MockitoExtension.class)
@@ -37,10 +39,16 @@ class AuthServiceTest {
     private AuthService authService;
 
     @Mock
-    private AuthenticationManager authenticationManager;
+    private JwtAuthenticationTokenIssuer jwtAuthenticationTokenIssuer;
 
     @Mock
     private UserAuthenticationService userAuthenticationService;
+
+    @Mock
+    private UserService userService;
+
+    @Mock
+    private PasswordEncoder passwordEncoder;
 
     private User mockUser;
 
@@ -70,7 +78,7 @@ class AuthServiceTest {
                                                                       .user(mockUser)
                                                                       .loginProvider(LoginProvider.LOCAL)
                                                                       .identifier(loginId)
-                                                                      .credential(password)
+                                                                      .credential("encoded_password")
                                                                       .build();
 
             JwtPrincipal principal = JwtPrincipal.builder()
@@ -80,11 +88,13 @@ class AuthServiceTest {
                                                  .roles(new String[]{mockUser.userType().name()})
                                                  .build();
 
-            JwtAuthenticationToken jwtAuthenticationToken = JwtAuthenticationToken.of(principal, createAuthorityList(mockUser.userType().name()));
+            JwtAuthenticationToken jwtAuthenticationToken =
+                    JwtAuthenticationToken.of(principal, createAuthorityList(mockUser.userType().name()));
             jwtAuthenticationToken.setDetails(accessToken);
 
-            Mockito.doReturn(jwtAuthenticationToken).when(authenticationManager).authenticate(any());
-            Mockito.doReturn(userAuthentication).when(userAuthenticationService).getUserAuthentication(any(String.class));
+            Mockito.doReturn(userAuthentication).when(userAuthenticationService).getUserAuthentication(loginId);
+            Mockito.doReturn(true).when(passwordEncoder).matches(password, userAuthentication.credential());
+            Mockito.doReturn(jwtAuthenticationToken).when(jwtAuthenticationTokenIssuer).issue(userAuthentication);
 
             Assertions.assertThat(userAuthentication.user().lastLoginAt()).isNull();
 
@@ -133,11 +143,14 @@ class AuthServiceTest {
                                                  .roles(new String[]{mockUser.userType().name()})
                                                  .build();
 
-            JwtAuthenticationToken jwtAuthenticationToken = JwtAuthenticationToken.of(principal, createAuthorityList(mockUser.userType().name()));
+            JwtAuthenticationToken jwtAuthenticationToken =
+                    JwtAuthenticationToken.of(principal, createAuthorityList(mockUser.userType().name()));
             jwtAuthenticationToken.setDetails(accessToken);
 
-            Mockito.doReturn(jwtAuthenticationToken).when(authenticationManager).authenticate(any());
-            Mockito.doReturn(userAuthentication).when(userAuthenticationService).getUserAuthentication(any(String.class));
+            Mockito.doReturn(Optional.of(userAuthentication))
+                   .when(userAuthenticationService)
+                   .findUserAuthentication(subject);
+            Mockito.doReturn(jwtAuthenticationToken).when(jwtAuthenticationTokenIssuer).issue(userAuthentication);
 
             Assertions.assertThat(userAuthentication.user().lastLoginAt()).isNull();
 

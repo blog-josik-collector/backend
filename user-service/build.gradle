@@ -17,6 +17,7 @@ ext {
 
 dependencies {
     implementation project(":common-data-access")
+    implementation project(":common-web")
     implementation "com.google.api-client:google-api-client:$googleApiClientVersion"
     implementation "org.springframework.boot:spring-boot-starter-web"
     implementation "org.springdoc:springdoc-openapi-starter-webmvc-ui:$springDocVersion"

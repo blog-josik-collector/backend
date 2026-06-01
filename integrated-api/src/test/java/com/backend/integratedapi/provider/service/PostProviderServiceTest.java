@@ -3,6 +3,9 @@ package com.backend.integratedapi.provider.service;
 import static org.mockito.ArgumentMatchers.any;
 
 import com.backend.commondataaccess.dto.OffsetPageResult;
+import com.backend.commondataaccess.exception.BadRequestException;
+import com.backend.commondataaccess.exception.NotFoundException;
+import com.backend.commondataaccess.exception.StateConflictException;
 import com.backend.commondataaccess.persistence.provider.PostProvider;
 import com.backend.integratedapi.provider.repository.PostProviderQueryRepository;
 import com.backend.integratedapi.provider.repository.PostProviderRepository;
@@ -84,7 +87,7 @@ class PostProviderServiceTest {
 
             // when & then
             Assertions.assertThatThrownBy(() -> postProviderService.create(request))
-                      .isInstanceOf(IllegalArgumentException.class)
+                      .isInstanceOf(BadRequestException.class)
                       .hasMessageContaining("name은 필수 입력값입니다.");
         }
 
@@ -95,7 +98,7 @@ class PostProviderServiceTest {
 
             // when & then
             Assertions.assertThatThrownBy(() -> postProviderService.create(request))
-                      .isInstanceOf(IllegalArgumentException.class)
+                      .isInstanceOf(BadRequestException.class)
                       .hasMessageContaining("baseUrl은 필수 입력값입니다.");
         }
 
@@ -106,7 +109,7 @@ class PostProviderServiceTest {
 
             // when & then
             Assertions.assertThatThrownBy(() -> postProviderService.create(request))
-                      .isInstanceOf(IllegalArgumentException.class)
+                      .isInstanceOf(BadRequestException.class)
                       .hasMessageContaining("description은 필수 입력값입니다.");
         }
 
@@ -121,7 +124,7 @@ class PostProviderServiceTest {
 
             // when & then
             Assertions.assertThatThrownBy(() -> postProviderService.create(request))
-                      .isInstanceOf(IllegalArgumentException.class)
+                      .isInstanceOf(StateConflictException.class)
                       .hasMessageContaining("이미 존재하는 postProvider입니다.");
         }
     }
@@ -181,7 +184,7 @@ class PostProviderServiceTest {
         void id가_null이면_PostProvider_조회에_실패한다() {
             // when & then
             Assertions.assertThatThrownBy(() -> postProviderService.getPostProvider(null))
-                      .isInstanceOf(IllegalArgumentException.class)
+                      .isInstanceOf(BadRequestException.class)
                       .hasMessageContaining("id는 필수 입력값입니다.");
         }
 
@@ -193,7 +196,7 @@ class PostProviderServiceTest {
 
             // when & then
             Assertions.assertThatThrownBy(() -> postProviderService.getPostProvider(id))
-                      .isInstanceOf(IllegalArgumentException.class)
+                      .isInstanceOf(NotFoundException.class)
                       .hasMessageContaining("존재하지 않는 postProvider입니다.");
         }
     }
@@ -246,7 +249,7 @@ class PostProviderServiceTest {
 
             // when & then
             Assertions.assertThatThrownBy(() -> postProviderService.update(request))
-                      .isInstanceOf(IllegalArgumentException.class)
+                      .isInstanceOf(BadRequestException.class)
                       .hasMessageContaining("id는 필수 입력값입니다.");
         }
     }
@@ -273,7 +276,7 @@ class PostProviderServiceTest {
         void id가_null이면_삭제에_실패한다() {
             // when & then
             Assertions.assertThatThrownBy(() -> postProviderService.delete(null))
-                      .isInstanceOf(IllegalArgumentException.class)
+                      .isInstanceOf(BadRequestException.class)
                       .hasMessageContaining("id는 필수 입력값입니다.");
         }
     }

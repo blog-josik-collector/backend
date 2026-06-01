@@ -1,5 +1,6 @@
 package com.backend.commondataaccess.security;
 
+import com.backend.commondataaccess.exception.StateConflictException;
 import java.util.Collection;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
@@ -54,7 +55,7 @@ public class JwtAuthenticationToken extends AbstractAuthenticationToken {
 
     public void setAuthenticated(boolean isAuthenticated) throws IllegalArgumentException {
         if (isAuthenticated) {
-            throw new IllegalArgumentException("Cannot set this token to trusted - use constructor which takes a GrantedAuthority list instead");
+            throw new StateConflictException("Cannot set this token to trusted - use constructor which takes a GrantedAuthority list instead");
         }
         super.setAuthenticated(false);
     }

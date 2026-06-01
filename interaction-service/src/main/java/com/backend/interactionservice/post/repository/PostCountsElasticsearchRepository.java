@@ -1,9 +1,9 @@
 package com.backend.interactionservice.post.repository;
 
-import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import com.backend.commondataaccess.persistence.post.Post;
-import com.backend.commonelasticsearch.bulk.BulkOperationResult;
-import com.backend.commonelasticsearch.bulk.ElasticsearchBulkOperations;
+import com.backend.commonelasticsearch.operation.bulk.BulkOperationResult;
+import com.backend.commonelasticsearch.operation.bulk.ElasticsearchBulkOperations;
+import com.backend.commonelasticsearch.client.ApplicationElasticsearchClient;
 import com.backend.interactionservice.post.repository.dto.PostCountFields;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Value;
@@ -18,10 +18,10 @@ public class PostCountsElasticsearchRepository {
 
     private final ElasticsearchBulkOperations bulkOperations;
 
-    public PostCountsElasticsearchRepository(ElasticsearchClient elasticsearchClient,
+    public PostCountsElasticsearchRepository(ApplicationElasticsearchClient applicationElasticsearchClient,
                                              @Value("${elasticsearch.index-name}") String indexName) {
 
-        this.bulkOperations = new ElasticsearchBulkOperations(elasticsearchClient, indexName);
+        this.bulkOperations = new ElasticsearchBulkOperations(applicationElasticsearchClient, indexName);
     }
 
     public BulkOperationResult bulkUpsertCounts(List<Post> posts) {

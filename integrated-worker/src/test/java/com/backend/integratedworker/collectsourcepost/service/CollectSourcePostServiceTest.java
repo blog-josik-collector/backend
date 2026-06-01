@@ -4,6 +4,9 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.eq;
 
+import com.backend.commondataaccess.exception.BadRequestException;
+import com.backend.commondataaccess.exception.NotFoundException;
+import com.backend.commondataaccess.exception.StateConflictException;
 import com.backend.commondataaccess.persistence.collectingjob.CollectingJob;
 import com.backend.commondataaccess.persistence.collectsource.CollectSource;
 import com.backend.commondataaccess.persistence.collectsource.CollectSourcePost;
@@ -17,7 +20,7 @@ import com.backend.integratedworker.collectingjob.service.crawler.kakao.KakaoPos
 import com.backend.integratedworker.collectingjob.service.dto.Post;
 import com.backend.integratedworker.collectsourcepost.repository.CollectSourcePostQueryRepository;
 import com.backend.integratedworker.collectsourcepost.repository.CollectSourcePostRepository;
-import com.backend.commonelasticsearch.bulk.BulkOperationResult;
+import com.backend.commonelasticsearch.operation.bulk.BulkOperationResult;
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
@@ -236,7 +239,7 @@ class CollectSourcePostServiceTest {
         void id가_null이면_조회에_실패한다() {
             // when & then
             Assertions.assertThatThrownBy(() -> collectSourcePostService.getCollectSourcePost((UUID) null))
-                      .isInstanceOf(IllegalArgumentException.class)
+                      .isInstanceOf(BadRequestException.class)
                       .hasMessageContaining("id는 필수 입력값입니다.");
         }
 
@@ -248,7 +251,7 @@ class CollectSourcePostServiceTest {
 
             // when & then
             Assertions.assertThatThrownBy(() -> collectSourcePostService.getCollectSourcePost(id))
-                      .isInstanceOf(IllegalArgumentException.class)
+                      .isInstanceOf(NotFoundException.class)
                       .hasMessageContaining("존재하지 않는 id입니다.");
         }
 
@@ -290,7 +293,7 @@ class CollectSourcePostServiceTest {
         void url이_빈값이면_조회에_실패한다() {
             // when & then
             Assertions.assertThatThrownBy(() -> collectSourcePostService.getCollectSourcePost(""))
-                      .isInstanceOf(IllegalArgumentException.class)
+                      .isInstanceOf(BadRequestException.class)
                       .hasMessageContaining("url은 필수 입력값입니다.");
         }
     }
@@ -585,7 +588,7 @@ class CollectSourcePostServiceTest {
         }
 
         @Test
-        void targetSource와_targetPost가_모두_null이면_IllegalStateException() {
+        void targetSource와_targetPost가_모두_null이면_StateConflictException() {
             IndexingJob job = IndexingJob.builder()
                                          .id(UUID.randomUUID())
                                          .indexingJobType(IndexingJobType.MANUAL)
@@ -595,12 +598,12 @@ class CollectSourcePostServiceTest {
                                          .build();
 
             Assertions.assertThatThrownBy(() -> collectSourcePostService.markIndexingBatch(job))
-                      .isInstanceOf(IllegalStateException.class)
+                      .isInstanceOf(StateConflictException.class)
                       .hasMessageContaining("MANUAL job 대상이 잘못됨");
         }
 
         @Test
-        void targetSource와_targetPost가_모두_있으면_IllegalStateException() {
+        void targetSource와_targetPost가_모두_있으면_StateConflictException() {
             CollectSourcePost target = newCollectSourcePost(IndexingStatus.INDEXED);
             IndexingJob job = IndexingJob.builder()
                                          .id(UUID.randomUUID())
@@ -613,7 +616,7 @@ class CollectSourcePostServiceTest {
                                          .build();
 
             Assertions.assertThatThrownBy(() -> collectSourcePostService.markIndexingBatch(job))
-                      .isInstanceOf(IllegalStateException.class)
+                      .isInstanceOf(StateConflictException.class)
                       .hasMessageContaining("MANUAL job 대상이 잘못됨");
         }
     }

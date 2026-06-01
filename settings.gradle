@@ -3,6 +3,7 @@ rootProject.name = "backend"
 include("user-service")
 include("interaction-service")
 include("common-data-access")
+include("common-web")
 include("common-elasticsearch")
 include("integrated-worker")
 include("integrated-api")

@@ -1,5 +1,7 @@
 package com.backend.integratedworker.indexingjob.service.validator;
 
+import com.backend.commondataaccess.exception.BadRequestException;
+import com.backend.commondataaccess.exception.NotFoundException;
 import com.backend.commondataaccess.persistence.indexingjob.IndexingJob;
 import java.util.Optional;
 import java.util.UUID;
@@ -13,7 +15,7 @@ public class IndexingJobValidator {
 
     public static void validateId(UUID id) {
         if (ObjectUtils.isEmpty(id)) {
-            throw new IllegalArgumentException("id는 필수 입력값입니다.");
+            throw new BadRequestException("id는 필수 입력값입니다.");
         }
     }
 
@@ -21,6 +23,6 @@ public class IndexingJobValidator {
         validateId(id);
 
         return fetchOneById.apply(id)
-                           .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 indexingJob입니다. id: " + id));
+                           .orElseThrow(() -> new NotFoundException("존재하지 않는 indexingJob입니다. id: " + id));
     }
 }

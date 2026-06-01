@@ -4,6 +4,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.eq;
 
+import com.backend.commondataaccess.exception.NotFoundException;
 import com.backend.commondataaccess.persistence.common.enums.IndexingJobType;
 import com.backend.commondataaccess.persistence.common.enums.JobStatus;
 import com.backend.commondataaccess.persistence.indexingjob.IndexingJob;
@@ -86,7 +87,7 @@ class IndexingJobExecutorTest {
 
         @Test
         void getJob_시점에_예외가_나면_markFailed가_예외_메시지와_함께_호출된다() {
-            Mockito.doThrow(new IllegalArgumentException("존재하지 않는 indexingJob입니다. id: " + jobId))
+            Mockito.doThrow(new NotFoundException("존재하지 않는 indexingJob입니다. id: " + jobId))
                    .when(indexingJobService).getJob(jobId);
 
             indexingJobExecutor.executeAsync(jobId);

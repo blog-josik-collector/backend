@@ -1,6 +1,7 @@
 package com.backend.interactionservice.commentreport.service;
 
 import com.backend.commondataaccess.dto.OffsetPageResult;
+import com.backend.commondataaccess.exception.StateConflictException;
 import com.backend.commondataaccess.persistence.common.enums.CommentReportType;
 import com.backend.commondataaccess.persistence.common.enums.PostCommentStatus;
 import com.backend.commondataaccess.persistence.common.enums.ReportStatus;
@@ -68,7 +69,7 @@ public class CommentReportService {
             postCommentQueryRepository.incrementTotalReportCount(commentId);
             return CommentReportDto.from(saved);
         } catch (DataIntegrityViolationException e) {
-            throw new IllegalStateException("이미 신고한 댓글입니다.");
+            throw new StateConflictException(e, "이미 신고한 댓글입니다.");
         }
     }
 
@@ -92,8 +93,7 @@ public class CommentReportService {
     }
 
     /**
-     * 6. 댓글 신고 상태 변경. PENDING 신고만 변경할 수 있고, 다시 PENDING 으로 되돌릴 수는 없다.
-     * RESOLVED_DELETED 로 처리하면 신고 대상 댓글의 PostCommentStatus 도 DELETED 로 변경한다.
+     * 6. 댓글 신고 상태 변경. PENDING 신고만 변경할 수 있고, 다시 PENDING 으로 되돌릴 수는 없다. RESOLVED_DELETED 로 처리하면 신고 대상 댓글의 PostCommentStatus 도 DELETED 로 변경한다.
      */
     public CommentReportDto changeStatus(UUID reportId, ReportStatus newStatus) {
         CommentReportValidator.validateNewStatus(newStatus);

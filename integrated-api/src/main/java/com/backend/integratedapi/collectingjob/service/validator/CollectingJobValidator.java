@@ -1,5 +1,7 @@
 package com.backend.integratedapi.collectingjob.service.validator;
 
+import com.backend.commondataaccess.exception.BadRequestException;
+import com.backend.commondataaccess.exception.NotFoundException;
 import com.backend.commondataaccess.persistence.collectingjob.CollectingJob;
 import java.util.Optional;
 import java.util.UUID;
@@ -13,7 +15,7 @@ public class CollectingJobValidator {
 
     public static void validateId(UUID id) {
         if (ObjectUtils.isEmpty(id)) {
-            throw new IllegalArgumentException("id는 필수 입력값입니다.");
+            throw new BadRequestException("id는 필수 입력값입니다.");
         }
     }
 
@@ -21,6 +23,6 @@ public class CollectingJobValidator {
         validateId(id);
 
         return fetchOneById.apply(id)
-                           .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 collectJob입니다. id: " + id));
+                           .orElseThrow(() -> new NotFoundException("존재하지 않는 collectJob입니다. id: " + id));
     }
 }

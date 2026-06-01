@@ -1,5 +1,7 @@
 package com.backend.integratedworker.collectsourcepost.service.validator;
 
+import com.backend.commondataaccess.exception.BadRequestException;
+import com.backend.commondataaccess.exception.NotFoundException;
 import com.backend.commondataaccess.persistence.collectsource.CollectSourcePost;
 import java.util.Optional;
 import java.util.UUID;
@@ -14,19 +16,19 @@ public final class CollectSourcePostValidator {
 
     public static void validateId(UUID id) {
         if (ObjectUtils.isEmpty(id)) {
-            throw new IllegalArgumentException("id는 필수 입력값입니다.");
+            throw new BadRequestException("id는 필수 입력값입니다.");
         }
     }
 
     public static void validateUrl(String url) {
         if (StringUtils.isBlank(url)) {
-            throw new IllegalArgumentException("url은 필수 입력값입니다.");
+            throw new BadRequestException("url은 필수 입력값입니다.");
         }
     }
 
     public static CollectSourcePost getCollectSourcePostOrThrow(UUID id, Function<UUID, Optional<CollectSourcePost>> fetchOneById) {
         validateId(id);
         return fetchOneById.apply(id)
-                       .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 id입니다. id: " + id));
+                       .orElseThrow(() -> new NotFoundException("존재하지 않는 id입니다. id: " + id));
     }
 }

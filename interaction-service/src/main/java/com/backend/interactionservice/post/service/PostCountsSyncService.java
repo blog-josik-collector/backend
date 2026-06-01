@@ -1,7 +1,7 @@
 package com.backend.interactionservice.post.service;
 
 import com.backend.commondataaccess.persistence.post.Post;
-import com.backend.commonelasticsearch.bulk.BulkOperationResult;
+import com.backend.commonelasticsearch.operation.bulk.BulkOperationResult;
 import com.backend.interactionservice.post.repository.PostCountsElasticsearchRepository;
 import com.backend.interactionservice.post.repository.PostQueryRepository;
 import com.backend.interactionservice.post.service.dto.PostCountSyncResult;

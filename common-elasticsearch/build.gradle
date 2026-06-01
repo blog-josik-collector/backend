@@ -16,7 +16,9 @@ ext {
 }
 
 dependencies {
+    api project(":common-data-access")
     api "co.elastic.clients:elasticsearch-java:${elasticsearchVersion}"
     api "org.springframework.boot:spring-boot-starter-json"
+    implementation "org.springframework.boot:spring-boot-starter"
     implementation "com.fasterxml.jackson.datatype:jackson-datatype-jsr310"
 }

@@ -1,8 +1,8 @@
 package com.backend.integratedworker.indexingjob.repository;
 
-import co.elastic.clients.elasticsearch.ElasticsearchClient;
-import com.backend.commonelasticsearch.bulk.BulkOperationResult;
-import com.backend.commonelasticsearch.bulk.ElasticsearchBulkOperations;
+import com.backend.commonelasticsearch.operation.bulk.BulkOperationResult;
+import com.backend.commonelasticsearch.operation.bulk.ElasticsearchBulkOperations;
+import com.backend.commonelasticsearch.client.ApplicationElasticsearchClient;
 import com.backend.integratedworker.indexingjob.repository.dto.EsPostDocument;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Value;
@@ -16,10 +16,10 @@ public class PostElasticsearchRepository {
 
     private final ElasticsearchBulkOperations bulkOperations;
 
-    public PostElasticsearchRepository(ElasticsearchClient elasticsearchClient,
+    public PostElasticsearchRepository(ApplicationElasticsearchClient applicationElasticsearchClient,
                                        @Value("${elasticsearch.index-name}") String indexName) {
 
-        this.bulkOperations = new ElasticsearchBulkOperations(elasticsearchClient, indexName);
+        this.bulkOperations = new ElasticsearchBulkOperations(applicationElasticsearchClient, indexName);
     }
 
     public BulkOperationResult bulkIndex(List<EsPostDocument> documents) {

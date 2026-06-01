@@ -1,5 +1,8 @@
 package com.backend.integratedapi.provider.service.validator;
 
+import com.backend.commondataaccess.exception.BadRequestException;
+import com.backend.commondataaccess.exception.NotFoundException;
+import com.backend.commondataaccess.exception.StateConflictException;
 import com.backend.commondataaccess.persistence.provider.PostProvider;
 import com.backend.integratedapi.provider.service.dto.PostProviderDto;
 import java.util.Optional;
@@ -44,32 +47,32 @@ public class PostProviderValidator {
 
     public static void validateName(String name) {
         if (StringUtils.isBlank(name)) {
-            throw new IllegalArgumentException("name은 필수 입력값입니다.");
+            throw new BadRequestException("name은 필수 입력값입니다.");
         }
     }
 
     public static void validateBaseUrl(String baseUrl) {
         if (StringUtils.isBlank(baseUrl)) {
-            throw new IllegalArgumentException("baseUrl은 필수 입력값입니다.");
+            throw new BadRequestException("baseUrl은 필수 입력값입니다.");
         }
     }
 
     public static void validateDescription(String description) {
         if (StringUtils.isBlank(description)) {
-            throw new IllegalArgumentException("description은 필수 입력값입니다.");
+            throw new BadRequestException("description은 필수 입력값입니다.");
         }
     }
 
     public static void validateId(UUID id) {
         if (ObjectUtils.isEmpty(id)) {
-            throw new IllegalArgumentException("id는 필수 입력값입니다.");
+            throw new BadRequestException("id는 필수 입력값입니다.");
         }
     }
 
     public static void verifyDuplicateName(String name, Function<String, Boolean> existsByName) {
         validateName(name);
         if (existsByName.apply(name)) {
-            throw new IllegalArgumentException("이미 존재하는 postProvider입니다. name: " + name);
+            throw new StateConflictException("이미 존재하는 postProvider입니다. name: " + name);
         }
     }
 
@@ -77,6 +80,6 @@ public class PostProviderValidator {
         validateId(id);
 
         return fetchOneById.apply(id)
-                       .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 postProvider입니다. id: " + id));
+                           .orElseThrow(() -> new NotFoundException("존재하지 않는 postProvider입니다. id: " + id));
     }
 }

@@ -1,4 +1,4 @@
-package com.backend.commonelasticsearch.bulk;
+package com.backend.commonelasticsearch.operation.bulk;
 
 import co.elastic.clients.elasticsearch.core.BulkResponse;
 import co.elastic.clients.elasticsearch.core.bulk.BulkResponseItem;

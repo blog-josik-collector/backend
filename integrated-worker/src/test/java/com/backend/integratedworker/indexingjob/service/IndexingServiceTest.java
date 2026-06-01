@@ -3,6 +3,7 @@ package com.backend.integratedworker.indexingjob.service;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 
+import com.backend.commondataaccess.exception.StateConflictException;
 import com.backend.commondataaccess.persistence.collectingjob.CollectingJob;
 import com.backend.commondataaccess.persistence.collectsource.CollectSource;
 import com.backend.commondataaccess.persistence.collectsource.CollectSourcePost;
@@ -14,7 +15,7 @@ import com.backend.commondataaccess.persistence.indexingjob.IndexingJob;
 import com.backend.commondataaccess.persistence.provider.PostProvider;
 import com.backend.integratedworker.collectsourcepost.service.CollectSourcePostService;
 import com.backend.integratedworker.indexingjob.repository.PostElasticsearchRepository;
-import com.backend.commonelasticsearch.bulk.BulkOperationResult;
+import com.backend.commonelasticsearch.operation.bulk.BulkOperationResult;
 import com.backend.integratedworker.indexingjob.repository.dto.EsPostDocument;
 import com.backend.integratedworker.indexingjob.service.dto.IndexingResult;
 import com.backend.integratedworker.post.service.PostService;
@@ -272,13 +273,13 @@ class IndexingServiceTest {
         }
 
         @Test
-        void markIndexingBatch에서_IllegalStateException이_나면_그대로_전파된다() {
+        void markIndexingBatch에서_StateConflictException이_나면_그대로_전파된다() {
             IndexingJob job = manualJobWithSource();
-            Mockito.doThrow(new IllegalStateException("MANUAL job 대상이 잘못됨"))
+            Mockito.doThrow(new StateConflictException("MANUAL job 대상이 잘못됨"))
                    .when(collectSourcePostService).markIndexingBatch(job);
 
             Assertions.assertThatThrownBy(() -> indexingService.executeIndexing(job))
-                      .isInstanceOf(IllegalStateException.class)
+                      .isInstanceOf(StateConflictException.class)
                       .hasMessageContaining("MANUAL job 대상이 잘못됨");
         }
     }

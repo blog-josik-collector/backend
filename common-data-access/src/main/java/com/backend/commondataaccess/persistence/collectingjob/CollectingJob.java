@@ -1,5 +1,6 @@
 package com.backend.commondataaccess.persistence.collectingjob;
 
+import com.backend.commondataaccess.exception.StateConflictException;
 import com.backend.commondataaccess.persistence.common.enums.CollectingStatus;
 import com.backend.commondataaccess.persistence.collectsource.CollectSource;
 import com.backend.commondataaccess.persistence.common.BaseEntity;
@@ -68,7 +69,7 @@ public class CollectingJob extends BaseEntity {
      */
     public void markRunning(OffsetDateTime now) {
         if (this.jobStatus != JobStatus.PENDING) {
-            throw new IllegalStateException("PENDING이 아닌 Job은 RUNNING으로 못 바꿈");
+            throw new StateConflictException("PENDING이 아닌 Job은 RUNNING으로 못 바꿈");
         }
         this.jobStatus = JobStatus.RUNNING;
         this.startedAt = now;

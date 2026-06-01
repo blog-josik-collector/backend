@@ -1,7 +1,9 @@
 package com.backend.commondataaccess.security.jwt;
 
+import com.backend.commondataaccess.exception.UnauthorizedException;
 import com.backend.commondataaccess.persistence.user.UserAuthentication;
 import io.jsonwebtoken.JwtBuilder;
+import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.JwtParser;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
@@ -76,8 +78,11 @@ public class JwtService {
     }
 
     public Claims verify(String token) {
-        // JJWT의 파싱 결과를 우리 도메인 모델인 Claims로 변환
-        return new Claims(jwtParser.parseSignedClaims(token).getPayload());
+        try {
+            return new Claims(jwtParser.parseSignedClaims(token).getPayload());
+        } catch (JwtException e) {
+            throw new UnauthorizedException();
+        }
     }
 
     /**

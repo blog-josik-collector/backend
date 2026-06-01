@@ -1,5 +1,6 @@
 package com.backend.commondataaccess.security;
 
+import com.backend.commondataaccess.exception.UnauthorizedException;
 import com.backend.commondataaccess.security.jwt.JwtAuthenticationConverter;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -16,8 +17,9 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 /**
- * 역할: 모든 요청에서 Authorization: Bearer ... 토큰을 확인하고, 유효하면 SecurityContext에 인증 정보를 주입하는 공통 필터. <p> 호출 위치: JwtAuthenticationFilter가 인증이 필요한 요청에서 호출. <p> 책임 <p> - 이미 인증된 요청이면 재처리하지 않음(SecurityContext 체크)
- * <p> - 헤더에서 Bearer 토큰 추출(resolveToken) <p> - 토큰이 유효하면 Converter를 통해 Authentication 생성 후 SecurityContext에 set <p> 비책임(두면 헷갈리는 영역) <p> - 토큰 생성/리프레시 정책 <p> - 클레임/권한 조립의 상세 로직(Converter 책임) <p>
+ * 역할: 모든 요청에서 Authorization: Bearer ... 토큰을 확인하고, 유효하면 SecurityContext에 인증 정보를 주입하는 공통 필터. <p>
+ * 유효하지 않은 Bearer 토큰은 {@link UnauthorizedException} 으로 처리한 뒤 SecurityContext 를 비우고 chain 을 계속한다.
+ * protected URL 이면 {@link org.springframework.security.web.AuthenticationEntryPoint} 가 동일한 ErrorResponse JSON(401)을 반환한다.
  */
 @Slf4j
 @RequiredArgsConstructor
@@ -29,15 +31,16 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
             throws ServletException, IOException {
 
-        // 1. 이미 인증된 요청인지 확인 (불필요한 파싱 방지)
         if (SecurityContextHolder.getContext().getAuthentication() == null) {
-            String token = resolveToken(request);
-
-            if (StringUtils.hasText(token)) {
-                // 2. 토큰 검증 및 Claims 추출
-                Authentication authentication = jwtAuthenticationConverter.convertToAuthentication(token);
-                // 3. 인증 객체 생성 및 Context 설정
-                SecurityContextHolder.getContext().setAuthentication(authentication);
+            try {
+                String token = resolveToken(request);
+                if (StringUtils.hasText(token)) {
+                    Authentication authentication = jwtAuthenticationConverter.convertToAuthentication(token);
+                    SecurityContextHolder.getContext().setAuthentication(authentication);
+                }
+            } catch (UnauthorizedException e) {
+                SecurityContextHolder.clearContext();
+                log.debug("Invalid JWT rejected: {}", e.getMessage());
             }
         }
 
@@ -48,10 +51,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         String bearerToken = request.getHeader("Authorization");
         if (StringUtils.hasText(bearerToken) && bearerToken.startsWith("Bearer ")) {
             try {
-                // Bearer 이후의 실제 토큰값만 반환
                 return URLDecoder.decode(bearerToken.substring(7), StandardCharsets.UTF_8);
             } catch (Exception e) {
-                log.error("Token decoding failed", e);
+                log.debug("Token decoding failed", e);
+                throw new UnauthorizedException();
             }
         }
         return null;

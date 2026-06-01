@@ -3,9 +3,9 @@ package com.backend.integratedapi.indexedpost.controller;
 import com.backend.integratedapi.indexedpost.service.IndexedPostService;
 import com.backend.integratedapi.indexedpost.service.dto.IndexedPost;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import java.io.IOException;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -20,8 +20,9 @@ public class IndexedPostController {
     private final IndexedPostService indexedPostService;
 
     @GetMapping("/{posting-id}")
-    public IndexedPost getIndexedPost(@PathVariable("posting-id") UUID postingId) throws IOException {
+    public ResponseEntity<IndexedPost> getIndexedPost(@PathVariable("posting-id") UUID postingId) {
 
-        return indexedPostService.getPost(postingId).orElse(null);
+        IndexedPost indexedPost = indexedPostService.getIndexedPost(postingId);
+        return ResponseEntity.ok(indexedPost);
     }
 }

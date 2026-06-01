@@ -1,6 +1,7 @@
 package com.backend.interactionservice.postreport.service;
 
 import com.backend.commondataaccess.dto.OffsetPageResult;
+import com.backend.commondataaccess.exception.StateConflictException;
 import com.backend.commondataaccess.persistence.common.enums.PostReportType;
 import com.backend.commondataaccess.persistence.common.enums.PostStatus;
 import com.backend.commondataaccess.persistence.common.enums.ReportStatus;
@@ -66,7 +67,7 @@ public class PostReportService {
             postQueryRepository.incrementTotalReportCount(postId);
             return PostReportDto.from(saved);
         } catch (DataIntegrityViolationException e) {
-            throw new IllegalStateException("이미 신고한 게시글입니다.");
+            throw new StateConflictException("이미 신고한 게시글입니다.");
         }
     }
 

@@ -2,6 +2,8 @@ package com.backend.integratedapi.collectsourcepost.service;
 
 import static org.mockito.ArgumentMatchers.any;
 
+import com.backend.commondataaccess.exception.BadRequestException;
+import com.backend.commondataaccess.exception.NotFoundException;
 import com.backend.commondataaccess.persistence.collectingjob.CollectingJob;
 import com.backend.commondataaccess.persistence.collectsource.CollectSource;
 import com.backend.commondataaccess.persistence.collectsource.CollectSourcePost;
@@ -117,7 +119,7 @@ class CollectSourcePostServiceTest {
         void id가_null이면_CollectSourcePost_조회에_실패한다() {
             // when & then
             Assertions.assertThatThrownBy(() -> collectSourcePostService.getCollectSourcePostDto(null))
-                      .isInstanceOf(IllegalArgumentException.class)
+                      .isInstanceOf(BadRequestException.class)
                       .hasMessageContaining("id는 필수 입력값입니다.");
         }
 
@@ -129,7 +131,7 @@ class CollectSourcePostServiceTest {
 
             // when & then
             Assertions.assertThatThrownBy(() -> collectSourcePostService.getCollectSourcePost(id))
-                      .isInstanceOf(IllegalArgumentException.class)
+                      .isInstanceOf(NotFoundException.class)
                       .hasMessageContaining("존재하지 않는 id입니다.");
         }
     }

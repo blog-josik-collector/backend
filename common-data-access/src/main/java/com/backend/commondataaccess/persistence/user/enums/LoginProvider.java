@@ -2,6 +2,7 @@ package com.backend.commondataaccess.persistence.user.enums;
 
 import static java.util.stream.Collectors.toMap;
 
+import com.backend.commondataaccess.exception.BadRequestException;
 import java.util.Map;
 import java.util.stream.Stream;
 import lombok.AllArgsConstructor;
@@ -23,7 +24,7 @@ public enum LoginProvider {
     public static LoginProvider from(int loginProviderCode) {
         LoginProvider loginProvider = loginProviderMap.get(loginProviderCode);
         if (ObjectUtils.isEmpty(loginProvider)) {
-            throw new IllegalArgumentException("잘못된 LoginProvider 타입입니다.");
+            throw new BadRequestException("잘못된 LoginProvider 타입입니다.");
         }
 
         return loginProvider;

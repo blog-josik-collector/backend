@@ -3,7 +3,7 @@ package com.backend.integratedworker.indexingjob.service;
 import com.backend.commondataaccess.persistence.collectsource.CollectSourcePost;
 import com.backend.commondataaccess.persistence.indexingjob.IndexingJob;
 import com.backend.integratedworker.collectsourcepost.service.CollectSourcePostService;
-import com.backend.commonelasticsearch.bulk.BulkOperationResult;
+import com.backend.commonelasticsearch.operation.bulk.BulkOperationResult;
 import com.backend.integratedworker.indexingjob.repository.PostElasticsearchRepository;
 import com.backend.integratedworker.indexingjob.repository.dto.EsPostDocument;
 import com.backend.integratedworker.indexingjob.service.dto.IndexingResult;
