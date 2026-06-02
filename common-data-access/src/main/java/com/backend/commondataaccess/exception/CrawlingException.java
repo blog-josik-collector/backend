@@ -9,4 +9,8 @@ public class CrawlingException extends BusinessException {
     public CrawlingException(String message) {
         super(ErrorCode.BE_CRAWLER_CONFLICT, message);
     }
+
+    public CrawlingException(String message, Throwable cause) {
+        super(ErrorCode.BE_CRAWLER_CONFLICT, message, cause);
+    }
 }

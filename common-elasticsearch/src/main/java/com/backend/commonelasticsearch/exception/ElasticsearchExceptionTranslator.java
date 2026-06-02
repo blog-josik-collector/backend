@@ -51,14 +51,14 @@ public final class ElasticsearchExceptionTranslator {
             return businessException;
         }
         if (exception instanceof IOException ioException) {
-            log.error("[ES {}] communication failure", operation.name(), ioException);
+            log.error("[ES][IE50001] {} communication failure", operation.name(), ioException);
             return new InfraException(ErrorCode.IE_ELASTICSEARCH_ERROR, ioException);
         }
         if (exception instanceof ElasticsearchException elasticsearchException) {
             return translateElasticsearchException(operation, elasticsearchException);
         }
 
-        log.error("[ES {}] unexpected failure", operation.name(), exception);
+        log.error("[ES][IE50001] {} unexpected failure", operation.name(), exception);
         return new InfraException(ErrorCode.IE_ELASTICSEARCH_ERROR, exception);
     }
 
@@ -69,7 +69,7 @@ public final class ElasticsearchExceptionTranslator {
         String type = errorType(exception);
         String reason = errorReason(exception);
 
-        log.error("[ES {}] failed. status={}, type={}, reason={}",
+        log.error("[ES][IE50001] {} failed status={} type={} reason={}",
                   operation.name(), status, type, reason, exception);
 
         if (isInfraError(status, type)) {

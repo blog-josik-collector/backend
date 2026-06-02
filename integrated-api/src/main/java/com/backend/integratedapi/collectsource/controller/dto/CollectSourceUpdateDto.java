@@ -8,7 +8,12 @@ import lombok.Builder;
 
 public record CollectSourceUpdateDto() {
 
-    public record Request(String url, CollectScheduleType collectScheduleType, String cronExpression, Boolean isUsed) {
+    public record Request(String url,
+                          CollectScheduleType collectScheduleType,
+                          String cronExpression,
+                          Integer cronFromPage,
+                          Integer cronToPage,
+                          Boolean isUsed) {
 
     }
 

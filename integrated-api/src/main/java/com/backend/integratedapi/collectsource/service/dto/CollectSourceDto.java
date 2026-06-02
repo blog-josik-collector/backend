@@ -16,14 +16,16 @@ import lombok.experimental.Accessors;
 @Accessors(fluent = true)
 @Getter
 @Builder
-@AllArgsConstructor(access = AccessLevel.PRIVATE) // 빌더용
-@NoArgsConstructor(access = AccessLevel.PRIVATE)  // Jackson 역직렬화용
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class CollectSourceDto {
 
     private UUID providerId;
     private String url;
     private CollectScheduleType collectScheduleType;
     private String cronExpression;
+    private Integer cronFromPage;
+    private Integer cronToPage;
     private boolean isUsed;
 
     private UUID id;
@@ -31,22 +33,52 @@ public class CollectSourceDto {
     private OffsetDateTime createdAt;
     private OffsetDateTime updatedAt;
 
-    public static CollectSourceDto of(UUID providerId, String url, CollectScheduleType collectScheduleType, String cronExpression) {
+    public static CollectSourceDto of(UUID providerId,
+                                      String url,
+                                      CollectScheduleType collectScheduleType,
+                                      String cronExpression) {
+        return of(providerId, url, collectScheduleType, cronExpression, null, null);
+    }
+
+    public static CollectSourceDto of(UUID providerId,
+                                      String url,
+                                      CollectScheduleType collectScheduleType,
+                                      String cronExpression,
+                                      Integer cronFromPage,
+                                      Integer cronToPage) {
         return CollectSourceDto.builder()
                                .providerId(providerId)
                                .url(url)
                                .collectScheduleType(collectScheduleType)
                                .cronExpression(cronExpression)
+                               .cronFromPage(cronFromPage)
+                               .cronToPage(cronToPage)
                                .isUsed(true)
                                .build();
     }
 
-    public static CollectSourceDto of(UUID id, String url, CollectScheduleType collectScheduleType, String cronExpression, Boolean isUsed) {
+    public static CollectSourceDto of(UUID id,
+                                      String url,
+                                      CollectScheduleType collectScheduleType,
+                                      String cronExpression,
+                                      Boolean isUsed) {
+        return of(id, url, collectScheduleType, cronExpression, null, null, isUsed);
+    }
+
+    public static CollectSourceDto of(UUID id,
+                                      String url,
+                                      CollectScheduleType collectScheduleType,
+                                      String cronExpression,
+                                      Integer cronFromPage,
+                                      Integer cronToPage,
+                                      Boolean isUsed) {
         return CollectSourceDto.builder()
                                .id(id)
                                .url(url)
                                .collectScheduleType(collectScheduleType)
                                .cronExpression(cronExpression)
+                               .cronFromPage(cronFromPage)
+                               .cronToPage(cronToPage)
                                .isUsed(isUsed == null || isUsed)
                                .build();
     }
@@ -58,6 +90,8 @@ public class CollectSourceDto {
                                .url(collectSource.url())
                                .collectScheduleType(collectSource.collectScheduleType())
                                .cronExpression(collectSource.cronExpression())
+                               .cronFromPage(collectSource.cronFromPage())
+                               .cronToPage(collectSource.cronToPage())
                                .isUsed(collectSource.isUsed())
                                .createdAt(collectSource.createdAt())
                                .updatedAt(collectSource.updatedAt())

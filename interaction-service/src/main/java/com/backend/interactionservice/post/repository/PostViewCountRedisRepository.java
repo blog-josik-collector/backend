@@ -37,7 +37,7 @@ public class PostViewCountRedisRepository {
             redis.opsForHash().increment(redisHashKey, postId.toString(), 1L);
         } catch (Exception e) {
             // Redis 장애가 user-facing 응답을 깨뜨리지 않도록 view 카운트는 best-effort로 처리한다. 손실된 view 는 다음 정상 요청부터 다시 누적된다.
-            log.warn("Failed to buffer post view. postId={}, cause={}", postId, e.toString());
+            log.warn("[PostViewCount][IE50002] failed to buffer view postId={}", postId, e);
         }
     }
 
@@ -59,7 +59,7 @@ public class PostViewCountRedisRepository {
                     result.put(postId, count);
                 }
             } catch (RuntimeException parseError) {
-                log.warn("Skipping invalid view buffer entry. key={}, value={}", e.getKey(), e.getValue());
+                log.warn("[PostViewCount] skipping invalid buffer entry key={} value={}", e.getKey(), e.getValue());
             }
         }
         return result;
@@ -77,7 +77,7 @@ public class PostViewCountRedisRepository {
             try {
                 ops.increment(redisHashKey, e.getKey().toString(), -e.getValue());
             } catch (Exception ex) {
-                log.warn("Failed to ack flushed view count. postId={}, count={}, cause={}", e.getKey(), e.getValue(), ex.toString());
+                log.warn("[PostViewCount][IE50002] failed to ack flushed view postId={} count={}", e.getKey(), e.getValue(), ex);
             }
         }
     }

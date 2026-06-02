@@ -33,11 +33,11 @@ public class IndexingJobWorker {
 
     @Scheduled(fixedDelayString = "${indexing-job-worker.schedule-delay}")
     public void poll() {
-        log.info("IndexingJobWorker call poll()");
-
         try {
-            // (a) 운영자가 만든 PENDING IndexingJob(MANUAL) 픽업(API에서 만든 MANUAL)
             List<UUID> pendingJobIds = indexingJobPicker.pickPendingJobs(jobBatchSize);
+            if (!pendingJobIds.isEmpty()) {
+                log.debug("[IndexingJob] manual jobs picked count={}", pendingJobIds.size());
+            }
 
             for (UUID jobId : pendingJobIds) {
                 indexingJobExecutor.executeAsync(jobId);
@@ -47,11 +47,12 @@ public class IndexingJobWorker {
             UUID cronJobId = indexingJobPicker.tryStartCronJob(postBatchSize);
 
             if (cronJobId != null) {
+                log.debug("[IndexingJob] cron job started jobId={}", cronJobId);
                 indexingJobExecutor.executeAsync(cronJobId);
             }
 
         } catch (Exception e) {
-            log.error("IndexingJobWorker poll failed", e);
+            log.error("[IndexingJob][BE50001] poll failed", e);
         }
     }
 }

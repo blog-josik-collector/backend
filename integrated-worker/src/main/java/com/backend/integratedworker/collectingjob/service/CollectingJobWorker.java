@@ -26,8 +26,10 @@ public class CollectingJobWorker {
 
     @Scheduled(fixedDelayString = "${collecting-job-worker.schedule-delay}")
     public void poll() {
-        log.info("CollectingJob Worker call poll()");
         List<UUID> pickedJobIds = collectingJobPicker.pickAndMarkRunning(jobBatchSize);
+        if (!pickedJobIds.isEmpty()) {
+            log.debug("[CollectingJob] jobs picked count={}", pickedJobIds.size());
+        }
         for (UUID jobId : pickedJobIds) {
             collectingJobExecutor.executeAsync(jobId);
         }

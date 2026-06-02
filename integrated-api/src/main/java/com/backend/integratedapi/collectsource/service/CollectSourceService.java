@@ -33,6 +33,9 @@ public class CollectSourceService {
                       .end();
 
         CollectSourceValidator.validateScheduleTypeAndCronExpressionPair(collectSourceDto.collectScheduleType(), collectSourceDto.cronExpression());
+        CollectSourceValidator.validateCronPageRange(collectSourceDto.collectScheduleType(),
+                                                     collectSourceDto.cronFromPage(),
+                                                     collectSourceDto.cronToPage());
 
         PostProvider postProvider = postProviderService.getPostProvider(collectSourceDto.providerId());
 
@@ -41,6 +44,8 @@ public class CollectSourceService {
                                                    .url(collectSourceDto.url())
                                                    .collectScheduleType(collectSourceDto.collectScheduleType())
                                                    .cronExpression(collectSourceDto.cronExpression())
+                                                   .cronFromPage(collectSourceDto.cronFromPage())
+                                                   .cronToPage(collectSourceDto.cronToPage())
                                                    .isUsed(collectSourceDto.isUsed())
                                                    .build();
 
@@ -80,15 +85,26 @@ public class CollectSourceService {
         if (ObjectUtils.isNotEmpty(collectSourceDto.collectScheduleType())) {
             CollectScheduleType collectScheduleType = collectSourceDto.collectScheduleType();
             CollectSourceValidator.validateScheduleTypeAndCronExpressionPair(collectScheduleType, collectSourceDto.cronExpression());
+            CollectSourceValidator.validateCronPageRange(collectScheduleType,
+                                                         collectSourceDto.cronFromPage(),
+                                                         collectSourceDto.cronToPage());
             collectSource.updateScheduleType(collectSourceDto.collectScheduleType());
 
             if (collectScheduleType.equals(CollectScheduleType.MANUAL)) {
                 collectSource.updateCronExpression(StringUtils.EMPTY);
+                collectSource.clearCronPageRange();
             }
         }
 
         if (StringUtils.isNotBlank(collectSourceDto.cronExpression())) {
             collectSource.updateCronExpression(collectSourceDto.cronExpression());
+        }
+
+        if (collectSourceDto.cronFromPage() != null || collectSourceDto.cronToPage() != null) {
+            CollectSourceValidator.validateCronPageRange(collectSource.collectScheduleType(),
+                                                         collectSourceDto.cronFromPage(),
+                                                         collectSourceDto.cronToPage());
+            collectSource.updateCronPageRange(collectSourceDto.cronFromPage(), collectSourceDto.cronToPage());
         }
 
         collectSource.updateUsed(collectSourceDto.isUsed());

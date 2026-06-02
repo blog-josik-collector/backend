@@ -33,7 +33,12 @@ public class CollectSourceController {
     @PostMapping("/sources")
     public ResponseEntity<CollectSourceCreateDto.Response> create(@RequestBody CollectSourceCreateDto.Request request) {
 
-        CollectSourceDto collectSourceDto = CollectSourceDto.of(request.providerId(), request.url(), request.scheduleType(), request.cronExpression());
+        CollectSourceDto collectSourceDto = CollectSourceDto.of(request.providerId(),
+                                                                request.url(),
+                                                                request.scheduleType(),
+                                                                request.cronExpression(),
+                                                                request.cronFromPage(),
+                                                                request.cronToPage());
         CollectSourceDto createdPostProviderDto = collectSourceService.create(collectSourceDto);
 
         return ResponseEntity.ok(CollectSourceCreateDto.Response.from(createdPostProviderDto));
@@ -61,7 +66,13 @@ public class CollectSourceController {
     public ResponseEntity<CollectSourceUpdateDto.Response> update(@PathVariable UUID id,
                                                                   @RequestBody CollectSourceUpdateDto.Request request) {
 
-        CollectSourceDto collectSourceDto = CollectSourceDto.of(id, request.url(), request.collectScheduleType(), request.cronExpression(), request.isUsed());
+        CollectSourceDto collectSourceDto = CollectSourceDto.of(id,
+                                                                request.url(),
+                                                                request.collectScheduleType(),
+                                                                request.cronExpression(),
+                                                                request.cronFromPage(),
+                                                                request.cronToPage(),
+                                                                request.isUsed());
         collectSourceService.update(collectSourceDto);
         return ResponseEntity.ok(CollectSourceUpdateDto.Response.from(collectSourceService.getCollectSourceDto(id)));
     }

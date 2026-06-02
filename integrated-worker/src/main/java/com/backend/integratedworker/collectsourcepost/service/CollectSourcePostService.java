@@ -135,7 +135,8 @@ public class CollectSourcePostService {
             List<UUID> notExistedPostId = new ArrayList<>(targetIds);
             notExistedPostId.removeAll(posts.stream().map(CollectSourcePost::id).collect(Collectors.toSet()));
             notExistedPostId.forEach(postId -> {
-                log.warn("applyIndexResult: CollectSourcePost not found. id={}, jobId={}", postId, job.id());
+                log.warn("[IndexingJob][BE40401] collect source post not found during index apply postId={} jobId={}",
+                         postId, job.id());
             });
         }
 

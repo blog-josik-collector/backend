@@ -12,14 +12,12 @@ import io.github.bonigarcia.wdm.WebDriverManager;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 import org.springframework.stereotype.Service;
 
-@Slf4j
 @RequiredArgsConstructor
 @Service
 public class BlogCrawlerService {
@@ -69,14 +67,18 @@ public class BlogCrawlerService {
             List<WebElement> elements = driver.findElements(strategy.getPostSelector());  // 특정 선택자에 매칭되는 모든 요소 찾기
 
             for (WebElement element : elements) {
-                T post = strategy.parsePost(element); // 각 요소를 파싱하여 포스트 객체로 변환
-                log.info("post: {}", post); // 포스트 정보 로깅
-                posts.add(post); // 포스트 객체를 리스트에 추가
+                T post = strategy.parsePost(element);
+                posts.add(post);
             }
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new CrawlingException(
+                    "Crawl interrupted provider=%s page=%d".formatted(postProvider.name(), page), e);
         } catch (Exception e) {
-            log.error("Error while crawling: {}", e.getMessage(), e);
+            throw new CrawlingException(
+                    "Crawl failed provider=%s page=%d".formatted(postProvider.name(), page), e);
         } finally {
-            driver.quit(); // 브라우저 인스턴스 종료 및 리소스 정리
+            driver.quit();
         }
 
         return posts;

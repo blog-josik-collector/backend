@@ -36,7 +36,7 @@ public class IndexedPostElasticsearchRepository {
             return Optional.of(response.source());
         }
 
-        log.debug("Elasticsearch 문서가 존재하지 않습니다. _id: {}", id);
+        log.debug("[Post] ES document not found postId={}", id);
         return Optional.empty();
     }
 }

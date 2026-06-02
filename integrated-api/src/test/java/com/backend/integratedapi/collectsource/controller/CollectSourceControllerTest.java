@@ -64,7 +64,9 @@ class CollectSourceControllerTest {
         CollectSourceCreateDto.Request request = new CollectSourceCreateDto.Request(mockCollectSourceDto.providerId(),
                                                                                     mockCollectSourceDto.url(),
                                                                                     mockCollectSourceDto.collectScheduleType(),
-                                                                                    mockCollectSourceDto.cronExpression());
+                                                                                    mockCollectSourceDto.cronExpression(),
+                                                                                    1,
+                                                                                    2);
 
         Mockito.doReturn(mockCollectSourceDto).when(collectSourceService).create(any(CollectSourceDto.class));
 
@@ -113,6 +115,8 @@ class CollectSourceControllerTest {
         CollectSourceUpdateDto.Request request = new CollectSourceUpdateDto.Request("https://updated.com",
                                                                                     CollectScheduleType.CRON,
                                                                                     "0 30 * * * *",
+                                                                                    1,
+                                                                                    2,
                                                                                     true);
 
         Mockito.doNothing().when(collectSourceService).update(any(CollectSourceDto.class));

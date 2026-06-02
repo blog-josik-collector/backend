@@ -1,5 +1,8 @@
 package com.backend.userservice.auth.oauth.google;
 
+import com.backend.commondataaccess.exception.ErrorCode;
+import com.backend.commondataaccess.exception.InfraException;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
@@ -12,6 +15,7 @@ import org.springframework.web.client.RestClient;
  * <p>
  * {@code code}는 한 번만 사용 가능하며 짧은 시간 내에 교환해야 합니다.
  */
+@Slf4j
 @Component
 public class GoogleOAuthTokenClient {
 
@@ -46,11 +50,16 @@ public class GoogleOAuthTokenClient {
         form.add("client_secret", clientSecret);
         form.add("redirect_uri", redirectUri);
 
-        return restClient.post()
-                         .uri(TOKEN_URI)
-                         .contentType(MediaType.APPLICATION_FORM_URLENCODED)
-                         .body(form)
-                         .retrieve()
-                         .body(GoogleTokenResponse.class);
+        try {
+            return restClient.post()
+                             .uri(TOKEN_URI)
+                             .contentType(MediaType.APPLICATION_FORM_URLENCODED)
+                             .body(form)
+                             .retrieve()
+                             .body(GoogleTokenResponse.class);
+        } catch (Exception e) {
+            log.error("[Auth][IE50004] Google token exchange failed", e);
+            throw new InfraException(ErrorCode.IE_GOOGLE_AUTH_ERROR, "Google token exchange failed", e);
+        }
     }
 }

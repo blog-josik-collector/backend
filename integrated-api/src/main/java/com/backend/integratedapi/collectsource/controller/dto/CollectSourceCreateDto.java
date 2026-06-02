@@ -8,7 +8,12 @@ import lombok.Builder;
 
 public record CollectSourceCreateDto() {
 
-    public record Request(UUID providerId, String url, CollectScheduleType scheduleType, String cronExpression) {
+    public record Request(UUID providerId,
+                          String url,
+                          CollectScheduleType scheduleType,
+                          String cronExpression,
+                          Integer cronFromPage,
+                          Integer cronToPage) {
 
     }
 

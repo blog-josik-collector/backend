@@ -49,7 +49,7 @@ public class PostDocumentElasticsearchRepository {
             return Optional.of(response.source());
         }
 
-        log.warn("Elasticsearch 문서가 존재하지 않습니다. _id: {}", id);
+        log.debug("[Post] ES document not found postId={}", id);
         return Optional.empty();
     }
 
@@ -77,8 +77,6 @@ public class PostDocumentElasticsearchRepository {
                                                              .size(size)
                                                              .sort(so -> so.field(f -> f.field("publishedAt")
                                                                                         .order(SortOrder.Desc))));
-
-        log.info("[ES Search] Request Query From: {}, Size: {}", from, size);
 
         SearchResponse<PostDocument> response = applicationElasticsearchClient.execute(
                 ElasticsearchOperation.SEARCH,

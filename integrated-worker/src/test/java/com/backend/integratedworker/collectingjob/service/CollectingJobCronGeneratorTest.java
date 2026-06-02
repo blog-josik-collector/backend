@@ -1,6 +1,7 @@
 package com.backend.integratedworker.collectingjob.service;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.verify;
 
 import com.backend.commondataaccess.persistence.collectingjob.CollectingJob;
 import com.backend.commondataaccess.persistence.collectsource.CollectSource;
@@ -17,11 +18,13 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.test.util.ReflectionTestUtils;
 
 @DisplayName("CollectingJobCronGenerator 테스트")
 @ExtendWith(MockitoExtension.class)
@@ -44,6 +47,9 @@ class CollectingJobCronGeneratorTest {
 
     @BeforeEach
     void init() {
+        ReflectionTestUtils.setField(collectingJobCronGenerator, "defaultFromPage", 1);
+        ReflectionTestUtils.setField(collectingJobCronGenerator, "defaultToPage", 2);
+
         postProvider = PostProvider.builder()
                                    .id(UUID.randomUUID())
                                    .name("test_provider")
@@ -95,7 +101,39 @@ class CollectingJobCronGeneratorTest {
             collectingJobCronGenerator.generate();
 
             // then
-            Mockito.verify(collectingJobRepository, Mockito.times(1)).save(any());
+            ArgumentCaptor<CollectingJob> captor = ArgumentCaptor.forClass(CollectingJob.class);
+            verify(collectingJobRepository, Mockito.times(1)).save(captor.capture());
+            org.assertj.core.api.Assertions.assertThat(captor.getValue().fromPage()).isEqualTo(1);
+            org.assertj.core.api.Assertions.assertThat(captor.getValue().toPage()).isEqualTo(2);
+        }
+
+        @Test
+        void CollectSource에_cron_page가_있으면_해당_범위로_CollectingJob을_생성한다() {
+            // given
+            CollectSource source = CollectSource.builder()
+                                                .id(UUID.randomUUID())
+                                                .postProvider(postProvider)
+                                                .url("https://test.com/blog/1")
+                                                .collectScheduleType(CollectScheduleType.CRON)
+                                                .cronExpression("* * * * * *")
+                                                .cronFromPage(1)
+                                                .cronToPage(3)
+                                                .isUsed(true)
+                                                .build();
+
+            Mockito.doReturn(List.of(source)).when(collectSourceService).getActiveCronCollectSources();
+            Mockito.doReturn(Boolean.FALSE).when(queryRepository).existsActiveJob(source.id());
+            Mockito.doReturn(CollectingJob.builder().id(UUID.randomUUID()).collectSource(source).build())
+                   .when(collectingJobRepository).save(any());
+
+            // when
+            collectingJobCronGenerator.generate();
+
+            // then
+            ArgumentCaptor<CollectingJob> captor = ArgumentCaptor.forClass(CollectingJob.class);
+            verify(collectingJobRepository).save(captor.capture());
+            org.assertj.core.api.Assertions.assertThat(captor.getValue().fromPage()).isEqualTo(1);
+            org.assertj.core.api.Assertions.assertThat(captor.getValue().toPage()).isEqualTo(3);
         }
 
         @Test

@@ -16,6 +16,8 @@ public record CollectSourceReadDto() {
                            String url,
                            CollectScheduleType scheduleType,
                            String cronExpression,
+                           Integer cronFromPage,
+                           Integer cronToPage,
                            boolean isUsed,
                            OffsetDateTime createdAt,
                            OffsetDateTime updatedAt) {
@@ -27,6 +29,8 @@ public record CollectSourceReadDto() {
                                                 .url(collectSourceDto.url())
                                                 .scheduleType(collectSourceDto.collectScheduleType())
                                                 .cronExpression(collectSourceDto.cronExpression())
+                                                .cronFromPage(collectSourceDto.cronFromPage())
+                                                .cronToPage(collectSourceDto.cronToPage())
                                                 .isUsed(collectSourceDto.isUsed())
                                                 .createdAt(collectSourceDto.createdAt())
                                                 .updatedAt(collectSourceDto.updatedAt())

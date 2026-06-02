@@ -28,18 +28,18 @@ public class PostCountsSyncWorker {
             }
 
             if (result.failedCount() > 0) {
-                log.warn("Post count ES sync completed with failures. totalPosts={}, successCount={}, failedCount={}",
+                log.warn("[PostCount] ES sync partial failure totalPosts={} successCount={} failedCount={}",
                          result.totalPosts(),
                          result.successCount(),
                          result.failedCount());
                 return;
             }
 
-            log.debug("Post count ES sync completed. totalPosts={}, successCount={}",
+            log.debug("[PostCount] ES sync completed totalPosts={} successCount={}",
                       result.totalPosts(),
                       result.successCount());
         } catch (Exception e) {
-            log.error("Post count ES sync failed", e);
+            log.error("[PostCount][IE50001] ES sync failed", e);
         }
     }
 }

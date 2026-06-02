@@ -74,7 +74,7 @@ public class PostBookmarkService {
         } catch (DataIntegrityViolationException e) {
             // 동일 (userId, postId)에 대한 동시 좋아요 요청 → 부분 unique index에 의해 한쪽만 성공
             // 실패한 쪽은 멱등하게 종료. like_count는 성공한 쪽에서 이미 증가시켰다.
-            log.debug("Duplicate like detected, treating as idempotent. userId={}, postId={}", userId, postId);
+            log.debug("[PostBookmark] duplicate bookmark, idempotent userId={} postId={}", userId, postId);
         }
     }
 

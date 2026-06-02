@@ -33,7 +33,6 @@ public class GlobalExceptionHandler {
             MultipartException.class
     })
     public ResponseEntity<ErrorResponse> handleBadRequestException(Exception e) {
-        log.debug("Bad request exception occurred: {}", e.getMessage(), e);
         return errorResponseWriter.toResponseEntity(FE_INVALID_INPUT_VALUE, e.getMessage());
     }
 
@@ -59,7 +58,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler({Exception.class, RuntimeException.class})
     public ResponseEntity<ErrorResponse> handleException(Exception e) {
-        log.error("Unexpected exception occurred: {}", e.getMessage(), e);
+        log.error("[Framework][FE50001] unhandled exception", e);
         return errorResponseWriter.toResponseEntity(FE_UNHANDLED_ERROR, FE_UNHANDLED_ERROR.getDefaultMessage());
     }
 }

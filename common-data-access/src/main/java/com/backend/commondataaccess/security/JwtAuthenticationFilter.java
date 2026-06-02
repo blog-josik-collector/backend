@@ -40,7 +40,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 }
             } catch (UnauthorizedException e) {
                 SecurityContextHolder.clearContext();
-                log.debug("Invalid JWT rejected: {}", e.getMessage());
+                log.debug("[Auth][BE40101] invalid JWT", e);
             }
         }
 
@@ -53,7 +53,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             try {
                 return URLDecoder.decode(bearerToken.substring(7), StandardCharsets.UTF_8);
             } catch (Exception e) {
-                log.debug("Token decoding failed", e);
+                log.debug("[Auth][BE40101] token decoding failed", e);
                 throw new UnauthorizedException();
             }
         }

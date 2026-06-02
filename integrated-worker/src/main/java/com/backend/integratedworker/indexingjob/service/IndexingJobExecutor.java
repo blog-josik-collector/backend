@@ -1,5 +1,6 @@
 package com.backend.integratedworker.indexingjob.service;
 
+import com.backend.commondataaccess.exception.BusinessException;
 import com.backend.commondataaccess.persistence.indexingjob.IndexingJob;
 import com.backend.integratedworker.indexingjob.service.dto.IndexingResult;
 import java.time.OffsetDateTime;
@@ -32,7 +33,12 @@ public class IndexingJobExecutor {
             indexingJobService.updateCounts(jobId, result.totalCount(), result.indexedCount());
             indexingJobService.markSuccess(jobId, OffsetDateTime.now());
         } catch (Exception e) {
-            log.error("Indexing job failed: jobId={}", jobId, e);
+            if (e instanceof BusinessException businessException) {
+                log.error("[IndexingJob][{}] job failed jobId={}",
+                          businessException.getErrorCode().getCode(), jobId, e);
+            } else {
+                log.error("[IndexingJob][BE50001] job failed jobId={}", jobId, e);
+            }
             indexingJobService.markFailed(jobId, OffsetDateTime.now(), e.getMessage());
         }
     }

@@ -179,6 +179,54 @@ class CollectSourceServiceTest {
                       .isInstanceOf(BadRequestException.class)
                       .hasMessageContaining("schedule_type이 cron일 때 cron_expression은 필수입니다.");
         }
+
+        @Test
+        void scheduleType이_MANUAL인데_cron_page가_있으면_CollectSource_생성에_실패한다() {
+            // given
+            CollectSourceDto request = CollectSourceDto.of(mockPostProvider.id(),
+                                                           "https://test.com/blog/1",
+                                                           CollectScheduleType.MANUAL,
+                                                           null,
+                                                           1,
+                                                           2);
+
+            // when & then
+            Assertions.assertThatThrownBy(() -> collectSourceService.create(request))
+                      .isInstanceOf(BadRequestException.class)
+                      .hasMessageContaining("cron_from_page, cron_to_page는 입력할 수 없습니다.");
+        }
+
+        @Test
+        void scheduleType이_CRON이면_cron_page를_저장할_수_있다() {
+            // given
+            CollectSourceDto request = CollectSourceDto.of(mockPostProvider.id(),
+                                                           "https://test.com/blog/1",
+                                                           CollectScheduleType.CRON,
+                                                           "0 0 2,8,14,20 * * *",
+                                                           1,
+                                                           2);
+
+            CollectSource savedSource = CollectSource.builder()
+                                                     .id(UUID.randomUUID())
+                                                     .postProvider(mockPostProvider)
+                                                     .url(request.url())
+                                                     .collectScheduleType(CollectScheduleType.CRON)
+                                                     .cronExpression(request.cronExpression())
+                                                     .cronFromPage(1)
+                                                     .cronToPage(2)
+                                                     .isUsed(true)
+                                                     .build();
+
+            Mockito.doReturn(mockPostProvider).when(postProviderService).getPostProvider(any());
+            Mockito.doReturn(savedSource).when(collectSourceRepository).save(any());
+
+            // when
+            CollectSourceDto result = collectSourceService.create(request);
+
+            // then
+            Assertions.assertThat(result.cronFromPage()).isEqualTo(1);
+            Assertions.assertThat(result.cronToPage()).isEqualTo(2);
+        }
     }
 
     @DisplayName("CollectSource 조회 테스트")

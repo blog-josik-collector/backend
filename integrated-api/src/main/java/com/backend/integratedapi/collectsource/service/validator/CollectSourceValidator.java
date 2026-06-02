@@ -82,6 +82,33 @@ public class CollectSourceValidator {
         }
     }
 
+    public static void validateCronPageRange(CollectScheduleType collectScheduleType,
+                                             Integer cronFromPage,
+                                             Integer cronToPage) {
+        if (collectScheduleType.equals(CollectScheduleType.MANUAL)) {
+            if (cronFromPage != null || cronToPage != null) {
+                throw new BadRequestException("schedule_type이 manual일 때 cron_from_page, cron_to_page는 입력할 수 없습니다.");
+            }
+            return;
+        }
+
+        if (cronFromPage == null && cronToPage == null) {
+            return;
+        }
+
+        if (cronFromPage == null || cronToPage == null) {
+            throw new BadRequestException("cron_from_page와 cron_to_page는 함께 입력해야 합니다.");
+        }
+
+        if (cronFromPage < 1) {
+            throw new BadRequestException("cron_from_page는 1 이상이어야 합니다.");
+        }
+
+        if (cronToPage < cronFromPage) {
+            throw new BadRequestException("cron_to_page는 cron_from_page 이상이어야 합니다.");
+        }
+    }
+
     public static CollectSource getCollectSourceOrThrow(UUID id, Function<UUID, Optional<CollectSource>> fetchOneById) {
         validateId(id);
 

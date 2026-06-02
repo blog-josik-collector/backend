@@ -67,6 +67,8 @@ CREATE TABLE collect_sources
     url                   VARCHAR,
     collect_schedule_type VARCHAR(20) NOT NULL, -- CRON / MANUAL
     cron_expression       VARCHAR(50),
+    cron_from_page        INTEGER,
+    cron_to_page          INTEGER,
     is_used               BOOLEAN     NOT NULL,
     created_at            TIMESTAMP   NOT NULL,
     updated_at            TIMESTAMP   NOT NULL,

@@ -44,6 +44,10 @@ public class CollectSource extends BaseEntity {
 
     private String cronExpression;
 
+    private Integer cronFromPage;
+
+    private Integer cronToPage;
+
     private boolean isUsed;
 
     public void updateUrl(String url) {
@@ -56,6 +60,20 @@ public class CollectSource extends BaseEntity {
 
     public void updateCronExpression(String cronExpression) {
         this.cronExpression = cronExpression;
+    }
+
+    public void updateCronPageRange(Integer cronFromPage, Integer cronToPage) {
+        if (cronFromPage != null) {
+            this.cronFromPage = cronFromPage;
+        }
+        if (cronToPage != null) {
+            this.cronToPage = cronToPage;
+        }
+    }
+
+    public void clearCronPageRange() {
+        this.cronFromPage = null;
+        this.cronToPage = null;
     }
 
     public void updateUsed(boolean isUsed) {

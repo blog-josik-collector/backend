@@ -1,5 +1,6 @@
 package com.backend.integratedworker.collectingjob.service;
 
+import com.backend.commondataaccess.exception.BusinessException;
 import com.backend.commondataaccess.persistence.collectingjob.CollectingJob;
 import com.backend.commondataaccess.persistence.collectsource.CollectSource;
 import com.backend.commondataaccess.persistence.collectsource.CollectSourcePost;
@@ -49,13 +50,11 @@ public class CollectingJobExecutor {
             CollectSourcePost collectSourcePost = collectSourcePostService.getCollectSourcePost(post.getUrl());
 
             if (collectSourcePost == null) {
-                log.info("It's new Blog Post, go to create");
                 collectSourcePostService.create(post, source, collectingJob);
                 continue;
             }
 
             if (collectingJob.forceRecollect()) {
-                log.info("Force recollect enabled, go to update without hash check");
                 collectSourcePostService.update(collectSourcePost.id(), post, collectingJob);
                 continue;
             }
@@ -63,10 +62,8 @@ public class CollectingJobExecutor {
             String contentHash = collectSourcePostService.createContentHash(post);
 
             if (StringUtils.equals(contentHash, collectSourcePost.contentHash())) {
-                log.info("Has Same Content Hash, contentHash: {}, collectSourcePost.contentHash(): {}", contentHash, collectSourcePost.contentHash());
                 collectSourcePost.updateLastCollect(collectingJob, OffsetDateTime.now());
             } else {
-                log.info("Has Different Content Hash, go to update, contentHash: {}, collectSourcePost.contentHash(): {}", contentHash, collectSourcePost.contentHash());
                 collectSourcePostService.update(collectSourcePost.id(), post, collectingJob);
             }
         }
@@ -80,6 +77,12 @@ public class CollectingJobExecutor {
     }
 
     protected void markFailed(UUID jobId, Exception e) {
+        if (e instanceof BusinessException businessException) {
+            log.error("[CollectingJob][{}] job failed jobId={}",
+                      businessException.getErrorCode().getCode(), jobId, e);
+        } else {
+            log.error("[CollectingJob][BE50001] job failed jobId={}", jobId, e);
+        }
         CollectingJob collectingJob = CollectingJobValidator.getCollectingJobOrThrow(jobId, queryRepository::fetchOneById);
         collectingJob.markFailed(OffsetDateTime.now(), e.getMessage());
     }

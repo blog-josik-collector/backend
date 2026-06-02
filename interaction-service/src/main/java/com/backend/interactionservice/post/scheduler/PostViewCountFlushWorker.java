@@ -24,11 +24,11 @@ public class PostViewCountFlushWorker {
     public void flush() {
         try {
             Optional<PostViewCountFlushResult> result = postViewCountFlushService.flushPendingToDb();
-            result.ifPresent(r -> log.debug("Flushed view counts. posts={}, totalIncrement={}",
-                                           r.postCount(),
-                                           r.totalIncrement()));
+            result.ifPresent(r -> log.debug("[PostViewCount] flushed to DB posts={} totalIncrement={}",
+                                            r.postCount(),
+                                            r.totalIncrement()));
         } catch (Exception e) {
-            log.error("Failed to flush view counts to DB", e);
+            log.error("[PostViewCount][IE50002] flush to DB failed", e);
         }
     }
 }

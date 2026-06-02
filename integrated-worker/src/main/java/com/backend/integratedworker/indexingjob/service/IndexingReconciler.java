@@ -33,19 +33,17 @@ public class IndexingReconciler {
 
     @Scheduled(fixedDelayString = "${indexing-reconciler.schedule-delay}")
     public void reconcile() {
-        log.info("IndexingReconciler call reconcile()");
-
         try {
             OffsetDateTime threshold = OffsetDateTime.now().minusMinutes(staleThresholdMinutes);
 
             int recovered = collectSourcePostService.recoverStaleIndexing(threshold, batchSize);
 
             if (recovered > 0) {
-                log.warn("Stale INDEXING posts recovered to PENDING. count={}, threshold={}, batchSize={}",
-                         recovered, threshold, batchSize);
+                log.warn("[IndexingJob] stale INDEXING posts recovered count={} thresholdMinutes={} batchSize={}",
+                         recovered, staleThresholdMinutes, batchSize);
             }
         } catch (Exception e) {
-            log.error("IndexingReconciler reconcile failed", e);
+            log.error("[IndexingJob][BE50001] reconcile failed", e);
         }
     }
 }

@@ -11,6 +11,7 @@ import com.google.api.client.json.gson.GsonFactory;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.util.Collections;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
@@ -20,6 +21,7 @@ import org.springframework.util.StringUtils;
  * <p>
  * 우리 서비스 {@code JwtService}와는 별개이며, Google의 JWKS로 RS256 서명을 검증합니다.
  */
+@Slf4j
 @Component
 public class GoogleIdTokenVerifierService {
 
@@ -36,7 +38,8 @@ public class GoogleIdTokenVerifierService {
                     .setAudience(Collections.singletonList(clientId))
                     .build();
         } catch (GeneralSecurityException | IOException e) {
-            throw new InfraException(ErrorCode.IE_GOOGLE_AUTH_ERROR, "Failed to initialize GoogleIdTokenVerifier");
+            log.error("[Auth][IE50004] failed to initialize Google id_token verifier", e);
+            throw new InfraException(ErrorCode.IE_GOOGLE_AUTH_ERROR, "Failed to initialize GoogleIdTokenVerifier", e);
         }
     }
 
@@ -51,11 +54,13 @@ public class GoogleIdTokenVerifierService {
      */
     public GoogleOAuthUserClaims verifyAndParse(String idTokenString) {
         if (!StringUtils.hasText(idTokenString)) {
+            log.debug("[Auth][BE40001] Google id_token missing");
             throw new BadRequestException("id_token is null or empty");
         }
         try {
             GoogleIdToken idToken = verifier.verify(idTokenString);
             if (idToken == null) {
+                log.warn("[Auth][BE40101] Google id_token verification failed");
                 throw new UnauthorizedException("Invalid Google id_token: verification returned null");
             }
             GoogleIdToken.Payload payload = idToken.getPayload();
@@ -73,7 +78,8 @@ public class GoogleIdTokenVerifierService {
                     picture
             );
         } catch (IOException | GeneralSecurityException e) {
-            throw new InfraException(ErrorCode.IE_GOOGLE_AUTH_ERROR, "Failed to verify Google id_token");
+            log.error("[Auth][IE50004] Google id_token verification error", e);
+            throw new InfraException(ErrorCode.IE_GOOGLE_AUTH_ERROR, "Failed to verify Google id_token", e);
         }
     }
 }
