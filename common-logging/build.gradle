@@ -1,0 +1,13 @@
+plugins {
+    id "java-library"
+}
+
+jar {
+    enabled = true
+}
+
+dependencies {
+    compileOnly "org.springframework.boot:spring-boot"
+    // logback-spring.xml <if> 조건 (logging.backend.* appender 활성화)
+    implementation "org.codehaus.janino:janino"
+}

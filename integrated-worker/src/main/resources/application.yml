@@ -3,6 +3,8 @@ server:
 spring:
   application:
     name: integrated-worker
+  config:
+    import: optional:classpath:application-logging-defaults.yml
   datasource:
     url: jdbc:postgresql://localhost:5432/backend_db
     username: postgres

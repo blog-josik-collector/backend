@@ -1,0 +1,35 @@
+# 공통 로깅 기본값 (4개 Boot 서비스가 spring.config.import 로 로드)
+logging:
+  file:
+    path: ./logs
+    name: ${spring.application.name:app}
+  level:
+    root: INFO
+    com.backend: INFO
+    org.springframework: WARN
+    org.hibernate.SQL: WARN
+  logback:
+    rollingpolicy:
+      max-file-size: 100MB
+      max-history: 90
+      total-size-cap: 10GB
+  backend:
+    file-appender-enabled: false
+    rolling:
+      # ${LOG_FILE} 접두사는 logback-spring.xml 에서 붙임 (.gz 포함 시 압축 롤링)
+      file-name-pattern: ".%d{yyyy-MM-dd}.%i.log.gz"
+    error:
+      subdirectory: error
+      base-name: error
+      total-size-cap: 3GB
+
+---
+# dev / prod 프로파일: 파일 로깅(일반 + ERROR 전용) 활성화
+spring:
+  config:
+    activate:
+      on-profile: dev,prod
+
+logging:
+  backend:
+    file-appender-enabled: true

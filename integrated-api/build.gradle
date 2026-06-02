@@ -15,6 +15,7 @@ ext {
 }
 
 dependencies {
+    implementation project(":common-logging")
     implementation project(":common-data-access")
     implementation project(":common-web")
     implementation project(":common-elasticsearch")

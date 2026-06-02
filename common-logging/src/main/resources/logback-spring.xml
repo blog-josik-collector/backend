@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+  <springProperty scope="context" name="APP_NAME" source="spring.application.name" defaultValue="app"/>
+  <springProperty scope="context" name="LOG_FILE_PATH" source="logging.file.path" defaultValue="./logs"/>
+  <springProperty scope="context" name="LOG_FILE_NAME" source="logging.file.name" defaultValue="app"/>
+  <springProperty scope="context" name="LOG_LEVEL" source="logging.level.root" defaultValue="INFO"/>
+
+  <springProperty scope="context" name="FILE_APPENDER_ENABLED" source="logging.backend.file-appender-enabled"
+                  defaultValue="false"/>
+
+  <springProperty scope="context" name="ROLLING_MAX_FILE_SIZE" source="logging.logback.rollingpolicy.max-file-size" defaultValue="100MB"/>
+  <springProperty scope="context" name="ROLLING_MAX_HISTORY" source="logging.logback.rollingpolicy.max-history" defaultValue="90"/>
+  <springProperty scope="context" name="ROLLING_TOTAL_SIZE_CAP" source="logging.logback.rollingpolicy.total-size-cap" defaultValue="10GB"/>
+  <springProperty scope="context" name="ROLLING_FILE_NAME_PATTERN" source="logging.backend.rolling.file-name-pattern" defaultValue=".%d{yyyy-MM-dd}.%i.log.gz"/>
+
+  <springProperty scope="context" name="ERROR_SUBDIRECTORY" source="logging.backend.error.subdirectory" defaultValue="error"/>
+  <springProperty scope="context" name="ERROR_BASE_NAME" source="logging.backend.error.base-name" defaultValue="error"/>
+  <springProperty scope="context" name="ERROR_ROLLING_TOTAL_SIZE_CAP" source="logging.backend.error.total-size-cap" defaultValue="3GB"/>
+
+  <property name="LOG_DIR" value="${LOG_FILE_PATH}/${LOG_FILE_NAME}"/>
+  <property name="LOG_FILE" value="${LOG_DIR}/${LOG_FILE_NAME}"/>
+  <property name="ERR_LOG_FILE" value="${LOG_DIR}/${ERROR_SUBDIRECTORY}/${ERROR_BASE_NAME}"/>
+  <property name="ROLLING_FILE_PATTERN" value="${LOG_FILE}${ROLLING_FILE_NAME_PATTERN}"/>
+  <property name="ERROR_ROLLING_FILE_PATTERN" value="${ERR_LOG_FILE}${ROLLING_FILE_NAME_PATTERN}"/>
+
+  <property name="LOG_PATTERN" value="[${APP_NAME}] %-5level %d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %logger{36} - %msg%n"/>
+
+  <appender name="consoleAppender" class="ch.qos.logback.core.ConsoleAppender">
+    <encoder>
+      <charset>UTF-8</charset>
+      <pattern>${LOG_PATTERN}</pattern>
+    </encoder>
+  </appender>
+
+  <appender name="fileAppender" class="ch.qos.logback.core.rolling.RollingFileAppender">
+    <file>${LOG_FILE}.log</file>
+    <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+      <fileNamePattern>${ROLLING_FILE_PATTERN}</fileNamePattern>
+      <maxFileSize>${ROLLING_MAX_FILE_SIZE}</maxFileSize>
+      <maxHistory>${ROLLING_MAX_HISTORY}</maxHistory>
+      <totalSizeCap>${ROLLING_TOTAL_SIZE_CAP}</totalSizeCap>
+    </rollingPolicy>
+    <encoder>
+      <charset>UTF-8</charset>
+      <pattern>${LOG_PATTERN}</pattern>
+    </encoder>
+  </appender>
+
+  <appender name="errorAppender" class="ch.qos.logback.core.rolling.RollingFileAppender">
+    <filter class="ch.qos.logback.classic.filter.LevelFilter">
+      <level>ERROR</level>
+      <onMatch>ACCEPT</onMatch>
+      <onMismatch>DENY</onMismatch>
+    </filter>
+    <file>${ERR_LOG_FILE}.log</file>
+    <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+      <fileNamePattern>${ERROR_ROLLING_FILE_PATTERN}</fileNamePattern>
+      <maxFileSize>${ROLLING_MAX_FILE_SIZE}</maxFileSize>
+      <maxHistory>${ROLLING_MAX_HISTORY}</maxHistory>
+      <totalSizeCap>${ERROR_ROLLING_TOTAL_SIZE_CAP}</totalSizeCap>
+    </rollingPolicy>
+    <encoder>
+      <charset>UTF-8</charset>
+      <pattern>${LOG_PATTERN}</pattern>
+    </encoder>
+  </appender>
+
+  <!-- logging.backend.file-appender-enabled=true 이면 file + error 파일 함께 활성화 -->
+  <if condition='property("FILE_APPENDER_ENABLED").equalsIgnoreCase("true")'>
+    <then>
+      <root level="${LOG_LEVEL}">
+        <appender-ref ref="consoleAppender"/>
+        <appender-ref ref="fileAppender"/>
+        <appender-ref ref="errorAppender"/>
+      </root>
+    </then>
+    <else>
+      <root level="${LOG_LEVEL}">
+        <appender-ref ref="consoleAppender"/>
+      </root>
+    </else>
+  </if>
+</configuration>

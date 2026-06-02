@@ -16,6 +16,7 @@ ext {
 }
 
 dependencies {
+    implementation project(":common-logging")
     implementation project(":common-data-access")
     implementation project(":common-web")
     implementation "com.google.api-client:google-api-client:$googleApiClientVersion"
