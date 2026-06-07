@@ -13,9 +13,13 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
- * posts 테이블의 카운트(like/view/comment/report)를 Elasticsearch 로 동기화하는 domain service. <br> soft-delete 되지 않은 모든 post 를 id keyset pagination 으로 batch 조회한 뒤 ES bulk partial upsert 를 반복 호출한다.
+ * posts 테이블의 카운트(like/view/comment/report)를 Elasticsearch 로 동기화하는 domain service. <br>
+ * soft-delete 되지 않은 모든 post 를 id keyset pagination 으로 batch 조회한 뒤 ES bulk partial upsert 를 반복 호출한다.
+ * <p>
+ * DB 조회와 ES bulk 를 분리해 read-only 트랜잭션이 ES I/O 동안 커넥션을 점유하지 않도록 한다.
  */
 @Service
+@Transactional
 @RequiredArgsConstructor
 public class PostCountsSyncService {
 
@@ -25,7 +29,6 @@ public class PostCountsSyncService {
     @Value("${post-count-sync-worker.post-batch-size:100}")
     private int postBatchSize;
 
-    @Transactional(readOnly = true)
     public PostCountSyncResult syncAll() {
         UUID cursor = null;
         int totalPosts = 0;
@@ -33,7 +36,7 @@ public class PostCountsSyncService {
         int failedCount = 0;
 
         while (true) {
-            List<Post> batch = postQueryRepository.fetchActivePostsAfterId(cursor, postBatchSize);
+            List<Post> batch = fetchActivePostsBatch(cursor);
             if (batch.isEmpty()) {
                 break;
             }
@@ -46,5 +49,10 @@ public class PostCountsSyncService {
         }
 
         return new PostCountSyncResult(totalPosts, successCount, failedCount);
+    }
+
+    @Transactional(readOnly = true)
+    protected List<Post> fetchActivePostsBatch(UUID cursor) {
+        return postQueryRepository.fetchActivePostsAfterId(cursor, postBatchSize);
     }
 }

@@ -1,4 +1,4 @@
-package com.backend.integratedworker.common.config.scheduling;
+package com.backend.interactionservice.common.config.scheduling;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
@@ -11,10 +11,10 @@ import org.springframework.scheduling.config.ScheduledTaskRegistrar;
 @EnableScheduling
 public class SpringSchedulingConfig implements SchedulingConfigurer {
 
-    @Value("${scheduling.pool-size:6}")
+    @Value("${scheduling.pool-size:2}")
     private int poolSize;
 
-    @Value("${scheduling.thread-name-prefix:worker-scheduler-}")
+    @Value("${scheduling.thread-name-prefix:interaction-scheduler-}")
     private String threadNamePrefix;
 
     @Override

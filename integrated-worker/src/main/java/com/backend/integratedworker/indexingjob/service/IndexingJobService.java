@@ -43,6 +43,15 @@ public class IndexingJobService {
         job.markSuccess(now);
     }
 
+    /**
+     * 카운트 갱신과 SUCCESS 마킹을 한 트랜잭션으로 처리한다.
+     */
+    public void completeSuccess(UUID jobId, int totalCount, int indexedCount, OffsetDateTime now) {
+        IndexingJob job = IndexingJobValidator.getIndexingJobOrThrow(jobId, queryRepository::fetchOneById);
+        job.updateCounts(totalCount, indexedCount);
+        job.markSuccess(now);
+    }
+
     public void markFailed(UUID jobId, OffsetDateTime now, String errorMessage) {
         IndexingJob job = IndexingJobValidator.getIndexingJobOrThrow(jobId, queryRepository::fetchOneById);
         job.markFailed(now, errorMessage);

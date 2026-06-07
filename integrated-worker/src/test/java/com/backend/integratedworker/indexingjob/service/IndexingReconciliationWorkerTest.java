@@ -19,7 +19,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 @DisplayName("IndexingReconciler 테스트")
 @ExtendWith(MockitoExtension.class)
-class IndexingReconcilerTest {
+class IndexingReconciliationWorkerTest {
 
     private static final int STALE_THRESHOLD_MINUTES = 15;
     private static final int BATCH_SIZE = 100;
@@ -27,11 +27,11 @@ class IndexingReconcilerTest {
     @Mock
     private CollectSourcePostService collectSourcePostService;
 
-    private IndexingReconciler indexingReconciler;
+    private IndexingReconciliationWorker indexingReconciliationWorker;
 
     @BeforeEach
     void init() {
-        indexingReconciler = new IndexingReconciler(STALE_THRESHOLD_MINUTES, BATCH_SIZE, collectSourcePostService);
+        indexingReconciliationWorker = new IndexingReconciliationWorker(STALE_THRESHOLD_MINUTES, BATCH_SIZE, collectSourcePostService);
     }
 
     @DisplayName("reconcile 테스트")
@@ -42,7 +42,7 @@ class IndexingReconcilerTest {
         void stale_INDEXING_post가_있으면_recoverStaleIndexing이_호출된다() {
             Mockito.doReturn(3).when(collectSourcePostService).recoverStaleIndexing(any(OffsetDateTime.class), anyInt());
 
-            indexingReconciler.reconcile();
+            indexingReconciliationWorker.reconcile();
 
             Mockito.verify(collectSourcePostService).recoverStaleIndexing(any(OffsetDateTime.class), eq(BATCH_SIZE));
         }
@@ -52,7 +52,7 @@ class IndexingReconcilerTest {
             Mockito.doReturn(0).when(collectSourcePostService).recoverStaleIndexing(any(OffsetDateTime.class), anyInt());
 
             OffsetDateTime before = OffsetDateTime.now();
-            indexingReconciler.reconcile();
+            indexingReconciliationWorker.reconcile();
             OffsetDateTime after = OffsetDateTime.now();
 
             ArgumentCaptor<OffsetDateTime> thresholdCaptor = ArgumentCaptor.forClass(OffsetDateTime.class);
@@ -68,7 +68,7 @@ class IndexingReconcilerTest {
             Mockito.doReturn(0).when(collectSourcePostService).recoverStaleIndexing(any(OffsetDateTime.class), anyInt());
 
             // 예외 없이 정상 종료해야 함
-            Assertions.assertThatCode(() -> indexingReconciler.reconcile())
+            Assertions.assertThatCode(() -> indexingReconciliationWorker.reconcile())
                       .doesNotThrowAnyException();
         }
 
@@ -79,7 +79,7 @@ class IndexingReconcilerTest {
                    .recoverStaleIndexing(any(OffsetDateTime.class), anyInt());
 
             // 스케줄러가 죽지 않도록 예외는 catch 되어야 함
-            Assertions.assertThatCode(() -> indexingReconciler.reconcile())
+            Assertions.assertThatCode(() -> indexingReconciliationWorker.reconcile())
                       .doesNotThrowAnyException();
         }
     }

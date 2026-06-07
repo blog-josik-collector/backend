@@ -28,11 +28,11 @@ import org.springframework.test.util.ReflectionTestUtils;
 
 @DisplayName("CollectingJobCronGenerator 테스트")
 @ExtendWith(MockitoExtension.class)
-class CollectingJobCronGeneratorTest {
+class CollectingJobCronCreationWorkerTest {
 
     @Spy
     @InjectMocks
-    private CollectingJobCronGenerator collectingJobCronGenerator;
+    private CollectingJobCronCreationWorker collectingJobCronCreationWorker;
 
     @Mock
     private CollectingJobRepository collectingJobRepository;
@@ -47,8 +47,8 @@ class CollectingJobCronGeneratorTest {
 
     @BeforeEach
     void init() {
-        ReflectionTestUtils.setField(collectingJobCronGenerator, "defaultFromPage", 1);
-        ReflectionTestUtils.setField(collectingJobCronGenerator, "defaultToPage", 2);
+        ReflectionTestUtils.setField(collectingJobCronCreationWorker, "defaultFromPage", 1);
+        ReflectionTestUtils.setField(collectingJobCronCreationWorker, "defaultToPage", 2);
 
         postProvider = PostProvider.builder()
                                    .id(UUID.randomUUID())
@@ -81,7 +81,7 @@ class CollectingJobCronGeneratorTest {
             Mockito.doReturn(List.of()).when(collectSourceService).getActiveCronCollectSources();
 
             // when
-            collectingJobCronGenerator.generate();
+            collectingJobCronCreationWorker.generate();
 
             // then
             Mockito.verify(collectingJobRepository, Mockito.never()).save(any());
@@ -98,7 +98,7 @@ class CollectingJobCronGeneratorTest {
                    .when(collectingJobRepository).save(any());
 
             // when
-            collectingJobCronGenerator.generate();
+            collectingJobCronCreationWorker.generate();
 
             // then
             ArgumentCaptor<CollectingJob> captor = ArgumentCaptor.forClass(CollectingJob.class);
@@ -127,7 +127,7 @@ class CollectingJobCronGeneratorTest {
                    .when(collectingJobRepository).save(any());
 
             // when
-            collectingJobCronGenerator.generate();
+            collectingJobCronCreationWorker.generate();
 
             // then
             ArgumentCaptor<CollectingJob> captor = ArgumentCaptor.forClass(CollectingJob.class);
@@ -145,7 +145,7 @@ class CollectingJobCronGeneratorTest {
             Mockito.doReturn(Boolean.TRUE).when(queryRepository).existsActiveJob(source.id());
 
             // when
-            collectingJobCronGenerator.generate();
+            collectingJobCronCreationWorker.generate();
 
             // then
             Mockito.verify(collectingJobRepository, Mockito.never()).save(any());
@@ -159,7 +159,7 @@ class CollectingJobCronGeneratorTest {
             Mockito.doReturn(List.of(source)).when(collectSourceService).getActiveCronCollectSources();
 
             // when
-            collectingJobCronGenerator.generate();
+            collectingJobCronCreationWorker.generate();
 
             // then
             Mockito.verify(queryRepository, Mockito.never()).existsActiveJob(any());
@@ -179,7 +179,7 @@ class CollectingJobCronGeneratorTest {
                    .when(collectingJobRepository).save(any());
 
             // when & then (예외가 propagate되지 않음)
-            collectingJobCronGenerator.generate();
+            collectingJobCronCreationWorker.generate();
 
             Mockito.verify(collectingJobRepository, Mockito.times(1)).save(any());
         }

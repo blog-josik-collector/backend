@@ -14,6 +14,7 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 @EnableJpaAuditing(dateTimeProviderRef = "auditingDateTimeProvider") // JPA Auditing 활성화
 @EnableJpaRepositories(basePackages = {
         "com.backend.integratedworker.collectingjob.repository",
+        "com.backend.integratedworker.collectsource.repository",
         "com.backend.integratedworker.collectsourcepost.repository",
         "com.backend.integratedworker.indexingjob.repository",
         "com.backend.integratedworker.post.repository"

@@ -30,8 +30,7 @@ public class IndexingJobExecutor {
     public void executeAsync(UUID jobId) {
         try {
             IndexingResult result = doIndexing(jobId);
-            indexingJobService.updateCounts(jobId, result.totalCount(), result.indexedCount());
-            indexingJobService.markSuccess(jobId, OffsetDateTime.now());
+            indexingJobService.completeSuccess(jobId, result.totalCount(), result.indexedCount(), OffsetDateTime.now());
         } catch (Exception e) {
             if (e instanceof BusinessException businessException) {
                 log.error("[IndexingJob][{}] job failed jobId={}",

@@ -114,6 +114,24 @@ class IndexingJobServiceTest {
         }
     }
 
+    @DisplayName("completeSuccess 테스트")
+    @Nested
+    class CompleteSuccessTest {
+
+        @Test
+        void 카운트_갱신과_SUCCESS_마킹을_함께_적용한다() {
+            Mockito.doReturn(Optional.of(job)).when(queryRepository).fetchOneById(jobId);
+            OffsetDateTime now = OffsetDateTime.now();
+
+            indexingJobService.completeSuccess(jobId, 10, 7, now);
+
+            Assertions.assertThat(job.totalCount()).isEqualTo(10);
+            Assertions.assertThat(job.indexedCount()).isEqualTo(7);
+            Assertions.assertThat(job.jobStatus()).isEqualTo(JobStatus.SUCCESS);
+            Assertions.assertThat(job.endedAt()).isEqualTo(now);
+        }
+    }
+
     @DisplayName("markFailed 테스트")
     @Nested
     class MarkFailedTest {

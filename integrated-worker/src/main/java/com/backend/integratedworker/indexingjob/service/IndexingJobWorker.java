@@ -34,6 +34,7 @@ public class IndexingJobWorker {
     @Scheduled(fixedDelayString = "${indexing-job-worker.schedule-delay}")
     public void poll() {
         try {
+            // (a) MANUAL - 색인(indexingJobType: MANUAL) 전용 비즈니스 로직
             List<UUID> pendingJobIds = indexingJobPicker.pickPendingJobs(jobBatchSize);
             if (!pendingJobIds.isEmpty()) {
                 log.debug("[IndexingJob] manual jobs picked count={}", pendingJobIds.size());
@@ -43,6 +44,7 @@ public class IndexingJobWorker {
                 indexingJobExecutor.executeAsync(jobId);
             }
 
+            // (b) CRON - 색인(indexingJobType: CRON) 전용 비즈니스 로직
             // (b) 글로벌 큐 드레인: indexingStatus == PENDING인 CollectSourcePost가 있으면 CRON IndexingJob 생성 + CRON IndexingJob은 바로 RUNNING status에서 시작
             UUID cronJobId = indexingJobPicker.tryStartCronJob(postBatchSize);
 

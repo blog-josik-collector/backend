@@ -55,3 +55,7 @@ post-count-sync-worker:
   schedule-delay: 30000  # 30초 (밀리초 단위) - posts 카운트를 Elasticsearch로 upsert하는 주기
   initial-delay: 30000   # 애플리케이션 기동 직후 첫 sync 까지의 지연
   post-batch-size: 100   # 한 번의 bulk upsert 에 포함할 post 최대 개수
+
+scheduling:
+  pool-size: 2
+  thread-name-prefix: interaction-scheduler-

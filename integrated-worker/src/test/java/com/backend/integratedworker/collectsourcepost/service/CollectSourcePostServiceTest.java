@@ -18,6 +18,8 @@ import com.backend.commondataaccess.persistence.indexingjob.IndexingJob;
 import com.backend.commondataaccess.persistence.provider.PostProvider;
 import com.backend.integratedworker.collectingjob.service.crawler.kakao.KakaoPost;
 import com.backend.integratedworker.collectingjob.service.dto.Post;
+import com.backend.integratedworker.collectingjob.repository.CollectingJobRepository;
+import com.backend.integratedworker.collectsource.repository.CollectSourceRepository;
 import com.backend.integratedworker.collectsourcepost.repository.CollectSourcePostQueryRepository;
 import com.backend.integratedworker.collectsourcepost.repository.CollectSourcePostRepository;
 import com.backend.commonelasticsearch.operation.bulk.BulkOperationResult;
@@ -53,6 +55,12 @@ class CollectSourcePostServiceTest {
 
     @Mock
     private CollectSourcePostQueryRepository queryRepository;
+
+    @Mock
+    private CollectSourceRepository collectSourceRepository;
+
+    @Mock
+    private CollectingJobRepository collectingJobRepository;
 
     private PostProvider postProvider;
     private CollectSource collectSource;
@@ -112,9 +120,11 @@ class CollectSourcePostServiceTest {
                                                        .build();
 
             Mockito.doReturn(saved).when(collectSourcePostRepository).save(any());
+            Mockito.doReturn(collectSource).when(collectSourceRepository).getReferenceById(collectSource.id());
+            Mockito.doReturn(collectingJob).when(collectingJobRepository).getReferenceById(collectingJob.id());
 
             // when
-            CollectSourcePost result = collectSourcePostService.create(post, collectSource, collectingJob);
+            CollectSourcePost result = collectSourcePostService.create(post, collectSource.id(), collectingJob.id());
 
             // then
             Assertions.assertThat(result).isNotNull();
@@ -141,9 +151,11 @@ class CollectSourcePostServiceTest {
                                                        .build();
 
             Mockito.doReturn(saved).when(collectSourcePostRepository).save(any());
+            Mockito.doReturn(collectSource).when(collectSourceRepository).getReferenceById(collectSource.id());
+            Mockito.doReturn(collectingJob).when(collectingJobRepository).getReferenceById(collectingJob.id());
 
             // when
-            CollectSourcePost result = collectSourcePostService.create(post, collectSource, collectingJob);
+            CollectSourcePost result = collectSourcePostService.create(post, collectSource.id(), collectingJob.id());
 
             // then
             Assertions.assertThat(result).isNotNull();
@@ -326,9 +338,10 @@ class CollectSourcePostServiceTest {
                                  .build();
 
             Mockito.doReturn(Optional.of(existing)).when(queryRepository).fetchOneById(any());
+            Mockito.doReturn(collectingJob).when(collectingJobRepository).getReferenceById(collectingJob.id());
 
             // when
-            collectSourcePostService.update(existing.id(), post, collectingJob);
+            collectSourcePostService.update(existing.id(), post, collectingJob.id());
 
             // then
             Assertions.assertThat(existing.title()).isEqualTo("new_title");
@@ -363,13 +376,76 @@ class CollectSourcePostServiceTest {
                                  .build();
 
             Mockito.doReturn(Optional.of(existing)).when(queryRepository).fetchOneById(any());
+            Mockito.doReturn(collectingJob).when(collectingJobRepository).getReferenceById(collectingJob.id());
 
             // when
-            collectSourcePostService.update(existing.id(), post, collectingJob);
+            collectSourcePostService.update(existing.id(), post, collectingJob.id());
 
             // then
             Assertions.assertThat(existing.thumbnailUrl()).isNull();
             Assertions.assertThat(existing.summary()).isNull();
+        }
+    }
+
+    @DisplayName("persistCollectedPostsForJob 테스트")
+    @Nested
+    class PersistCollectedPostsForJobTest {
+
+        @Test
+        void 새로운_Post는_create를_호출한다() {
+            Post post = newPost("https://test.com/blog/1/post/new");
+            Mockito.doReturn(Optional.empty()).when(queryRepository).fetchOneByUrl(post.getUrl());
+            Mockito.doReturn(collectSource).when(collectSourceRepository).getReferenceById(collectSource.id());
+            Mockito.doReturn(collectingJob).when(collectingJobRepository).getReferenceById(collectingJob.id());
+            Mockito.doReturn(CollectSourcePost.builder().id(UUID.randomUUID()).build())
+                   .when(collectSourcePostRepository).save(any());
+
+            collectSourcePostService.persistCollectedPostsForJob(
+                    collectingJob.id(), collectSource.id(), false, List.of(post));
+
+            Mockito.verify(collectSourcePostRepository).save(any());
+        }
+
+        @Test
+        void 기존_Post와_해시가_같으면_touchLastCollect를_호출한다() {
+            Post post = newPost("https://test.com/blog/1/post/exists");
+            String sameHash = "same_hash_value";
+            CollectSourcePost existing = CollectSourcePost.builder()
+                                                          .id(UUID.randomUUID())
+                                                          .collectSource(collectSource)
+                                                          .url(post.getUrl())
+                                                          .contentHash(sameHash)
+                                                          .build();
+
+            Mockito.doReturn(Optional.of(existing)).when(queryRepository).fetchOneByUrl(post.getUrl());
+            Mockito.doReturn(collectingJob).when(collectingJobRepository).getReferenceById(collectingJob.id());
+            Mockito.doReturn(Optional.of(existing)).when(queryRepository).fetchOneById(existing.id());
+
+            collectSourcePostService.persistCollectedPostsForJob(
+                    collectingJob.id(), collectSource.id(), false, List.of(post));
+
+            Mockito.verify(collectSourcePostRepository, Mockito.never()).save(any());
+            Assertions.assertThat(existing.lastCollectedAt()).isNotNull();
+        }
+
+        @Test
+        void forceRecollect가_true이면_update를_호출한다() {
+            Post post = newPost("https://test.com/blog/1/post/exists");
+            CollectSourcePost existing = CollectSourcePost.builder()
+                                                          .id(UUID.randomUUID())
+                                                          .collectSource(collectSource)
+                                                          .url(post.getUrl())
+                                                          .contentHash("hash")
+                                                          .build();
+
+            Mockito.doReturn(Optional.of(existing)).when(queryRepository).fetchOneByUrl(post.getUrl());
+            Mockito.doReturn(collectingJob).when(collectingJobRepository).getReferenceById(collectingJob.id());
+            Mockito.doReturn(Optional.of(existing)).when(queryRepository).fetchOneById(existing.id());
+
+            collectSourcePostService.persistCollectedPostsForJob(
+                    collectingJob.id(), collectSource.id(), true, List.of(post));
+
+            Assertions.assertThat(existing.indexingStatus()).isEqualTo(IndexingStatus.PENDING);
         }
     }
 

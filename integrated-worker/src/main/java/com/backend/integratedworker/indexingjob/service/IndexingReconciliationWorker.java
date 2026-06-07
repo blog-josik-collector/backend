@@ -16,22 +16,22 @@ import org.springframework.stereotype.Service;
  */
 @Slf4j
 @Service
-public class IndexingReconciler {
+public class IndexingReconciliationWorker {
 
     private final int staleThresholdMinutes;
     private final int batchSize;
     private final CollectSourcePostService collectSourcePostService;
 
-    public IndexingReconciler(@Value("${indexing-reconciler.stale-threshold-minutes}") int staleThresholdMinutes,
-                              @Value("${indexing-reconciler.batch-size}") int batchSize,
-                              CollectSourcePostService collectSourcePostService) {
+    public IndexingReconciliationWorker(@Value("${indexing-reconciliation.stale-threshold-minutes}") int staleThresholdMinutes,
+                                        @Value("${indexing-reconciliation.batch-size}") int batchSize,
+                                        CollectSourcePostService collectSourcePostService) {
 
         this.staleThresholdMinutes = staleThresholdMinutes;
         this.batchSize = batchSize;
         this.collectSourcePostService = collectSourcePostService;
     }
 
-    @Scheduled(fixedDelayString = "${indexing-reconciler.schedule-delay}")
+    @Scheduled(fixedDelayString = "${indexing-reconciliation.schedule-delay}")
     public void reconcile() {
         try {
             OffsetDateTime threshold = OffsetDateTime.now().minusMinutes(staleThresholdMinutes);

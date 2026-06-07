@@ -10,6 +10,8 @@ import com.backend.commondataaccess.persistence.common.enums.IndexingStatus;
 import com.backend.commondataaccess.persistence.indexingjob.IndexingJob;
 import com.backend.commonelasticsearch.operation.bulk.BulkOperationResult;
 import com.backend.integratedworker.collectingjob.service.dto.Post;
+import com.backend.integratedworker.collectingjob.repository.CollectingJobRepository;
+import com.backend.integratedworker.collectsource.repository.CollectSourceRepository;
 import com.backend.integratedworker.collectsourcepost.repository.CollectSourcePostQueryRepository;
 import com.backend.integratedworker.collectsourcepost.repository.CollectSourcePostRepository;
 import com.backend.integratedworker.collectsourcepost.service.validator.CollectSourcePostValidator;
@@ -25,6 +27,7 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -40,8 +43,12 @@ public class CollectSourcePostService {
 
     private final CollectSourcePostRepository collectSourcePostRepository;
     private final CollectSourcePostQueryRepository queryRepository;
+    private final CollectSourceRepository collectSourceRepository;
+    private final CollectingJobRepository collectingJobRepository;
 
-    public CollectSourcePost create(Post post, CollectSource collectSource, CollectingJob collectingJob) {
+    public CollectSourcePost create(Post post, UUID collectSourceId, UUID collectingJobId) {
+        CollectSource collectSource = collectSourceRepository.getReferenceById(collectSourceId);
+        CollectingJob collectingJob = collectingJobRepository.getReferenceById(collectingJobId);
 
         String contentHash = createContentHash(post);
 
@@ -98,8 +105,9 @@ public class CollectSourcePostService {
         return queryRepository.fetchOneByUrl(url).orElse(null);
     }
 
-    public void update(UUID id, Post post, CollectingJob collectingJob) {
-        CollectSourcePost collectSourcePost = getCollectSourcePost(id);
+    public void update(UUID id, Post post, UUID collectingJobId) {
+        CollectSourcePost collectSourcePost = CollectSourcePostValidator.getCollectSourcePostOrThrow(id, queryRepository::fetchOneById);
+        CollectingJob collectingJob = collectingJobRepository.getReferenceById(collectingJobId);
         String contentHash = createContentHash(post);
 
         collectSourcePost.updateTitle(post.getTitle());
@@ -111,6 +119,43 @@ public class CollectSourcePostService {
 
         //TODO: 재인덱싱 필요 상태로 되돌리기
         collectSourcePost.resetForReindex();
+    }
+
+    public void touchLastCollect(UUID id, UUID collectingJobId) {
+        CollectSourcePost collectSourcePost = CollectSourcePostValidator.getCollectSourcePostOrThrow(id, queryRepository::fetchOneById);
+        CollectingJob collectingJob = collectingJobRepository.getReferenceById(collectingJobId);
+        collectSourcePost.updateLastCollect(collectingJob, OffsetDateTime.now());
+    }
+
+    /**
+     * 한 CollectingJob run에서 크롤링된 post 전체를 persist한다.
+     * CollectingJobService.finishCollect의 트랜잭션에 join되어 job 단위 all-or-nothing으로 커밋된다.
+     */
+    public void persistCollectedPostsForJob(UUID collectingJobId,
+                                            UUID collectSourceId,
+                                            boolean forceRecollect,
+                                            List<Post> posts) {
+        for (Post post : posts) {
+            CollectSourcePost existing = queryRepository.fetchOneByUrl(post.getUrl()).orElse(null);
+
+            if (existing == null) {
+                create(post, collectSourceId, collectingJobId);
+                continue;
+            }
+
+            if (forceRecollect) {
+                update(existing.id(), post, collectingJobId);
+                continue;
+            }
+
+            String contentHash = createContentHash(post);
+
+            if (StringUtils.equals(contentHash, existing.contentHash())) {
+                touchLastCollect(existing.id(), collectingJobId);
+            } else {
+                update(existing.id(), post, collectingJobId);
+            }
+        }
     }
 
     @Transactional(readOnly = true)

@@ -56,7 +56,7 @@ class IndexingJobExecutorTest {
     class ExecuteAsyncTest {
 
         @Test
-        void 색인이_성공하면_updateCounts_그리고_markSuccess가_순서대로_호출된다() {
+        void 색인이_성공하면_completeSuccess가_호출된다() {
             Mockito.doReturn(runningJob).when(indexingJobService).getJob(jobId);
             Mockito.doReturn(new IndexingResult(3, 3)).when(indexingService).executeIndexing(runningJob);
 
@@ -65,11 +65,12 @@ class IndexingJobExecutorTest {
             InOrder inOrder = Mockito.inOrder(indexingJobService, indexingService);
             inOrder.verify(indexingJobService).getJob(jobId);
             inOrder.verify(indexingService).executeIndexing(runningJob);
-            inOrder.verify(indexingJobService).updateCounts(jobId, 3, 3);
-            inOrder.verify(indexingJobService).markSuccess(eq(jobId), any(OffsetDateTime.class));
+            inOrder.verify(indexingJobService).completeSuccess(eq(jobId), eq(3), eq(3), any(OffsetDateTime.class));
 
             Mockito.verify(indexingJobService, Mockito.never())
                    .markFailed(any(UUID.class), any(OffsetDateTime.class), any());
+            Mockito.verify(indexingJobService, Mockito.never()).updateCounts(any(), anyInt(), anyInt());
+            Mockito.verify(indexingJobService, Mockito.never()).markSuccess(any(), any());
         }
 
         @Test
@@ -98,28 +99,17 @@ class IndexingJobExecutorTest {
         }
 
         @Test
-        void updateCounts에서_예외가_나도_markFailed가_호출된다() {
+        void completeSuccess에서_예외가_나도_markFailed가_호출된다() {
             Mockito.doReturn(runningJob).when(indexingJobService).getJob(jobId);
             Mockito.doReturn(new IndexingResult(2, 2)).when(indexingService).executeIndexing(runningJob);
-            Mockito.doThrow(new RuntimeException("count update failed"))
-                   .when(indexingJobService).updateCounts(jobId, 2, 2);
+            Mockito.doThrow(new RuntimeException("completion failed"))
+                   .when(indexingJobService).completeSuccess(eq(jobId), eq(2), eq(2), any(OffsetDateTime.class));
 
             indexingJobExecutor.executeAsync(jobId);
 
-            Mockito.verify(indexingJobService).markFailed(eq(jobId), any(OffsetDateTime.class), eq("count update failed"));
+            Mockito.verify(indexingJobService).markFailed(eq(jobId), any(OffsetDateTime.class), eq("completion failed"));
             Mockito.verify(indexingJobService, Mockito.never()).markSuccess(any(), any());
-        }
-
-        @Test
-        void markSuccess에서_예외가_나도_markFailed가_호출된다() {
-            Mockito.doReturn(runningJob).when(indexingJobService).getJob(jobId);
-            Mockito.doReturn(new IndexingResult(1, 1)).when(indexingService).executeIndexing(runningJob);
-            Mockito.doThrow(new RuntimeException("success mark failed"))
-                   .when(indexingJobService).markSuccess(eq(jobId), any(OffsetDateTime.class));
-
-            indexingJobExecutor.executeAsync(jobId);
-
-            Mockito.verify(indexingJobService).markFailed(eq(jobId), any(OffsetDateTime.class), eq("success mark failed"));
+            Mockito.verify(indexingJobService, Mockito.never()).updateCounts(any(), anyInt(), anyInt());
         }
 
         @Test

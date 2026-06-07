@@ -20,7 +20,7 @@ import org.springframework.stereotype.Service;
 @Transactional
 @Service
 @RequiredArgsConstructor
-public class CollectingJobCronGenerator {
+public class CollectingJobCronCreationWorker {
 
     private final CollectingJobRepository collectingJobRepository;
     private final CollectingJobQueryRepository queryRepository;

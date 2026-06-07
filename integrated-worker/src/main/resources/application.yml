@@ -43,7 +43,23 @@ indexing-job-worker:
   job-batch-size: 5
   post-batch-size: 100
 
-indexing-reconciler:
+indexing-reconciliation:
   schedule-delay: 300000 # 5분 (밀리초 단위) - 너무 자주 돌릴 필요 없음
   stale-threshold-minutes: 15 # ES bulk + DB write 최악 케이스보다 충분히 길게
   batch-size: 100 # 한 번에 PENDING으로 되돌릴 최대 row 수
+
+async:
+  collecting:
+    core-pool-size: 5
+    max-pool-size: 10
+    queue-capacity: 0
+    thread-name-prefix: collecting-
+  indexing:
+    core-pool-size: 2
+    max-pool-size: 5
+    queue-capacity: 100
+    thread-name-prefix: indexing-
+
+scheduling:
+  pool-size: 6
+  thread-name-prefix: worker-scheduler-
