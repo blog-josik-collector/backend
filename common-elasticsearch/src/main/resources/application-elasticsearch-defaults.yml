@@ -1,0 +1,26 @@
+# 공통 Elasticsearch 기본값 (ES 사용하는 서비스가 spring.config.import 로 로드)
+# 기본 문서 = 로컬(옵션 A): 보안 꺼진 컨테이너에 평문 http 접속
+elasticsearch:
+  host: ${ES_HOST:localhost}
+  port: ${ES_PORT:9200}
+  scheme: ${ES_SCHEME:http}
+  username: ${ES_USERNAME:}
+  password: ${ES_PASSWORD:}
+  fingerprint: ${ES_FINGERPRINT:}
+  index-name: ${ES_INDEX_NAME:techblog-posts-v1}
+
+---
+# prod 프로필 = 운영(옵션 C): https + 인증 + CA fingerprint 검증
+# 시크릿은 기본값 없이 → 미주입 시 기동 실패하도록(누락 방지)
+spring:
+  config:
+    activate:
+      on-profile: prod
+
+elasticsearch:
+  host: ${ES_HOST}
+  port: ${ES_PORT:9200}
+  scheme: https
+  username: ${ES_USERNAME:elastic}
+  password: ${ES_PASSWORD}
+  fingerprint: ${ES_FINGERPRINT}

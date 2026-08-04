@@ -4,7 +4,9 @@ spring:
   application:
     name: integrated-api
   config:
-    import: optional:classpath:application-logging-defaults.yml
+    import: >-
+      optional:classpath:application-logging-defaults.yml,
+      optional:classpath:application-elasticsearch-defaults.yml
   datasource:
     url: jdbc:postgresql://localhost:5432/backend_db
     username: postgres
@@ -39,11 +41,8 @@ crawler:
   default-from-page: 1
   default-to-page: 10
 
-elasticsearch:
-  host: localhost
-  port: 9200
-  scheme: https
-  username: elastic
-  password: elastic
-  fingerprint:
-  index-name: techblog-posts-v1
+---
+spring:
+  config:
+    activate:
+      on-profile: prod

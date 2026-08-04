@@ -4,7 +4,9 @@ spring:
   application:
     name: interaction-service
   config:
-    import: optional:classpath:application-logging-defaults.yml
+    import: >-
+      optional:classpath:application-logging-defaults.yml,
+      optional:classpath:application-elasticsearch-defaults.yml
   datasource:
     url: jdbc:postgresql://localhost:5432/backend_db
     username: postgres
@@ -38,15 +40,6 @@ springdoc:
   swagger-ui:
     path: /interaction/swagger-ui
 
-elasticsearch:
-  host: localhost
-  port: 9200
-  scheme: https
-  username: elastic
-  password: elastic
-  fingerprint:
-  index-name: techblog-posts-v1
-
 post-view-flusher:
   schedule-delay: 30000  # 30초 (밀리초 단위) - Redis에 누적된 view_count를 DB로 flush하는 주기
   initial-delay: 30000   # 애플리케이션 기동 직후 첫 flush 까지의 지연
@@ -59,3 +52,9 @@ post-count-sync-worker:
 scheduling:
   pool-size: 2
   thread-name-prefix: interaction-scheduler-
+
+---
+spring:
+  config:
+    activate:
+      on-profile: prod
