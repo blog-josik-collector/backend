@@ -11,26 +11,26 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Repository;
 
 /**
- * techblog-posts-v1 인덱스에서 포스팅 문서를 조회하는 Elasticsearch repository.
+ * techblog-posts 인덱스에서 포스팅 문서를 조회하는 Elasticsearch repository.
  */
 @Slf4j
 @Repository
 public class IndexedPostElasticsearchRepository {
 
-    private final String indexName;
+    private final String indexAlias;
     private final ApplicationElasticsearchClient applicationElasticsearchClient;
 
-    public IndexedPostElasticsearchRepository(@Value("${elasticsearch.index-name}") String indexName,
+    public IndexedPostElasticsearchRepository(@Value("${elasticsearch.index-alias}") String indexAlias,
                                               ApplicationElasticsearchClient applicationElasticsearchClient) {
 
-        this.indexName = indexName;
+        this.indexAlias = indexAlias;
         this.applicationElasticsearchClient = applicationElasticsearchClient;
     }
 
     public Optional<IndexedPost> fetchOneById(UUID id) {
         GetResponse<IndexedPost> response = applicationElasticsearchClient.execute(
                 ElasticsearchOperation.GET,
-                client -> client.get(g -> g.index(indexName).id(id.toString()), IndexedPost.class));
+                client -> client.get(g -> g.index(indexAlias).id(id.toString()), IndexedPost.class));
 
         if (response.found() && response.source() != null) {
             return Optional.of(response.source());

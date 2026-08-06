@@ -12,7 +12,6 @@ import com.backend.userservice.user.service.dto.UserDto;
 import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -58,7 +57,7 @@ public class UserController {
     @GetMapping("/users/me")
     public ResponseEntity<UserReadDto.Response> getMe(@AuthenticationPrincipal JwtPrincipal authentication) {
         User user = userService.getUser(authentication.getUserId());
-        UserDto userDto = UserDto.from(Objects.requireNonNull(user));
+        UserDto userDto = UserDto.from(user);
         return ResponseEntity.ok(UserReadDto.Response.from(userDto));
     }
 

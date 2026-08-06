@@ -9,7 +9,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Repository;
 
 /**
- * techblog-posts-v1 인덱스에 포스팅 문서를 bulk index 하는 Elasticsearch repository.
+ * techblog-posts 인덱스에 포스팅 문서를 bulk index 하는 Elasticsearch repository.
  */
 @Repository
 public class PostElasticsearchRepository {
@@ -17,9 +17,9 @@ public class PostElasticsearchRepository {
     private final ElasticsearchBulkOperations bulkOperations;
 
     public PostElasticsearchRepository(ApplicationElasticsearchClient applicationElasticsearchClient,
-                                       @Value("${elasticsearch.index-name}") String indexName) {
+                                       @Value("${elasticsearch.index-alias}") String indexAlias) {
 
-        this.bulkOperations = new ElasticsearchBulkOperations(applicationElasticsearchClient, indexName);
+        this.bulkOperations = new ElasticsearchBulkOperations(applicationElasticsearchClient, indexAlias);
     }
 
     public BulkOperationResult bulkIndex(List<EsPostDocument> documents) {

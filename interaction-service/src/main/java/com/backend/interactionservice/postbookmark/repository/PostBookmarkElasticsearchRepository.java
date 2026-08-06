@@ -20,13 +20,13 @@ import org.springframework.stereotype.Repository;
 @Repository
 public class PostBookmarkElasticsearchRepository {
 
-    private final String indexName;
+    private final String indexAlias;
     private final ApplicationElasticsearchClient applicationElasticsearchClient;
 
-    public PostBookmarkElasticsearchRepository(@Value("${elasticsearch.index-name}") String indexName,
+    public PostBookmarkElasticsearchRepository(@Value("${elasticsearch.index-alias}") String indexAlias,
                                                ApplicationElasticsearchClient applicationElasticsearchClient) {
 
-        this.indexName = indexName;
+        this.indexAlias = indexAlias;
         this.applicationElasticsearchClient = applicationElasticsearchClient;
     }
 
@@ -42,7 +42,7 @@ public class PostBookmarkElasticsearchRepository {
                                     .map(UUID::toString)
                                     .toList();
 
-        SearchRequest searchRequest = SearchRequest.of(s -> s.index(indexName)
+        SearchRequest searchRequest = SearchRequest.of(s -> s.index(indexAlias)
                                                              .query(q -> q.ids(i -> i.values(idStrings)))
                                                              .size(ids.size()));
 

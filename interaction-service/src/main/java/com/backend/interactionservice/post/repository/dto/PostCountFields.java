@@ -3,7 +3,7 @@ package com.backend.interactionservice.post.repository.dto;
 import com.backend.commondataaccess.persistence.post.Post;
 
 /**
- * Elasticsearch techblog-posts-v1 인덱스에 partial upsert 할 카운트 필드만 담는 DTO.
+ * Elasticsearch techblog-posts 인덱스에 partial upsert 할 카운트 필드만 담는 DTO.
  */
 public record PostCountFields(Integer likeCount,
                               Integer viewCount,

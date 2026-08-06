@@ -8,7 +8,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 /**
- * posts 테이블의 카운트 필드를 Elasticsearch techblog-posts-v1 인덱스에 주기적으로 bulk upsert 하는 worker. <br>
+ * posts 테이블의 카운트 필드를 Elasticsearch techblog-posts 인덱스에 주기적으로 bulk upsert 하는 worker. <br>
  * PostViewCountFlushWorker 가 Redis view 를 DB 로 flush 한 뒤, 이 worker 가 DB 의 최신 카운트를 ES 로 반영하는 흐름을 기대한다.
  */
 @Slf4j

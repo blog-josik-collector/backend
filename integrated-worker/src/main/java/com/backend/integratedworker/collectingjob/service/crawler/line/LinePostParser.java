@@ -5,7 +5,6 @@ import com.backend.integratedworker.collectingjob.service.crawler.strategy.PostP
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Locale;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -32,7 +31,12 @@ public class LinePostParser implements PostParser<LinePost> {
         WebElement linkElement = resolveLinkElement(post);
 
         String href = linkElement.getAttribute("href");
-        String url = Objects.requireNonNull(href).startsWith("http") ? href : BASE_URL + href;
+
+        if (href == null) {
+            throw new CrawlingException("LinePost href attribute not found");
+        }
+
+        String url = href.startsWith("http") ? href : BASE_URL + href;
 
         String title = linkElement.findElement(By.cssSelector(".title")).getText();
         String publishedAt = linkElement.findElement(By.cssSelector(".update")).getText();

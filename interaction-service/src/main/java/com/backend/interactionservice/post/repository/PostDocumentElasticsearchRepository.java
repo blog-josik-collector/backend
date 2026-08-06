@@ -24,26 +24,26 @@ import org.springframework.stereotype.Repository;
 import org.springframework.util.StringUtils;
 
 /**
- * techblog-posts-v1 인덱스에서 포스팅 문서를 조회하는 Elasticsearch repository.
+ * techblog-posts 인덱스에서 포스팅 문서를 조회하는 Elasticsearch repository.
  */
 @Slf4j
 @Repository
 public class PostDocumentElasticsearchRepository {
 
-    private final String indexName;
+    private final String indexAlias;
     private final ApplicationElasticsearchClient applicationElasticsearchClient;
 
-    public PostDocumentElasticsearchRepository(@Value("${elasticsearch.index-name}") String indexName,
+    public PostDocumentElasticsearchRepository(@Value("${elasticsearch.index-alias}") String indexAlias,
                                                ApplicationElasticsearchClient applicationElasticsearchClient) {
 
-        this.indexName = indexName;
+        this.indexAlias = indexAlias;
         this.applicationElasticsearchClient = applicationElasticsearchClient;
     }
 
     public Optional<PostDocument> fetchOneById(UUID id) {
         GetResponse<PostDocument> response = applicationElasticsearchClient.execute(
                 ElasticsearchOperation.GET,
-                client -> client.get(g -> g.index(indexName).id(id.toString()), PostDocument.class));
+                client -> client.get(g -> g.index(indexAlias).id(id.toString()), PostDocument.class));
 
         if (response.found() && response.source() != null) {
             return Optional.of(response.source());
@@ -71,7 +71,7 @@ public class PostDocumentElasticsearchRepository {
         int from = (int) pageable.getOffset();
         int size = pageable.getPageSize();
 
-        SearchRequest searchRequest = SearchRequest.of(s -> s.index(indexName)
+        SearchRequest searchRequest = SearchRequest.of(s -> s.index(indexAlias)
                                                              .query(new Query(boolQueryBuilder.build()))
                                                              .from(from)
                                                              .size(size)

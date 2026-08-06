@@ -1,0 +1,69 @@
+{
+  "settings": {
+    "index": {
+      "number_of_shards": 1,
+      "number_of_replicas": 1
+    },
+    "analysis": {
+      "analyzer": {
+        "tech_blog_analyzer": {
+          "type": "custom",
+          "tokenizer": "nori_tech_tokenizer",
+          "filter": [
+            "lowercase",
+            "nori_readingform",
+            "tech_stop_filter"
+          ]
+        }
+      },
+      "tokenizer": {
+        "nori_tech_tokenizer": {
+          "type": "nori_tokenizer",
+          "decompound_mode": "mixed",
+          "user_dictionary_rules": [
+            "카카오뱅크",
+            "라인플러스",
+            "당근마켓",
+            "쿠팡이츠",
+            "스프링부트",
+            "쿠버네티스",
+            "레빗엠큐"
+          ]
+        }
+      },
+      "filter": {
+        "tech_stop_filter": {
+          "type": "nori_part_of_speech",
+          "stoptags": [
+            "E", "IC", "J", "MAG", "MAJ", "MM", "SP", "SSC", "SSO",
+            "SC", "SE", "XPN", "XSA", "XSN", "XSV", "UNA", "NA", "VSV"
+          ]
+        }
+      }
+    }
+  },
+  "mappings": {
+    "properties": {
+      "id": { "type": "keyword" },
+      "provider": { "type": "keyword" },
+      "title": {
+        "type": "text",
+        "analyzer": "tech_blog_analyzer",
+        "fields": {
+          "raw": { "type": "keyword" }
+        }
+      },
+      "url": { "type": "keyword", "index": false, "doc_values": false },
+      "publishedAt": { "type": "date", "format": "strict_date_optional_time||epoch_millis" },
+      "thumbnailUrl": { "type": "keyword", "index": false, "doc_values": false },
+      "summary": { "type": "text", "analyzer": "tech_blog_analyzer" },
+      "status": { "type": "keyword" },
+      "createdAt": { "type": "date", "format": "strict_date_optional_time||epoch_millis" },
+      "updatedAt": { "type": "date", "format": "strict_date_optional_time||epoch_millis" },
+      "likeCount": { "type": "integer" },
+      "viewCount": { "type": "integer" },
+      "commentCount": { "type": "integer" },
+      "totalReportCount": { "type": "integer" }
+    }
+  }
+}

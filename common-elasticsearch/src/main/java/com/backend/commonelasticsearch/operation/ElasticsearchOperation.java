@@ -6,5 +6,10 @@ package com.backend.commonelasticsearch.operation;
 public enum ElasticsearchOperation {
     GET,
     SEARCH,
-    BULK
+    BULK,
+    EXISTS,
+    GET_ALIAS,
+    CREATE_INDEX,
+    UPDATE_ALIASES,
+    REINDEX
 }

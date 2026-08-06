@@ -3,7 +3,6 @@ package com.backend.integratedworker.collectingjob.service.crawler.kakao;
 import com.backend.commondataaccess.exception.CrawlingException;
 import com.backend.integratedworker.collectingjob.service.crawler.strategy.PostParser;
 import java.time.LocalDate;
-import java.util.Objects;
 import java.util.Optional;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
@@ -22,7 +21,12 @@ public class KakaoPostParser implements PostParser<KakaoPost> {
 
         WebElement linkElement = post.findElement(By.cssSelector("a.link_post"));
         String href = linkElement.getAttribute("href");
-        String url = Objects.requireNonNull(href).startsWith("http") ? href : "https://tech.kakao.com" + href;
+
+        if (href == null) {
+            throw new CrawlingException("KakaoPost href attribute not found");
+        }
+
+        String url = href.startsWith("http") ? href : "https://tech.kakao.com" + href;
 
         String title = linkElement.findElement(By.cssSelector("h4.tit_post")).getText();
         String publishedAt = linkElement.findElement(By.cssSelector("dd.txt_date")).getText();

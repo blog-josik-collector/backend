@@ -10,7 +10,6 @@ import java.net.http.HttpResponse;
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -34,9 +33,19 @@ public class TossPostParser implements PostParser<TossPost> {
 
         WebElement post = (WebElement) rawData;
 
-        String title = Objects.requireNonNull(post.getAttribute("data-log-item_title"));
+        String title = post.getAttribute("data-log-item_title");
+
+        if (title == null) {
+            throw new CrawlingException("TossPost title attribute not found");
+        }
+
         String href = post.getAttribute("href");
-        String url = Objects.requireNonNull(href).startsWith("http") ? href : BASE_URL + href;
+
+        if (href == null) {
+            throw new CrawlingException("TossPost href attribute not found");
+        }
+
+        String url = href.startsWith("http") ? href : BASE_URL + href;
 
         Optional<String> summary = findSummary(post);
         Optional<String> thumbnailUrl = findThumbnailUrl(post);
