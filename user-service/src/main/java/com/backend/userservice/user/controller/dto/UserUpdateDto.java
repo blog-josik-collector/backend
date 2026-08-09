@@ -26,6 +26,7 @@ public record UserUpdateDto() {
             @Schema(description = "Base64 인코딩된 새 비밀번호", example = "bmV3cGFzc3dvcmQ=")
             String newPassword) {
 
+        @Schema(hidden = true)
         public String getDecodedPassword() {
             if (StringUtils.isBlank(this.password)) {
                 return null;
@@ -33,6 +34,7 @@ public record UserUpdateDto() {
             return new String(Base64.getDecoder().decode(this.password), StandardCharsets.UTF_8);
         }
 
+        @Schema(hidden = true)
         public String getDecodedNewPassword() {
             if (StringUtils.isBlank(this.newPassword)) {
                 return null;

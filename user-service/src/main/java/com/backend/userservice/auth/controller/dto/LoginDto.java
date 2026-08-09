@@ -18,6 +18,7 @@ public record LoginDto() {
             String password) {
 
         // 로직에서 사용할 때는 디코딩된 값을 반환하는 별도 메서드 제공
+        @Schema(hidden = true)
         public String getDecodedPassword() {
             if (StringUtils.isBlank(this.password)) {
                 return null;

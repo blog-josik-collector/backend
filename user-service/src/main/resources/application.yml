@@ -29,6 +29,7 @@ jwt:
   expiry-seconds: 7200  # 액세스 토큰 만료 시간 (2시간 = 7200초)
 
 springdoc:
+  use-fqn: true  # Fully Qualified Name 사용
   api-docs:
     path: /users/v3/api-docs
   swagger-ui:

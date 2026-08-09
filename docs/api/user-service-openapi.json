@@ -1,7 +1,7 @@
 {
     "components": {
         "schemas": {
-            "LoginResponse": {
+            "com.backend.userservice.auth.controller.dto.LoginDto.LoginResponse": {
                 "description": "\ub85c\uadf8\uc778 \uc751\ub2f5",
                 "properties": {
                     "access_token": {
@@ -10,12 +10,9 @@
                     }
                 }
             },
-            "PasswordRequest": {
+            "com.backend.userservice.auth.controller.dto.LoginDto.PasswordRequest": {
                 "description": "\ube44\ubc00\ubc88\ud638 \ub85c\uadf8\uc778 \uc694\uccad",
                 "properties": {
-                    "decoded_password": {
-                        "type": "string"
-                    },
                     "login_id": {
                         "description": "\ub85c\uadf8\uc778 ID",
                         "example": "user@example.com",
@@ -28,15 +25,9 @@
                     }
                 }
             },
-            "Request": {
+            "com.backend.userservice.user.controller.dto.UserCreateDto.Request": {
                 "description": "\ud68c\uc6d0\uac00\uc785 \uc694\uccad",
                 "properties": {
-                    "decoded_password": {
-                        "type": "string"
-                    },
-                    "decoded_password_confirm": {
-                        "type": "string"
-                    },
                     "login_id": {
                         "description": "\ub85c\uadf8\uc778 ID",
                         "example": "user@example.com",
@@ -59,7 +50,7 @@
                     }
                 }
             },
-            "Response": {
+            "com.backend.userservice.user.controller.dto.UserCreateDto.Response": {
                 "description": "\ud68c\uc6d0\uac00\uc785 \uacb0\uacfc",
                 "properties": {
                     "created_at": {
@@ -69,6 +60,92 @@
                     },
                     "user_id": {
                         "description": "\uc0dd\uc131\ub41c \uc0ac\uc6a9\uc790 ID",
+                        "type": "string"
+                    }
+                }
+            },
+            "com.backend.userservice.user.controller.dto.UserMergeDto.Request": {
+                "description": "OAuth \uacc4\uc815 \ud1b5\ud569 \uc694\uccad",
+                "properties": {
+                    "access_token": {
+                        "description": "\ud1b5\ud569\ud560 OAuth \uc561\uc138\uc2a4 \ud1a0\ud070",
+                        "type": "string"
+                    }
+                }
+            },
+            "com.backend.userservice.user.controller.dto.UserReadDto.Response": {
+                "description": "\ud68c\uc6d0\uc815\ubcf4 \uc870\ud68c \uacb0\uacfc",
+                "properties": {
+                    "created_at": {
+                        "description": "\uac00\uc785 \uc2dc\uac01",
+                        "format": "date-time",
+                        "type": "string"
+                    },
+                    "last_login_at": {
+                        "description": "\ub9c8\uc9c0\ub9c9 \ub85c\uadf8\uc778 \uc2dc\uac01",
+                        "format": "date-time",
+                        "type": "string"
+                    },
+                    "nickname": {
+                        "description": "\ub2c9\ub124\uc784",
+                        "example": "cycy",
+                        "type": "string"
+                    },
+                    "updated_at": {
+                        "description": "\ucd5c\uc885 \uc218\uc815 \uc2dc\uac01",
+                        "format": "date-time",
+                        "type": "string"
+                    },
+                    "user_id": {
+                        "description": "\uc0ac\uc6a9\uc790 ID",
+                        "type": "string"
+                    },
+                    "user_type": {
+                        "description": "\uc0ac\uc6a9\uc790 \uc720\ud615",
+                        "enum": [
+                            "USER",
+                            "ADMIN"
+                        ],
+                        "type": "string"
+                    }
+                }
+            },
+            "com.backend.userservice.user.controller.dto.UserUpdateDto.PasswordRequest": {
+                "description": "\ube44\ubc00\ubc88\ud638 \ubcc0\uacbd \uc694\uccad",
+                "properties": {
+                    "new_password": {
+                        "description": "Base64 \uc778\ucf54\ub529\ub41c \uc0c8 \ube44\ubc00\ubc88\ud638",
+                        "example": "bmV3cGFzc3dvcmQ=",
+                        "type": "string"
+                    },
+                    "password": {
+                        "description": "Base64 \uc778\ucf54\ub529\ub41c \ud604\uc7ac \ube44\ubc00\ubc88\ud638",
+                        "example": "cGFzc3dvcmQ=",
+                        "type": "string"
+                    }
+                }
+            },
+            "com.backend.userservice.user.controller.dto.UserUpdateDto.Request": {
+                "description": "\ud68c\uc6d0\uc815\ubcf4 \uc218\uc815 \uc694\uccad",
+                "properties": {
+                    "nickname": {
+                        "description": "\ubcc0\uacbd\ud560 \ub2c9\ub124\uc784",
+                        "example": "new_nickname",
+                        "type": "string"
+                    }
+                }
+            },
+            "com.backend.userservice.user.controller.dto.UserUpdateDto.Response": {
+                "description": "\ud68c\uc6d0\uc815\ubcf4/\ube44\ubc00\ubc88\ud638 \uc218\uc815 \uacb0\uacfc",
+                "properties": {
+                    "updated_at": {
+                        "description": "\uc218\uc815 \uc2dc\uac01",
+                        "format": "date-time",
+                        "type": "string"
+                    },
+                    "user_id": {
+                        "description": "\uc0ac\uc6a9\uc790 ID",
+                        "format": "uuid",
                         "type": "string"
                     }
                 }
@@ -89,7 +166,7 @@
                     "content": {
                         "application/json": {
                             "schema": {
-                                "$ref": "#/components/schemas/PasswordRequest"
+                                "$ref": "#/components/schemas/com.backend.userservice.auth.controller.dto.LoginDto.PasswordRequest"
                             }
                         }
                     },
@@ -100,7 +177,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/LoginResponse"
+                                    "$ref": "#/components/schemas/com.backend.userservice.auth.controller.dto.LoginDto.LoginResponse"
                                 }
                             }
                         },
@@ -131,7 +208,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/LoginResponse"
+                                    "$ref": "#/components/schemas/com.backend.userservice.auth.controller.dto.LoginDto.LoginResponse"
                                 }
                             }
                         },
@@ -151,7 +228,7 @@
                     "content": {
                         "application/json": {
                             "schema": {
-                                "$ref": "#/components/schemas/Request"
+                                "$ref": "#/components/schemas/com.backend.userservice.user.controller.dto.UserCreateDto.Request"
                             }
                         }
                     },
@@ -162,7 +239,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/Response"
+                                    "$ref": "#/components/schemas/com.backend.userservice.user.controller.dto.UserCreateDto.Response"
                                 }
                             }
                         },
@@ -195,7 +272,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/Response"
+                                    "$ref": "#/components/schemas/com.backend.userservice.user.controller.dto.UserReadDto.Response"
                                 }
                             }
                         },
@@ -213,7 +290,7 @@
                     "content": {
                         "application/json": {
                             "schema": {
-                                "$ref": "#/components/schemas/Request"
+                                "$ref": "#/components/schemas/com.backend.userservice.user.controller.dto.UserUpdateDto.Request"
                             }
                         }
                     },
@@ -224,7 +301,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/Response"
+                                    "$ref": "#/components/schemas/com.backend.userservice.user.controller.dto.UserUpdateDto.Response"
                                 }
                             }
                         },
@@ -244,7 +321,7 @@
                     "content": {
                         "application/json": {
                             "schema": {
-                                "$ref": "#/components/schemas/Request"
+                                "$ref": "#/components/schemas/com.backend.userservice.user.controller.dto.UserMergeDto.Request"
                             }
                         }
                     },
@@ -268,7 +345,7 @@
                     "content": {
                         "application/json": {
                             "schema": {
-                                "$ref": "#/components/schemas/PasswordRequest"
+                                "$ref": "#/components/schemas/com.backend.userservice.user.controller.dto.UserUpdateDto.PasswordRequest"
                             }
                         }
                     },
@@ -279,7 +356,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/Response"
+                                    "$ref": "#/components/schemas/com.backend.userservice.user.controller.dto.UserUpdateDto.Response"
                                 }
                             }
                         },

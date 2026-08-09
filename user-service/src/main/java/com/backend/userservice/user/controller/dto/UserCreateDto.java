@@ -26,6 +26,7 @@ public record UserCreateDto() {
             String nickname
     ) {
 
+        @Schema(hidden = true)
         public String getDecodedPassword() {
             if (StringUtils.isBlank(this.password)) {
                 return null;
@@ -33,6 +34,7 @@ public record UserCreateDto() {
             return new String(Base64.getDecoder().decode(this.password), StandardCharsets.UTF_8);
         }
 
+        @Schema(hidden = true)
         public String getDecodedPasswordConfirm() {
             if (StringUtils.isBlank(this.passwordConfirm)) {
                 return null;
