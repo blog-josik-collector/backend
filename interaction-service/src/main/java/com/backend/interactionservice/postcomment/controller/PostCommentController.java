@@ -9,11 +9,13 @@ import com.backend.interactionservice.postcomment.controller.dto.PostCommentUpda
 import com.backend.interactionservice.postcomment.service.PostCommentService;
 import com.backend.interactionservice.postcomment.service.dto.PostCommentDto;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirements;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -23,6 +25,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 @Tag(name = "04. 포스팅 댓글/대댓글 API")
@@ -51,6 +54,7 @@ public class PostCommentController {
      * 2. 포스팅의 댓글(1-depth) 목록 조회. 생성 순(오래된 순)으로 페이지네이션.
      */
     @Operation(summary = "댓글 목록 조회")
+    @SecurityRequirements()
     @GetMapping("/postings/{postId}/comments")
     public ResponseEntity<OffsetPageResult<PostCommentReadDto.Response>> getComments(@PathVariable UUID postId,
                                                                                      @PageableDefault(size = 20) Pageable pageable) {
@@ -76,6 +80,7 @@ public class PostCommentController {
      * 4. 댓글 삭제. 본인만 가능. soft-delete.
      */
     @Operation(summary = "댓글 삭제")
+    @ResponseStatus(HttpStatus.ACCEPTED)
     @DeleteMapping("/comments/{commentId}")
     public ResponseEntity<Void> deleteComment(@PathVariable UUID commentId,
                                               @CurrentUser JwtPrincipal principal) {
@@ -102,6 +107,7 @@ public class PostCommentController {
      * 6. 특정 댓글의 대댓글 목록 조회. 생성 순(오래된 순)으로 페이지네이션.
      */
     @Operation(summary = "대댓글 조회")
+    @SecurityRequirements()
     @GetMapping("/comments/{commentId}/replies")
     public ResponseEntity<OffsetPageResult<PostCommentReadDto.Response>> getReplies(@PathVariable UUID commentId,
                                                                                     @PageableDefault(size = 20) Pageable pageable) {
@@ -127,6 +133,7 @@ public class PostCommentController {
      * 8. 대댓글 삭제. 본인만 가능. soft-delete.
      */
     @Operation(summary = "대댓글 삭제")
+    @ResponseStatus(HttpStatus.ACCEPTED)
     @DeleteMapping("/replies/{replyId}")
     public ResponseEntity<Void> deleteReply(@PathVariable UUID replyId,
                                             @CurrentUser JwtPrincipal principal) {

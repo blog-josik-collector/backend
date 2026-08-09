@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-@Tag(name = "03. 수집 결과 조회 API")
+@Tag(name = "04. 수집 결과 조회 API")
 @RequestMapping(value = "/collect/v1", produces = MediaType.APPLICATION_JSON_VALUE)
 @RestController
 @RequiredArgsConstructor

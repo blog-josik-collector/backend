@@ -7,12 +7,14 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 @Tag(name = "02. 포스팅 좋아요 API")
@@ -27,6 +29,7 @@ public class PostLikeController {
      * 포스팅 좋아요 API. 멱등하므로 여러 번 호출되어도 like_count는 한 번만 증가한다.
      */
     @Operation(summary = "좋아요 등록")
+    @ResponseStatus(HttpStatus.ACCEPTED)
     @PostMapping("/postings/{postId}/likes")
     public ResponseEntity<Void> like(@PathVariable UUID postId,
                                      @CurrentUser JwtPrincipal principal) {
@@ -38,6 +41,7 @@ public class PostLikeController {
      * 포스팅 좋아요 취소 API. 멱등하므로 여러 번 호출되어도 like_count는 한 번만 감소한다.
      */
     @Operation(summary = "좋아요 취소")
+    @ResponseStatus(HttpStatus.ACCEPTED)
     @DeleteMapping("/postings/{postId}/likes")
     public ResponseEntity<Void> unLike(@PathVariable UUID postId,
                                        @CurrentUser JwtPrincipal principal) {

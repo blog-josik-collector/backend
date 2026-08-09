@@ -11,6 +11,7 @@ import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -18,6 +19,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 @Tag(name = "03. 포스팅 즐겨찾기 API")
@@ -32,6 +34,7 @@ public class PostBookmarkController {
      * 포스팅 즐겨찾기 API. 멱등하다.
      */
     @Operation(summary = "즐겨찾기 등록")
+    @ResponseStatus(HttpStatus.ACCEPTED)
     @PostMapping("/postings/{postId}/bookmarks")
     public ResponseEntity<Void> bookmark(@PathVariable UUID postId,
                                          @CurrentUser JwtPrincipal principal) {
@@ -44,6 +47,7 @@ public class PostBookmarkController {
      * 포스팅 즐겨찾기 취소 API. 멱등하다.
      */
     @Operation(summary = "즐겨찾기 삭제")
+    @ResponseStatus(HttpStatus.ACCEPTED)
     @DeleteMapping("/postings/{postId}/bookmarks")
     public ResponseEntity<Void> unBookmark(@PathVariable UUID postId,
                                            @CurrentUser JwtPrincipal principal) {

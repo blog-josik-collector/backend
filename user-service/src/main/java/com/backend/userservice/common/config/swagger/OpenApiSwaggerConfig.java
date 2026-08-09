@@ -75,7 +75,7 @@ public class OpenApiSwaggerConfig {
         return (operation, handlerMethod) -> {
             operation.getResponses()
                      .addApiResponse("400", errorResponse("요청 값이 올바르지 않음", "FE40001", "입력 데이터에 문제가 있습니다.", 400))
-                     .addApiResponse("500", errorResponse("처리되지 않은 서버 오류", "FE50001", "서버 처리 오류(관리자에게 문의하세요).", 500));
+                     .addApiResponse("500", errorResponse("처리되지 않은 서버 오류", "FE50001", "서버 내부 오류가 발생했습니다.", 500));
             if (isPublic(handlerMethod)) {
                 operation.setSecurity(List.of());
             } else {

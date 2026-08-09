@@ -13,6 +13,7 @@ import com.backend.userservice.user.service.dto.UserDto;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -21,6 +22,7 @@ import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 @Tag(name = "01. 회원정보 관련 API")
@@ -70,6 +72,7 @@ public class UserController {
     }
 
     @Operation(summary = "회원정보 통합")
+    @ResponseStatus(HttpStatus.ACCEPTED)
     @PostMapping(value = "/users/me/merge-oauth", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Void> merge(@CurrentUser JwtPrincipal principal,
                                       @RequestBody UserMergeDto.Request request) {
@@ -79,6 +82,7 @@ public class UserController {
     }
 
     @Operation(summary = "회원탈퇴")
+    @ResponseStatus(HttpStatus.ACCEPTED)
     @DeleteMapping("/users/me")
     public ResponseEntity<Void> delete(@CurrentUser JwtPrincipal principal) {
         userService.delete(principal.getUserId());

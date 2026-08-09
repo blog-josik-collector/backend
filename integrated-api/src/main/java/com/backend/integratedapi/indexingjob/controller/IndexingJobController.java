@@ -12,6 +12,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -19,9 +20,10 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-@Tag(name = "03. 색인 작업 실행 API")
+@Tag(name = "05. 색인 작업 실행 API")
 @RequestMapping(value = "/index/v1", produces = MediaType.APPLICATION_JSON_VALUE)
 @RestController
 @RequiredArgsConstructor
@@ -30,6 +32,7 @@ public class IndexingJobController {
     private final IndexingJobService indexingJobService;
 
     @Operation(summary = "이 '수집 소스'에 포함된 전체 post 재색인", description = "운영자 전용 API")
+    @ResponseStatus(HttpStatus.ACCEPTED)
     @PostMapping("/sources/{source-id}/_reindex")
     public ResponseEntity<IndexingJobStartDto.Response> reindexSource(@CurrentUser JwtPrincipal principal,
                                                                       @PathVariable("source-id") UUID sourceId) {
@@ -39,6 +42,7 @@ public class IndexingJobController {
     }
 
     @Operation(summary = "특정 post 1개 재색인", description = "운영자 전용 API")
+    @ResponseStatus(HttpStatus.ACCEPTED)
     @PostMapping("/posts/{post-id}/_reindex")
     public ResponseEntity<IndexingJobStartDto.Response> reindexPost(@CurrentUser JwtPrincipal principal,
                                                                     @PathVariable("post-id") UUID postId) {

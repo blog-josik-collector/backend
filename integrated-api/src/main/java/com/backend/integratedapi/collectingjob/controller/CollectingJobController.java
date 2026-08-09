@@ -13,6 +13,7 @@ import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -20,9 +21,10 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-@Tag(name = "02. 수집 작업 실행 API")
+@Tag(name = "03. 수집 작업 실행 API")
 @RequestMapping(value = "/collect/v1", produces = MediaType.APPLICATION_JSON_VALUE)
 @RestController
 @RequiredArgsConstructor
@@ -60,6 +62,7 @@ public class CollectingJobController {
             summary = "수집 작업 종료",
             description = "운영자 전용 API, CRON source의 자동 생성 사이클을 종료(isUsed=false). MANUAL source 호출시 무시됨."
     )
+    @ResponseStatus(HttpStatus.ACCEPTED)
     @PostMapping("/sources/{source-id}/_stop")
     public ResponseEntity<Void> stop(@PathVariable("source-id") UUID sourceId) {
 

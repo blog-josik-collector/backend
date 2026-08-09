@@ -32,11 +32,11 @@ import org.springframework.web.method.HandlerMethod;
         tags = {
                 @Tag(name = "01. Provider 관리 API"),
                 @Tag(name = "02. 수집 소스 관리 API"),
-                @Tag(name = "02. 수집 작업 실행 API"),
-                @Tag(name = "03. 수집 결과 조회 API"),
-                @Tag(name = "03. 색인 작업 실행 API"),
-                @Tag(name = "04. 색인된 Post 문서 조회 API"),
-                @Tag(name = "05. Elasticsearch 인덱스 관리 API")
+                @Tag(name = "03. 수집 작업 실행 API"),
+                @Tag(name = "04. 수집 결과 조회 API"),
+                @Tag(name = "05. 색인 작업 실행 API"),
+                @Tag(name = "06. 색인된 Post 문서 조회 API"),
+                @Tag(name = "07. Elasticsearch 인덱스 관리 API")
         }
 )
 @Configuration
@@ -80,7 +80,7 @@ public class OpenApiSwaggerConfig {
         return (operation, handlerMethod) -> {
             operation.getResponses()
                      .addApiResponse("400", errorResponse("요청 값이 올바르지 않음", "FE40001", "입력 데이터에 문제가 있습니다.", 400))
-                     .addApiResponse("500", errorResponse("처리되지 않은 서버 오류", "FE50001", "서버 처리 오류(관리자에게 문의하세요).", 500));
+                     .addApiResponse("500", errorResponse("처리되지 않은 서버 오류", "FE50001", "서버 내부 오류가 발생했습니다.", 500));
             if (isPublic(handlerMethod)) {
                 operation.setSecurity(List.of());
             } else {
@@ -107,8 +107,7 @@ public class OpenApiSwaggerConfig {
                                 .filter(Objects::nonNull)
                                 .toList();
 
-        return annotations.isEmpty()
-                || annotations.stream().anyMatch(a -> !a.required());
+        return annotations.stream().anyMatch(a -> !a.required());
     }
 
     private ApiResponse errorResponse(String description, String code, String message, int status) {

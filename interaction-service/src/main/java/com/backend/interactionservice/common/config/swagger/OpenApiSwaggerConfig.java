@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import io.swagger.v3.core.converter.ModelConverters;
 import io.swagger.v3.core.jackson.ModelResolver;
 import io.swagger.v3.oas.annotations.OpenAPIDefinition;
+import io.swagger.v3.oas.annotations.security.SecurityRequirements;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
@@ -79,7 +80,7 @@ public class OpenApiSwaggerConfig {
         return (operation, handlerMethod) -> {
             operation.getResponses()
                      .addApiResponse("400", errorResponse("요청 값이 올바르지 않음", "FE40001", "입력 데이터에 문제가 있습니다.", 400))
-                     .addApiResponse("500", errorResponse("처리되지 않은 서버 오류", "FE50001", "서버 처리 오류(관리자에게 문의하세요).", 500));
+                     .addApiResponse("500", errorResponse("처리되지 않은 서버 오류", "FE50001", "서버 내부 오류가 발생했습니다.", 500));
             if (isPublic(handlerMethod)) {
                 operation.setSecurity(List.of());
             } else {
@@ -100,13 +101,17 @@ public class OpenApiSwaggerConfig {
     }
 
     private boolean isPublic(HandlerMethod handlerMethod) {
-        var annotations = Arrays.stream(handlerMethod.getMethodParameters())
-                                .map(p -> p.getParameterAnnotation(CurrentUser.class))
-                                .filter(Objects::nonNull)
-                                .toList();
+        // 1) 명시적으로 공개 표시
+        SecurityRequirements securityRequirements =
+                handlerMethod.getMethodAnnotation(SecurityRequirements.class);
+        if (securityRequirements != null && securityRequirements.value().length == 0) {
+            return true;
+        }
 
-        return annotations.isEmpty()
-                || annotations.stream().anyMatch(a -> !a.required());
+        return Arrays.stream(handlerMethod.getMethodParameters())
+                     .map(p -> p.getParameterAnnotation(CurrentUser.class))
+                     .filter(Objects::nonNull)
+                     .anyMatch(a -> !a.required());
     }
 
     private ApiResponse errorResponse(String description, String code, String message, int status) {

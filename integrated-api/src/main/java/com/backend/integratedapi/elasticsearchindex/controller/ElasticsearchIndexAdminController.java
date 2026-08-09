@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
  * Elasticsearch 인덱스 라이프사이클(생성/재색인/상태) 관리자 API. <br>
  * {@code /index/v1/**} 는 ADMIN 권한 필요(SecurityConfig).
  */
-@Tag(name = "05. Elasticsearch 인덱스 관리 API")
+@Tag(name = "07. Elasticsearch 인덱스 관리 API")
 @RequestMapping(value = "/index/v1/elasticsearch", produces = MediaType.APPLICATION_JSON_VALUE)
 @RestController
 @RequiredArgsConstructor
