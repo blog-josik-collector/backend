@@ -14,6 +14,7 @@ import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -25,7 +26,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @Tag(name = "04. 포스팅 댓글/대댓글 API")
-@RequestMapping("/interaction/v1")
+@RequestMapping(value = "/interaction/v1", produces = MediaType.APPLICATION_JSON_VALUE)
 @RestController
 @RequiredArgsConstructor
 public class PostCommentController {
@@ -36,7 +37,7 @@ public class PostCommentController {
      * 1. 댓글 작성.
      */
     @Operation(summary = "댓글 작성")
-    @PostMapping("/postings/{postId}/comments")
+    @PostMapping(value = "/postings/{postId}/comments", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<PostCommentCreateDto.Response> createComment(@PathVariable UUID postId,
                                                                        @RequestBody PostCommentCreateDto.Request request,
                                                                        @CurrentUser JwtPrincipal principal) {
@@ -61,7 +62,7 @@ public class PostCommentController {
      * 3. 댓글 수정. 본인만 가능.
      */
     @Operation(summary = "댓글 수정")
-    @PatchMapping("/comments/{commentId}")
+    @PatchMapping(value = "/comments/{commentId}", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<PostCommentUpdateDto.Response> updateComment(@PathVariable UUID commentId,
                                                                        @RequestBody PostCommentUpdateDto.Request request,
                                                                        @CurrentUser JwtPrincipal principal) {
@@ -87,7 +88,7 @@ public class PostCommentController {
      * 5. 대댓글 작성. 부모는 1-depth 댓글이어야 한다.
      */
     @Operation(summary = "대댓글 작성")
-    @PostMapping("/comments/{commentId}/replies")
+    @PostMapping(value = "/comments/{commentId}/replies", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<PostCommentCreateDto.ReplyResponse> createReply(@PathVariable UUID commentId,
                                                                           @RequestBody PostCommentCreateDto.Request request,
                                                                           @CurrentUser JwtPrincipal principal) {
@@ -112,7 +113,7 @@ public class PostCommentController {
      * 7. 대댓글 수정. 본인만 가능.
      */
     @Operation(summary = "대댓글 수정")
-    @PatchMapping("/replies/{replyId}")
+    @PatchMapping(value = "/replies/{replyId}", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<PostCommentUpdateDto.Response> updateReply(@PathVariable UUID replyId,
                                                                      @RequestBody PostCommentUpdateDto.Request request,
                                                                      @CurrentUser JwtPrincipal principal) {

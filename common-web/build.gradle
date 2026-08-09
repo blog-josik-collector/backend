@@ -15,4 +15,5 @@ dependencies {
     api project(":common-data-access")
     api "org.springframework.boot:spring-boot-starter-web"
     implementation "org.springframework.boot:spring-boot-starter-security"
+    compileOnly 'io.swagger.core.v3:swagger-annotations-jakarta:2.2.28'
 }

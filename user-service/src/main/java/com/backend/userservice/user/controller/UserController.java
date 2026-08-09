@@ -14,6 +14,7 @@ import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -24,7 +25,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @Tag(name = "01. 회원정보 관련 API")
-@RequestMapping(value = "/user/v1")
+@RequestMapping(value = "/user/v1", produces = MediaType.APPLICATION_JSON_VALUE)
 @RestController
 @RequiredArgsConstructor
 public class UserController {
@@ -32,7 +33,7 @@ public class UserController {
     private final UserService userService;
 
     @Operation(summary = "직접 회원가입")
-    @PostMapping("/users")
+    @PostMapping(value = "/users", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<UserCreateDto.Response> create(@RequestBody UserCreateDto.Request request) {
         UserDto userDto = userService.create(UserDto.of(request.loginId(),
                                                         request.getDecodedPassword(),
@@ -43,7 +44,7 @@ public class UserController {
     }
 
     @Hidden
-    @PostMapping("/admins")
+    @PostMapping(value = "/admins", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<UserCreateDto.Response> createAdmin(@RequestBody UserCreateDto.Request request) {
         UserDto userDto = userService.createAdmin(UserDto.of(request.loginId(),
                                                              request.getDecodedPassword(),
@@ -62,7 +63,7 @@ public class UserController {
     }
 
     @Operation(summary = "회원정보 수정(내 정보 수정)")
-    @PatchMapping("/users/me")
+    @PatchMapping(value = "/users/me", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<UserUpdateDto.Response> update(@CurrentUser JwtPrincipal principal,
                                                          @RequestBody UserUpdateDto.Request request) {
 
@@ -72,7 +73,7 @@ public class UserController {
     }
 
     @Operation(summary = "비밀번호 수정(내 정보 수정)")
-    @PatchMapping("/users/me/password")
+    @PatchMapping(value = "/users/me/password", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<UserUpdateDto.Response> updatePassword(@CurrentUser JwtPrincipal principal,
                                                                  @RequestBody UserUpdateDto.PasswordRequest request) {
 
@@ -81,7 +82,7 @@ public class UserController {
     }
 
     @Operation(summary = "회원정보 통합")
-    @PostMapping("/users/me/merge-oauth")
+    @PostMapping(value = "/users/me/merge-oauth", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Void> merge(@CurrentUser JwtPrincipal principal,
                                       @RequestBody UserMergeDto.Request request) {
 

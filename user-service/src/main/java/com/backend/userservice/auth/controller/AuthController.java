@@ -13,6 +13,7 @@ import com.backend.userservice.auth.service.dto.AuthDto.GoogleRequest;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -22,7 +23,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @Tag(name = "02. 로그인 관련 API")
-@RequestMapping(value = "/auth/v1")
+@RequestMapping(value = "/auth/v1", produces = MediaType.APPLICATION_JSON_VALUE)
 @RestController
 @RequiredArgsConstructor
 public class AuthController {
@@ -32,7 +33,7 @@ public class AuthController {
     private final GoogleIdTokenVerifierService googleIdTokenVerifierService;
 
     @Operation(summary = "직접 가입한 계정으로 로그인")
-    @PostMapping("/auth/login")
+    @PostMapping(value = "/auth/login", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<LoginDto.LoginResponse> login(@RequestBody PasswordRequest loginRequest) {
         AuthDto.PasswordRequest passwordRequest = AuthDto.PasswordRequest.of(loginRequest.loginId(), loginRequest.getDecodedPassword());
         AuthDto.Response login = authService.loginWithPassword(passwordRequest);

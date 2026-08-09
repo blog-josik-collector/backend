@@ -10,6 +10,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -22,7 +23,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @Tag(name = "02. 수집 소스 관리 API")
-@RequestMapping(value = "/collect/v1")
+@RequestMapping(value = "/collect/v1", produces = MediaType.APPLICATION_JSON_VALUE)
 @RestController
 @RequiredArgsConstructor
 public class CollectSourceController {
@@ -30,7 +31,7 @@ public class CollectSourceController {
     private final CollectSourceService collectSourceService;
 
     @Operation(summary = "수집 소스 등록")
-    @PostMapping("/sources")
+    @PostMapping(value = "/sources", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<CollectSourceCreateDto.Response> create(@RequestBody CollectSourceCreateDto.Request request) {
 
         CollectSourceDto collectSourceDto = CollectSourceDto.of(request.providerId(),
@@ -62,7 +63,7 @@ public class CollectSourceController {
     }
 
     @Operation(summary = "수집 소스 수정")
-    @PatchMapping("/sources/{id}")
+    @PatchMapping(value = "/sources/{id}", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<CollectSourceUpdateDto.Response> update(@PathVariable UUID id,
                                                                   @RequestBody CollectSourceUpdateDto.Request request) {
 

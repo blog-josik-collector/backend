@@ -6,14 +6,15 @@ import com.backend.commondataaccess.security.jwt.JwtAuthenticationConverter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.web.access.AccessDeniedHandler;
-import org.springframework.security.web.AuthenticationEntryPoint;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
@@ -46,6 +47,11 @@ public class SecurityConfig {
                         .requestMatchers("/api/heartbeat",
                                          "/interaction/swagger-ui/**",
                                          "/interaction/v3/api-docs/**").permitAll()
+                        .requestMatchers(HttpMethod.GET,
+                                         "/interaction/v1/postings",
+                                         "/interaction/v1/postings/{postId}",
+                                         "/interaction/v1/postings/{postId}/comments",
+                                         "/interaction/v1/comments/{commentId}/replies").permitAll()
                         .requestMatchers("/interaction/v1/admin/**").hasRole(UserType.ADMIN.name()) // 운영자만 사용가능
                         .requestMatchers("/interaction/v1/**").hasAnyRole(UserType.ADMIN.name(), UserType.USER.name()) // 인증된 사용자만 사용가능
                         .anyRequest().authenticated()

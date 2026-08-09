@@ -7,6 +7,7 @@ import com.backend.integratedapi.elasticsearchindex.controller.dto.Elasticsearch
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -18,7 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
  * {@code /index/v1/**} 는 ADMIN 권한 필요(SecurityConfig).
  */
 @Tag(name = "05. Elasticsearch 인덱스 관리 API")
-@RequestMapping(value = "/index/v1/elasticsearch")
+@RequestMapping(value = "/index/v1/elasticsearch", produces = MediaType.APPLICATION_JSON_VALUE)
 @RestController
 @RequiredArgsConstructor
 public class ElasticsearchIndexAdminController {

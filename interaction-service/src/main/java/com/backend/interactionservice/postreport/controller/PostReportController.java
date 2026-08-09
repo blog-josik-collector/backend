@@ -17,6 +17,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -28,7 +29,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @Tag(name = "05. 게시글 신고 API")
-@RequestMapping("/interaction/v1")
+@RequestMapping(value = "/interaction/v1", produces = MediaType.APPLICATION_JSON_VALUE)
 @RestController
 @RequiredArgsConstructor
 public class PostReportController {
@@ -39,7 +40,7 @@ public class PostReportController {
      * 1. 게시글 신고 등록. 인증된 사용자 누구나 신고할 수 있다.
      */
     @Operation(summary = "게시글 신고(게시글이 이상해요) 등록")
-    @PostMapping("/postings/{postId}/reports")
+    @PostMapping(value = "/postings/{postId}/reports", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<PostReportCreateDto.Response> createReport(@PathVariable UUID postId,
                                                                      @RequestBody PostReportCreateDto.Request request,
                                                                      @CurrentUser JwtPrincipal principal) {
@@ -72,7 +73,7 @@ public class PostReportController {
      * 4. 게시글 신고 상태 변경 (관리자). PENDING 신고를 RESOLVED_DELETED 또는 REJECTED_KEEP 으로만 변경 가능.
      */
     @Operation(summary = "게시글 신고 상태 변경")
-    @PatchMapping("/admin/reports/postings/{reportId}")
+    @PatchMapping(value = "/admin/reports/postings/{reportId}", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<PostReportUpdateDto.Response> changeStatus(@PathVariable UUID reportId,
                                                                      @RequestBody PostReportUpdateDto.Request request) {
 

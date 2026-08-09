@@ -10,6 +10,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -22,7 +23,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @Tag(name = "01. Provider 관리 API")
-@RequestMapping(value = "/collect/v1")
+@RequestMapping(value = "/collect/v1", produces = MediaType.APPLICATION_JSON_VALUE)
 @RestController
 @RequiredArgsConstructor
 public class PostProviderController {
@@ -30,7 +31,7 @@ public class PostProviderController {
     private final PostProviderService postProviderService;
 
     @Operation(summary = "Provider 등록")
-    @PostMapping("/providers")
+    @PostMapping(value = "/providers", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<PostProviderCreateDto.Response> create(@RequestBody PostProviderCreateDto.Request request) {
 
         PostProviderDto postProviderDto = PostProviderDto.of(request.name(), request.baseUrl(), request.description());
@@ -58,7 +59,7 @@ public class PostProviderController {
     }
 
     @Operation(summary = "Provider 수정")
-    @PatchMapping("/providers/{id}")
+    @PatchMapping(value = "/providers/{id}", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<PostProviderUpdateDto.Response> update(@PathVariable UUID id,
                                                                  @RequestBody PostProviderUpdateDto.Request request) {
 
