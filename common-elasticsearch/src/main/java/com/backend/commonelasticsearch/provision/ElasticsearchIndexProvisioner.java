@@ -8,9 +8,6 @@ import com.backend.commondataaccess.exception.InfraException;
 import com.backend.commonelasticsearch.client.ApplicationElasticsearchClient;
 import com.backend.commonelasticsearch.config.ElasticsearchProperties;
 import com.backend.commonelasticsearch.operation.ElasticsearchOperation;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import jakarta.json.stream.JsonParser;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
@@ -21,15 +18,13 @@ import java.util.Comparator;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.core.io.Resource;
-import org.springframework.core.io.ResourceLoader;
 import org.springframework.stereotype.Component;
 
 /**
  * 물리 인덱스 생성 / alias 연결 / 재색인 + 원자적 alias 스왑을 담당하는 프로비저너. <br>
  * - 애플리케이션은 alias({@code elasticsearch.index-alias})만 바라보고, 물리 인덱스명은 이 클래스가 관리한다. <br>
  * - 물리 인덱스명 규칙: {@code <alias>-<yyMMddHHmmss>} (예: {@code techblog-posts-260806142530}). <br>
- * - 매핑/세팅 정의는 {@code elasticsearch.provisioning.definition-location} JSON 을 단일 소스로 사용한다.
+ * - 매핑/세팅 정의는 {@code elasticsearch.provisioning.definition-location} JSON 과 형제 사전/동의어 파일을 사용한다.
  */
 @Slf4j
 @Component
@@ -37,12 +32,10 @@ import org.springframework.stereotype.Component;
 public class ElasticsearchIndexProvisioner {
 
     private static final DateTimeFormatter INDEX_TIMESTAMP = DateTimeFormatter.ofPattern("yyMMddHHmmss");
-    private static final String REPLICAS_FIELD = "number_of_replicas";
 
     private final ApplicationElasticsearchClient applicationElasticsearchClient;
     private final ElasticsearchProperties properties;
-    private final ResourceLoader resourceLoader;
-    private final ObjectMapper objectMapper;
+    private final IndexDefinitionAssembler indexDefinitionAssembler;
 
     /**
      * 애플리케이션이 사용하는 alias 이름.
@@ -148,20 +141,11 @@ public class ElasticsearchIndexProvisioner {
     }
 
     /**
-     * 정의 JSON 을 읽어 {@code settings.index.number_of_replicas} 를 환경별 설정값으로 덮어쓴 문자열을 반환한다.
+     * 정의 JSON + 사전/동의어 파일을 합치고, {@code settings.index.number_of_replicas} 를 환경값으로 덮어쓴다.
      */
     private String definitionJsonWithReplicaOverride() {
-        Resource resource = resourceLoader.getResource(properties.provisioning().definitionLocation());
-        try (InputStream in = resource.getInputStream()) {
-            JsonNode root = objectMapper.readTree(in);
-            JsonNode indexNode = root.path("settings").path("index");
-            if (indexNode instanceof ObjectNode objectNode) {
-                objectNode.put(REPLICAS_FIELD, properties.provisioning().numberOfReplicas());
-            }
-            return objectMapper.writeValueAsString(root);
-        } catch (Exception e) {
-            throw new InfraException(ErrorCode.IE_ELASTICSEARCH_ERROR,
-                                     "인덱스 정의 로드 실패: " + properties.provisioning().definitionLocation(), e);
-        }
+        return indexDefinitionAssembler.assemble(
+                properties.provisioning().definitionLocation(),
+                properties.provisioning().numberOfReplicas());
     }
 }

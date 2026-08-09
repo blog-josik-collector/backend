@@ -22,10 +22,15 @@
 매핑/세팅 정의를 코드 리포지토리에 두어 변경 이력을 git 으로 추적하고, 로컬/운영/스크립트가 **같은 파일**을 참조합니다.
 
 ```
-common-elasticsearch/src/main/resources/elasticsearch/techblog-posts.json
+common-elasticsearch/src/main/resources/elasticsearch/
+  techblog-posts.json              # settings + mappings
+  techblog-user-dictionary.txt     # Nori 사용자 사전(회사명·기술 용어)
+  techblog-synonyms.txt            # 검색용 동의어(영문/한글/약어)
 ```
 
-- `settings`(shards, analysis-nori 분석기) + `mappings`(필드 정의)를 함께 담은 순수 JSON.
+- `techblog-posts.json` 은 `settings`(shards, analysis) + `mappings` 를 담는다.
+- 사용자 사전/동의어는 JSON 인라인이 아니라 **별도 텍스트 파일**로 관리한다. 프로비저너·운영 스크립트가 생성 직전에 JSON의 `*_file` 참조를 배열로 치환한다.
+- `title` / `summary` 는 색인용 `tech_blog_analyzer` 와 검색용 `tech_blog_search_analyzer`(동의어 포함)를 분리한다.
 - `number_of_replicas` 값은 파일에도 있지만, **자동 부트스트랩 경로에서는 환경 설정값으로 덮어씁니다**(아래 3장).
 
 ### 축2 — alias 로 참조 + 물리명 timestamp
@@ -162,11 +167,11 @@ docker-backend/elasticsearch/scripts/manage-index.sh
 |------|:----------------------:|-----------|
 | 새 필드 추가 (예: 카운트 필드) | 가능 | `PUT _mapping` (무중단) |
 | `number_of_replicas` 변경 | 가능(동적) | `PUT _settings` |
-| `analyzer` / `tokenizer` / `user_dictionary_rules` 변경 | **불가** | 새 인덱스 + `_reindex` + alias 스왑 |
+| `analyzer` / `tokenizer` / 사용자 사전 / 동의어 변경 | **불가** | 새 인덱스 + `_reindex` + alias 스왑 |
 | 필드 타입 변경 (예: keyword→text) | **불가** | 위와 동일 |
 | `number_of_shards` 변경 | **불가** | 위와 동일 |
 
-> Nori 사용자 사전(`user_dictionary_rules`: 카카오뱅크, 스프링부트 …)을 갱신하면 **기존 문서에는 소급 적용되지 않습니다.** 신규 사전을 기존 글에도 반영하려면 재색인이 필요합니다. 그래서 alias+버전 전략이 중요합니다.
+> 사용자 사전(`techblog-user-dictionary.txt`)·동의어(`techblog-synonyms.txt`)는 인덱스 생성 시 settings 에 고정됩니다. 갱신 후 기존 글에도 반영하려면 재색인이 필요합니다(동의어는 search analyzer 쪽이라 이론상 검색 시점 확장이지만, ES 분석기 정의 자체는 인덱스에 묶이므로 동일하게 재색인 경로를 씁니다).
 
 ---
 
@@ -174,7 +179,10 @@ docker-backend/elasticsearch/scripts/manage-index.sh
 
 | 경로 | 역할 |
 |------|------|
-| `common-elasticsearch/src/main/resources/elasticsearch/techblog-posts.json` | 매핑/세팅 단일 소스(축1) |
+| `common-elasticsearch/src/main/resources/elasticsearch/techblog-posts.json` | 매핑/세팅 정의(축1) |
+| `common-elasticsearch/src/main/resources/elasticsearch/techblog-user-dictionary.txt` | Nori 사용자 사전 |
+| `common-elasticsearch/src/main/resources/elasticsearch/techblog-synonyms.txt` | 검색 동의어 |
+| `common-elasticsearch/.../provision/IndexDefinitionAssembler.java` | 정의 JSON + 사전/동의어 병합 |
 | `common-elasticsearch/.../config/ElasticsearchProperties.java` | `index-alias` + `provisioning` 바인딩 |
 | `common-elasticsearch/.../provision/ElasticsearchIndexProvisioner.java` | 생성/재색인/스왑/조회 핵심 로직 |
 | `common-elasticsearch/.../provision/ProvisionResult.java`, `ReindexResult.java` | 결과 DTO |

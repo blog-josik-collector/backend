@@ -2,7 +2,9 @@
 #
 # techblog-posts alias 기반 인덱스 관리 스크립트 (운영/수동 실행용)
 #
-# 매핑/세팅 단일 소스: common-elasticsearch/src/main/resources/elasticsearch/techblog-posts.json
+# 매핑/세팅 소스:
+#   common-elasticsearch/src/main/resources/elasticsearch/techblog-posts.json
+#   + techblog-user-dictionary.txt / techblog-synonyms.txt (정의 JSON 과 같은 디렉터리)
 # alias 는 techblog-posts, 물리 인덱스는 techblog-posts-<yyMMddHHmmss> 로 생성한다.
 #
 # 사용법:
@@ -24,6 +26,9 @@ ES_ALIAS="${ES_ALIAS:-techblog-posts}"
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 DEFINITION_FILE="${DEFINITION_FILE:-$SCRIPT_DIR/../../../common-elasticsearch/src/main/resources/elasticsearch/techblog-posts.json}"
+DEFINITION_DIR="$(cd "$(dirname "$DEFINITION_FILE")" && pwd)"
+USER_DICT_FILE="${USER_DICT_FILE:-$DEFINITION_DIR/techblog-user-dictionary.txt}"
+SYNONYMS_FILE="${SYNONYMS_FILE:-$DEFINITION_DIR/techblog-synonyms.txt}"
 
 for bin in curl jq; do
   if ! command -v "$bin" >/dev/null 2>&1; then
@@ -34,6 +39,14 @@ done
 
 if [[ ! -f "$DEFINITION_FILE" ]]; then
   echo "[ERROR] 인덱스 정의 파일을 찾을 수 없습니다: $DEFINITION_FILE" >&2
+  exit 1
+fi
+if [[ ! -f "$USER_DICT_FILE" ]]; then
+  echo "[ERROR] 사용자 사전 파일을 찾을 수 없습니다: $USER_DICT_FILE" >&2
+  exit 1
+fi
+if [[ ! -f "$SYNONYMS_FILE" ]]; then
+  echo "[ERROR] 동의어 사전 파일을 찾을 수 없습니다: $SYNONYMS_FILE" >&2
   exit 1
 fi
 
@@ -65,10 +78,42 @@ current_index() {
   echo "$resp" | jq -r 'keys | sort | last // empty'
 }
 
+# 주석/빈 줄을 제외한 사전 라인을 JSON 문자열 배열로 변환
+lines_to_json_array() {
+  local file="$1"
+  grep -vE '^\s*(#|$)' "$file" \
+    | sed -E 's/^[[:space:]]+//; s/[[:space:]]+$//' \
+    | jq -R . \
+    | jq -s .
+}
+
+# 정의 JSON 에 사용자 사전/동의어를 주입한 create-index body 를 stdout 으로 출력
+assemble_definition() {
+  local rules synonyms
+  rules="$(lines_to_json_array "$USER_DICT_FILE")"
+  synonyms="$(lines_to_json_array "$SYNONYMS_FILE")"
+  if [[ "$(echo "$rules" | jq 'length')" -eq 0 ]]; then
+    echo "[ERROR] 사용자 사전이 비어 있습니다: $USER_DICT_FILE" >&2
+    exit 1
+  fi
+  if [[ "$(echo "$synonyms" | jq 'length')" -eq 0 ]]; then
+    echo "[ERROR] 동의어 사전이 비어 있습니다: $SYNONYMS_FILE" >&2
+    exit 1
+  fi
+
+  jq --argjson rules "$rules" --argjson synonyms "$synonyms" '
+    .settings.analysis.tokenizer.nori_tech_tokenizer |=
+      (del(.user_dictionary_rules_file) | .user_dictionary_rules = $rules)
+    |
+    .settings.analysis.filter.tech_synonym_filter |=
+      (del(.synonyms_file) | .synonyms = $synonyms)
+  ' "$DEFINITION_FILE"
+}
+
 create_physical_index() {
   local index="$1"
   echo "[INFO] 물리 인덱스 생성: ${index}"
-  curl_es PUT "/${index}" --data-binary "@${DEFINITION_FILE}" >/dev/null
+  curl_es PUT "/${index}" --data-binary "$(assemble_definition)" >/dev/null
   echo "[INFO] 생성 완료: ${index}"
 }
 
