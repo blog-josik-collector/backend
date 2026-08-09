@@ -101,22 +101,34 @@ public class JwtService {
         private Date exp;
 
         // JJWT의 JpaClaims를 우리 객체로 매핑
-        @SuppressWarnings("unchecked")
         private Claims(io.jsonwebtoken.Claims jjwtClaims) {
-            String authenticationIdStr = jjwtClaims.get("authenticationId", String.class);
-            this.authenticationId = (authenticationIdStr != null) ? UUID.fromString(authenticationIdStr) : null;
-
-            String userIdStr = jjwtClaims.get("userId", String.class);
-            this.userId = (authenticationIdStr != null) ? UUID.fromString(userIdStr) : null;
+            this.authenticationId = requiredUuid(jjwtClaims, "authenticationId");
+            this.userId = requiredUuid(jjwtClaims, "userId");
             this.nickname = jjwtClaims.get("nickname", String.class);
 
             Object rolesObj = jjwtClaims.get("roles");
-            if (rolesObj instanceof List) {
-                this.roles = ((List<String>) rolesObj).toArray(new String[0]);
+            if (!(rolesObj instanceof List<?> rolesList) || rolesList.isEmpty()) {
+                throw new UnauthorizedException();
             }
+
+            this.roles = rolesList.stream()
+                                  .map(String::valueOf)
+                                  .toArray(String[]::new);
 
             this.iat = jjwtClaims.getIssuedAt();
             this.exp = jjwtClaims.getExpiration();
+        }
+
+        private static UUID requiredUuid(io.jsonwebtoken.Claims jjwtClaims, String name) {
+            String value = jjwtClaims.get(name, String.class);
+            if (value == null) {
+                throw new UnauthorizedException();
+            }
+            try {
+                return UUID.fromString(value);
+            } catch (IllegalArgumentException e) {
+                throw new UnauthorizedException();
+            }
         }
 
         public static Claims of(UserAuthentication userAuthentication, String[] roles) {

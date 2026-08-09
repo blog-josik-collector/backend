@@ -84,7 +84,7 @@ class CollectingJobControllerTest {
         org.assertj.core.api.Assertions.assertThat(captured.sourceId()).isEqualTo(sourceId);
         org.assertj.core.api.Assertions.assertThat(captured.fromPage()).isEqualTo(2);
         org.assertj.core.api.Assertions.assertThat(captured.toPage()).isEqualTo(7);
-        org.assertj.core.api.Assertions.assertThat(captured.userId()).isNotNull();
+        org.assertj.core.api.Assertions.assertThat(captured.userId()).isEqualTo(MockJwtPrincipalResolver.USER_ID);
     }
 
     @Test

@@ -6,8 +6,7 @@ import com.backend.commondataaccess.security.jwt.JwtAuthenticationConverter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.web.access.AccessDeniedHandler;
-import org.springframework.security.web.AuthenticationEntryPoint;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
@@ -15,7 +14,9 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
@@ -51,14 +52,14 @@ public class SecurityConfig {
                         .accessDeniedHandler(accessDeniedHandler))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/heartbeat",
-                                         "/user/v1/users/**",
                                          "/user/v1/admins",
                                          "/auth/v1/auth/login",
                                          "/auth/v1/oauth/google/callback",
                                          "/users/swagger-ui/**",
                                          "/users/v3/api-docs/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/user/v1/users").permitAll()
                         .requestMatchers("/api/admin/**").hasRole(UserType.ADMIN.name()) // 운영진
-                        .requestMatchers("/user/v1/**").hasRole(UserType.USER.name())    // 일반 회원
+                        .requestMatchers("/user/v1/**").hasAnyRole(UserType.ADMIN.name(), UserType.USER.name()) // 인증된 사용자만 사용가능
                         .anyRequest().authenticated()
                 )
                 .formLogin(AbstractHttpConfigurer::disable)

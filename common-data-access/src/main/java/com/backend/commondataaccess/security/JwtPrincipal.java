@@ -14,7 +14,7 @@ import lombok.RequiredArgsConstructor;
 @Getter
 @Builder
 @RequiredArgsConstructor
-public class JwtPrincipal {
+public final class JwtPrincipal {
 
     private final UUID id;
     private final UUID userId;

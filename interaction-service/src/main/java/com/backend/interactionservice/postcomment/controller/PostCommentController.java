@@ -1,6 +1,7 @@
 package com.backend.interactionservice.postcomment.controller;
 
 import com.backend.commondataaccess.dto.OffsetPageResult;
+import com.backend.commondataaccess.security.CurrentUser;
 import com.backend.commondataaccess.security.JwtPrincipal;
 import com.backend.interactionservice.postcomment.controller.dto.PostCommentCreateDto;
 import com.backend.interactionservice.postcomment.controller.dto.PostCommentReadDto;
@@ -14,7 +15,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -39,7 +39,7 @@ public class PostCommentController {
     @PostMapping("/postings/{postId}/comments")
     public ResponseEntity<PostCommentCreateDto.Response> createComment(@PathVariable UUID postId,
                                                                        @RequestBody PostCommentCreateDto.Request request,
-                                                                       @AuthenticationPrincipal JwtPrincipal principal) {
+                                                                       @CurrentUser JwtPrincipal principal) {
 
         PostCommentDto postCommentDto = postCommentService.createComment(principal.getUserId(), postId, request.content());
         PostCommentCreateDto.Response response = PostCommentCreateDto.Response.from(postCommentDto);
@@ -64,7 +64,7 @@ public class PostCommentController {
     @PatchMapping("/comments/{commentId}")
     public ResponseEntity<PostCommentUpdateDto.Response> updateComment(@PathVariable UUID commentId,
                                                                        @RequestBody PostCommentUpdateDto.Request request,
-                                                                       @AuthenticationPrincipal JwtPrincipal principal) {
+                                                                       @CurrentUser JwtPrincipal principal) {
 
         PostCommentDto postCommentDto = postCommentService.updateComment(principal.getUserId(), commentId, request.content());
         PostCommentUpdateDto.Response response = PostCommentUpdateDto.Response.from(postCommentDto);
@@ -77,7 +77,7 @@ public class PostCommentController {
     @Operation(summary = "댓글 삭제")
     @DeleteMapping("/comments/{commentId}")
     public ResponseEntity<Void> deleteComment(@PathVariable UUID commentId,
-                                              @AuthenticationPrincipal JwtPrincipal principal) {
+                                              @CurrentUser JwtPrincipal principal) {
 
         postCommentService.deleteComment(principal.getUserId(), commentId);
         return ResponseEntity.accepted().build();
@@ -90,7 +90,7 @@ public class PostCommentController {
     @PostMapping("/comments/{commentId}/replies")
     public ResponseEntity<PostCommentCreateDto.ReplyResponse> createReply(@PathVariable UUID commentId,
                                                                           @RequestBody PostCommentCreateDto.Request request,
-                                                                          @AuthenticationPrincipal JwtPrincipal principal) {
+                                                                          @CurrentUser JwtPrincipal principal) {
 
         PostCommentDto postCommentDto = postCommentService.createReply(principal.getUserId(), commentId, request.content());
         PostCommentCreateDto.ReplyResponse response = PostCommentCreateDto.ReplyResponse.of(commentId, postCommentDto);
@@ -115,7 +115,7 @@ public class PostCommentController {
     @PatchMapping("/replies/{replyId}")
     public ResponseEntity<PostCommentUpdateDto.Response> updateReply(@PathVariable UUID replyId,
                                                                      @RequestBody PostCommentUpdateDto.Request request,
-                                                                     @AuthenticationPrincipal JwtPrincipal principal) {
+                                                                     @CurrentUser JwtPrincipal principal) {
 
         PostCommentDto postCommentDto = postCommentService.updateReply(principal.getUserId(), replyId, request.content());
         PostCommentUpdateDto.Response response = PostCommentUpdateDto.Response.from(postCommentDto);
@@ -128,7 +128,7 @@ public class PostCommentController {
     @Operation(summary = "대댓글 삭제")
     @DeleteMapping("/replies/{replyId}")
     public ResponseEntity<Void> deleteReply(@PathVariable UUID replyId,
-                                            @AuthenticationPrincipal JwtPrincipal principal) {
+                                            @CurrentUser JwtPrincipal principal) {
 
         postCommentService.deleteReply(principal.getUserId(), replyId);
         return ResponseEntity.accepted().build();
@@ -140,7 +140,7 @@ public class PostCommentController {
     @Operation(summary = "내가 작성한 댓글/대댓글 조회")
     @GetMapping("/me/comments")
     public ResponseEntity<OffsetPageResult<PostCommentReadDto.Response>> getMyComments(@PageableDefault(size = 20) Pageable pageable,
-                                                                                       @AuthenticationPrincipal JwtPrincipal principal) {
+                                                                                       @CurrentUser JwtPrincipal principal) {
 
         return ResponseEntity.ok(postCommentService.getMyComments(principal.getUserId(), pageable).map(PostCommentReadDto.Response::from));
     }

@@ -2,6 +2,7 @@ package com.backend.integratedapi.indexingjob.controller;
 
 import com.backend.commondataaccess.dto.OffsetPageResult;
 import com.backend.commondataaccess.persistence.common.enums.JobStatus;
+import com.backend.commondataaccess.security.CurrentUser;
 import com.backend.commondataaccess.security.JwtPrincipal;
 import com.backend.integratedapi.indexingjob.controller.dto.IndexingJobReadDto;
 import com.backend.integratedapi.indexingjob.controller.dto.IndexingJobStartDto;
@@ -12,7 +13,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -30,7 +30,7 @@ public class IndexingJobController {
 
     @Operation(summary = "이 '수집 소스'에 포함된 전체 post 재색인")
     @PostMapping("/sources/{source-id}/_reindex")
-    public ResponseEntity<IndexingJobStartDto.Response> reindexSource(@AuthenticationPrincipal JwtPrincipal principal,
+    public ResponseEntity<IndexingJobStartDto.Response> reindexSource(@CurrentUser JwtPrincipal principal,
                                                                       @PathVariable("source-id") UUID sourceId) {
 
         UUID jobId = indexingJobService.triggerReindexByCollectSource(sourceId, principal.getUserId()).id();
@@ -39,7 +39,7 @@ public class IndexingJobController {
 
     @Operation(summary = "특정 post 1개 재색인")
     @PostMapping("/posts/{post-id}/_reindex")
-    public ResponseEntity<IndexingJobStartDto.Response> reindexPost(@AuthenticationPrincipal JwtPrincipal principal,
+    public ResponseEntity<IndexingJobStartDto.Response> reindexPost(@CurrentUser JwtPrincipal principal,
                                                                     @PathVariable("post-id") UUID postId) {
 
         UUID jobId = indexingJobService.triggerReindexByCollectSourcePost(postId, principal.getUserId()).id();

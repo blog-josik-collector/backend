@@ -1,6 +1,7 @@
 package com.backend.integratedapi.collectingjob.controller;
 
 import com.backend.commondataaccess.dto.OffsetPageResult;
+import com.backend.commondataaccess.security.CurrentUser;
 import com.backend.commondataaccess.security.JwtPrincipal;
 import com.backend.integratedapi.collectingjob.controller.dto.CollectingJobReadDto;
 import com.backend.integratedapi.collectingjob.controller.dto.CollectingJobStartDto;
@@ -13,7 +14,6 @@ import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -40,7 +40,7 @@ public class CollectingJobController {
             description = "MANUAL source는 1회 Job 생성 후 종료. CRON source는 자동 생성 사이클 활성화 + 첫 Job 생성."
     )
     @PostMapping("/sources/{source-id}/_start")
-    public ResponseEntity<CollectingJobStartDto.Response> start(@AuthenticationPrincipal JwtPrincipal authentication,
+    public ResponseEntity<CollectingJobStartDto.Response> start(@CurrentUser JwtPrincipal principal,
                                                                 @PathVariable("source-id") UUID sourceId,
                                                                 @RequestParam(value = "from_page", required = false) String fromPage,
                                                                 @RequestParam(value = "to_page", required = false) String toPage,
@@ -49,7 +49,7 @@ public class CollectingJobController {
         int from = StringUtils.isEmpty(fromPage) ? Integer.parseInt(defaultFromPage) : Integer.parseInt(fromPage);
         int to = StringUtils.isEmpty(toPage) ? Integer.parseInt(defaultToPage) : Integer.parseInt(toPage);
 
-        CollectingJobDto collectingJobDto = CollectingJobDto.of(sourceId, authentication.getUserId(), from, to, forceRecollect);
+        CollectingJobDto collectingJobDto = CollectingJobDto.of(sourceId, principal.getUserId(), from, to, forceRecollect);
         CollectingJobDto startedCollectingJobDto = collectingJobService.start(collectingJobDto);
 
         return ResponseEntity.ok(CollectingJobStartDto.Response.from(startedCollectingJobDto));

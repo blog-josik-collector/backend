@@ -1,5 +1,6 @@
 package com.backend.interactionservice.postlike.controller;
 
+import com.backend.commondataaccess.security.CurrentUser;
 import com.backend.commondataaccess.security.JwtPrincipal;
 import com.backend.interactionservice.postlike.service.PostLikeService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -7,7 +8,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -28,7 +28,7 @@ public class PostLikeController {
     @Operation(summary = "좋아요 등록")
     @PostMapping("/postings/{postId}/likes")
     public ResponseEntity<Void> like(@PathVariable UUID postId,
-                                     @AuthenticationPrincipal JwtPrincipal principal) {
+                                     @CurrentUser JwtPrincipal principal) {
         postLikeService.like(principal.getUserId(), postId);
         return ResponseEntity.accepted().build();
     }
@@ -39,7 +39,7 @@ public class PostLikeController {
     @Operation(summary = "좋아요 취소")
     @DeleteMapping("/postings/{postId}/likes")
     public ResponseEntity<Void> unLike(@PathVariable UUID postId,
-                                       @AuthenticationPrincipal JwtPrincipal principal) {
+                                       @CurrentUser JwtPrincipal principal) {
         postLikeService.unLike(principal.getUserId(), postId);
         return ResponseEntity.accepted().build();
     }

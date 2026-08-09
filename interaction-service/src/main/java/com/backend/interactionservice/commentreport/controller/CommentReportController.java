@@ -3,6 +3,7 @@ package com.backend.interactionservice.commentreport.controller;
 import com.backend.commondataaccess.dto.OffsetPageResult;
 import com.backend.commondataaccess.persistence.common.enums.CommentReportType;
 import com.backend.commondataaccess.persistence.common.enums.ReportStatus;
+import com.backend.commondataaccess.security.CurrentUser;
 import com.backend.commondataaccess.security.JwtPrincipal;
 import com.backend.interactionservice.commentreport.controller.dto.CommentReportCreateDto;
 import com.backend.interactionservice.commentreport.controller.dto.CommentReportUpdateDto;
@@ -17,7 +18,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -42,7 +42,7 @@ public class CommentReportController {
     @PostMapping("/comments/{commentId}/reports")
     public ResponseEntity<CommentReportCreateDto.Response> createReport(@PathVariable UUID commentId,
                                                                         @RequestBody CommentReportCreateDto.Request request,
-                                                                        @AuthenticationPrincipal JwtPrincipal principal) {
+                                                                        @CurrentUser JwtPrincipal principal) {
 
         CommentReportDto dto = commentReportService.createReport(principal.getUserId(), commentId, request.reportType(), request.content());
         return ResponseEntity.ok(CommentReportCreateDto.Response.from(dto));

@@ -20,10 +20,12 @@ import com.backend.userservice.user.service.dto.UserDto;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.Base64;
 import java.util.UUID;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
@@ -96,7 +98,7 @@ class UserControllerTest {
 
     @Test
     void 회원정보를_조회_한다() throws Exception {
-        Mockito.doReturn(mockUser).when(userService).getUser(any());
+        Mockito.doReturn(mockUser).when(userService).getUser(MockJwtPrincipalResolver.USER_ID);
 
         mockMvc.perform(get("/user/v1/users/me")
                                 .contentType(MediaType.APPLICATION_JSON))
@@ -123,6 +125,10 @@ class UserControllerTest {
                .andExpect(status().isOk())
                .andExpect(jsonPath("$.userId").value(mockUser.id().toString()))
                .andExpect(jsonPath("$.updatedAt").value(mockUser.updatedAt()));
+
+        ArgumentCaptor<UserDto> captor = ArgumentCaptor.forClass(UserDto.class);
+        Mockito.verify(userService).update(captor.capture());
+        Assertions.assertThat(captor.getValue().userId()).isEqualTo(MockJwtPrincipalResolver.USER_ID);
     }
 
     @Test
@@ -133,8 +139,8 @@ class UserControllerTest {
         String base64NewPassword = Base64.getEncoder().encodeToString(newPassword.getBytes());
         UserUpdateDto.PasswordRequest request = new UserUpdateDto.PasswordRequest(base64Password, base64NewPassword);
 
-        Mockito.doNothing().when(userService).updatePassword(any(), any(), any());
-        Mockito.doReturn(createResponseDto(mockUser)).when(userService).getUserDto(any(UUID.class));
+        Mockito.doNothing().when(userService).updatePassword(MockJwtPrincipalResolver.USER_ID, password, newPassword);
+        Mockito.doReturn(createResponseDto(mockUser)).when(userService).getUserDto(MockJwtPrincipalResolver.USER_ID);
 
         mockMvc.perform(patch("/user/v1/users/me/password")
                                 .content(objectMapper.writeValueAsString(request))
@@ -142,6 +148,8 @@ class UserControllerTest {
                .andExpect(status().isOk())
                .andExpect(jsonPath("$.userId").value(mockUser.id().toString()))
                .andExpect(jsonPath("$.updatedAt").value(mockUser.updatedAt()));
+
+        Mockito.verify(userService).updatePassword(MockJwtPrincipalResolver.USER_ID, password, newPassword);
     }
 
     @Test
@@ -149,20 +157,25 @@ class UserControllerTest {
         String accessToken = "eyJhbGciOiJIUzUxMiJ9.eyJpc3MiOiJibG9nLWpvc2lrLWNvbGxlY3RvciIsImlhdCI6MTc3NjE3NjU0MCwiZXhwIjoxNzc2MTgzNzQwLCJhdXRoZW50aWNhdGlvbklkIjoiODZjYzU1ZDItNjc1Yy00MDI0LWFhZjMtMjU4ZTQxNDg0YjEwIiwidXNlcklkIjoiZWYwOTZkOTUtMjkwNS00N2ZjLWI4ZjYtNjMyYTU5ZjRmNDk5Iiwibmlja25hbWUiOiLsiJzsiJjtlZxf66qo64ul67aIXzY0MDQ2Iiwicm9sZXMiOlsiVVNFUiJdfQ.MktJ7bTcJyySYwLzfm2HXkL-zr8lHg61Bd_FGRTyT3fukLC_RO9b7-ezyIEjI9WiaLChQuBXE5ed74S_5awbQA";
         UserMergeDto.Request request = new UserMergeDto.Request(accessToken);
 
-        Mockito.doNothing().when(userService).merge(any(), any());
+        Mockito.doNothing().when(userService).merge(MockJwtPrincipalResolver.AUTHENTICATION_ID, accessToken);
 
         mockMvc.perform(post("/user/v1/users/me/merge-oauth")
                                 .content(objectMapper.writeValueAsString(request))
                                 .contentType(MediaType.APPLICATION_JSON))
                .andExpect(status().isAccepted());
+
+        // merge 는 userId 가 아니라 authenticationId 를 넘겨야 한다.
+        Mockito.verify(userService).merge(MockJwtPrincipalResolver.AUTHENTICATION_ID, accessToken);
     }
 
     @Test
     void 회원탈퇴를_한다() throws Exception {
-        Mockito.doNothing().when(userService).delete(any(UUID.class));
+        Mockito.doNothing().when(userService).delete(MockJwtPrincipalResolver.USER_ID);
 
         mockMvc.perform(delete("/user/v1/users/me")
                                 .contentType(MediaType.APPLICATION_JSON))
                .andExpect(status().isAccepted());
+
+        Mockito.verify(userService).delete(MockJwtPrincipalResolver.USER_ID);
     }
 }

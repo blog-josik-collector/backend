@@ -20,7 +20,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
@@ -76,7 +75,8 @@ class IndexingJobControllerTest {
     void source_전체_재색인_작업을_시작한다() throws Exception {
         UUID sourceId = UUID.randomUUID();
 
-        Mockito.doReturn(mockIndexingJob).when(indexingJobService).triggerReindexByCollectSource(Mockito.eq(sourceId), any(UUID.class));
+        Mockito.doReturn(mockIndexingJob).when(indexingJobService)
+               .triggerReindexByCollectSource(sourceId, MockJwtPrincipalResolver.USER_ID);
 
         mockMvc.perform(post("/index/v1/sources/{source-id}/_reindex", sourceId)
                                 .contentType(MediaType.APPLICATION_JSON))
@@ -84,16 +84,15 @@ class IndexingJobControllerTest {
                .andExpect(jsonPath("$.jobId").value(mockIndexingJob.id().toString()))
                .andExpect(jsonPath("$.jobStatus").value(JobStatus.PENDING.getName()));
 
-        ArgumentCaptor<UUID> userIdCaptor = ArgumentCaptor.forClass(UUID.class);
-        Mockito.verify(indexingJobService).triggerReindexByCollectSource(Mockito.eq(sourceId), userIdCaptor.capture());
-        org.assertj.core.api.Assertions.assertThat(userIdCaptor.getValue()).isNotNull();
+        Mockito.verify(indexingJobService).triggerReindexByCollectSource(sourceId, MockJwtPrincipalResolver.USER_ID);
     }
 
     @Test
     void post_단건_재색인_작업을_시작한다() throws Exception {
         UUID postId = UUID.randomUUID();
 
-        Mockito.doReturn(mockIndexingJob).when(indexingJobService).triggerReindexByCollectSourcePost(Mockito.eq(postId), any(UUID.class));
+        Mockito.doReturn(mockIndexingJob).when(indexingJobService)
+               .triggerReindexByCollectSourcePost(postId, MockJwtPrincipalResolver.USER_ID);
 
         mockMvc.perform(post("/index/v1/posts/{post-id}/_reindex", postId)
                                 .contentType(MediaType.APPLICATION_JSON))
@@ -101,9 +100,7 @@ class IndexingJobControllerTest {
                .andExpect(jsonPath("$.jobId").value(mockIndexingJob.id().toString()))
                .andExpect(jsonPath("$.jobStatus").value(JobStatus.PENDING.getName()));
 
-        ArgumentCaptor<UUID> userIdCaptor = ArgumentCaptor.forClass(UUID.class);
-        Mockito.verify(indexingJobService).triggerReindexByCollectSourcePost(Mockito.eq(postId), userIdCaptor.capture());
-        org.assertj.core.api.Assertions.assertThat(userIdCaptor.getValue()).isNotNull();
+        Mockito.verify(indexingJobService).triggerReindexByCollectSourcePost(postId, MockJwtPrincipalResolver.USER_ID);
     }
 
     @Test

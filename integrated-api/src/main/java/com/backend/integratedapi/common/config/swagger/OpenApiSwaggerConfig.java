@@ -1,5 +1,6 @@
 package com.backend.integratedapi.common.config.swagger;
 
+import com.backend.commondataaccess.security.CurrentUser;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import io.swagger.v3.core.jackson.ModelResolver;
@@ -8,6 +9,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Info;
 import org.springdoc.core.models.GroupedOpenApi;
+import org.springdoc.core.utils.SpringDocUtils;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -18,6 +20,11 @@ import org.springframework.context.annotation.Configuration;
 )
 @Configuration
 public class OpenApiSwaggerConfig {
+
+    static {
+        // springdoc은 @AuthenticationPrincipal만 기본 무시하므로, 커스텀 애노테이션은 직접 등록해야 문서에 노출되지 않는다.
+        SpringDocUtils.getConfig().addAnnotationsToIgnore(CurrentUser.class);
+    }
 
     @Bean
     public ModelResolver modelResolver(ObjectMapper objectMapper) {

@@ -3,6 +3,7 @@ package com.backend.interactionservice.postreport.controller;
 import com.backend.commondataaccess.dto.OffsetPageResult;
 import com.backend.commondataaccess.persistence.common.enums.PostReportType;
 import com.backend.commondataaccess.persistence.common.enums.ReportStatus;
+import com.backend.commondataaccess.security.CurrentUser;
 import com.backend.commondataaccess.security.JwtPrincipal;
 import com.backend.interactionservice.postreport.controller.dto.PostReportCreateDto;
 import com.backend.interactionservice.postreport.controller.dto.PostReportUpdateDto;
@@ -17,7 +18,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -42,7 +42,7 @@ public class PostReportController {
     @PostMapping("/postings/{postId}/reports")
     public ResponseEntity<PostReportCreateDto.Response> createReport(@PathVariable UUID postId,
                                                                      @RequestBody PostReportCreateDto.Request request,
-                                                                     @AuthenticationPrincipal JwtPrincipal principal) {
+                                                                     @CurrentUser JwtPrincipal principal) {
 
         PostReportDto dto = postReportService.createReport(principal.getUserId(), postId, request.reportType(), request.content());
         return ResponseEntity.ok(PostReportCreateDto.Response.from(dto));

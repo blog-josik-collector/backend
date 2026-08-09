@@ -1,6 +1,7 @@
 package com.backend.interactionservice.post.controller;
 
 import com.backend.commondataaccess.dto.OffsetPageResult;
+import com.backend.commondataaccess.security.CurrentUser;
 import com.backend.commondataaccess.security.JwtPrincipal;
 import com.backend.interactionservice.post.repository.query.SearchCondition;
 import com.backend.interactionservice.post.service.PostService;
@@ -13,7 +14,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -39,7 +39,7 @@ public class PostController {
     public ResponseEntity<OffsetPageResult<PostListItem>> searchPostings(@RequestParam(required = false) String title,
                                                                          @RequestParam(required = false) String provider,
                                                                          @PageableDefault(size = 20) Pageable pageable,
-                                                                         @AuthenticationPrincipal JwtPrincipal principal) {
+                                                                         @CurrentUser(required = false) JwtPrincipal principal) {
 
         SearchCondition searchCondition = SearchCondition.builder()
                                                          .title(title)
@@ -62,7 +62,7 @@ public class PostController {
     @Operation(summary = "포스팅 한 건 조회 + 내 상호작용 상태")
     @GetMapping("/postings/{postId}")
     public ResponseEntity<PostListItem> searchPost(@PathVariable UUID postId,
-                                                   @AuthenticationPrincipal JwtPrincipal principal) {
+                                                   @CurrentUser(required = false) JwtPrincipal principal) {
 
         UUID userId = principal != null ? principal.getUserId() : null;
 
