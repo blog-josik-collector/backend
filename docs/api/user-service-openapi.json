@@ -1,0 +1,310 @@
+{
+    "components": {
+        "schemas": {
+            "LoginResponse": {
+                "description": "\ub85c\uadf8\uc778 \uc751\ub2f5",
+                "properties": {
+                    "access_token": {
+                        "description": "JWT \uc561\uc138\uc2a4 \ud1a0\ud070",
+                        "type": "string"
+                    }
+                }
+            },
+            "PasswordRequest": {
+                "description": "\ube44\ubc00\ubc88\ud638 \ub85c\uadf8\uc778 \uc694\uccad",
+                "properties": {
+                    "decoded_password": {
+                        "type": "string"
+                    },
+                    "login_id": {
+                        "description": "\ub85c\uadf8\uc778 ID",
+                        "example": "user@example.com",
+                        "type": "string"
+                    },
+                    "password": {
+                        "description": "Base64 \uc778\ucf54\ub529\ub41c \ube44\ubc00\ubc88\ud638",
+                        "example": "cGFzc3dvcmQ=",
+                        "type": "string"
+                    }
+                }
+            },
+            "Request": {
+                "description": "\ud68c\uc6d0\uac00\uc785 \uc694\uccad",
+                "properties": {
+                    "decoded_password": {
+                        "type": "string"
+                    },
+                    "decoded_password_confirm": {
+                        "type": "string"
+                    },
+                    "login_id": {
+                        "description": "\ub85c\uadf8\uc778 ID",
+                        "example": "user@example.com",
+                        "type": "string"
+                    },
+                    "nickname": {
+                        "description": "\ub2c9\ub124\uc784",
+                        "example": "cycy",
+                        "type": "string"
+                    },
+                    "password": {
+                        "description": "Base64 \uc778\ucf54\ub529\ub41c \ube44\ubc00\ubc88\ud638",
+                        "example": "cGFzc3dvcmQ=",
+                        "type": "string"
+                    },
+                    "password_confirm": {
+                        "description": "Base64 \uc778\ucf54\ub529\ub41c \ube44\ubc00\ubc88\ud638 \ud655\uc778",
+                        "example": "cGFzc3dvcmQ=",
+                        "type": "string"
+                    }
+                }
+            },
+            "Response": {
+                "description": "\ud68c\uc6d0\uac00\uc785 \uacb0\uacfc",
+                "properties": {
+                    "created_at": {
+                        "description": "\uac00\uc785 \uc2dc\uac01",
+                        "format": "date-time",
+                        "type": "string"
+                    },
+                    "user_id": {
+                        "description": "\uc0dd\uc131\ub41c \uc0ac\uc6a9\uc790 ID",
+                        "type": "string"
+                    }
+                }
+            }
+        }
+    },
+    "info": {
+        "description": "user-service REST API",
+        "title": "User Service API",
+        "version": "v1"
+    },
+    "openapi": "3.1.0",
+    "paths": {
+        "/auth/v1/auth/login": {
+            "post": {
+                "operationId": "login",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/PasswordRequest"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/LoginResponse"
+                                }
+                            }
+                        },
+                        "description": "OK"
+                    }
+                },
+                "summary": "\uc9c1\uc811 \uac00\uc785\ud55c \uacc4\uc815\uc73c\ub85c \ub85c\uadf8\uc778",
+                "tags": [
+                    "02. \ub85c\uadf8\uc778 \uad00\ub828 API"
+                ]
+            }
+        },
+        "/auth/v1/oauth/google/callback": {
+            "get": {
+                "operationId": "oauthGoogleCallback",
+                "parameters": [
+                    {
+                        "in": "query",
+                        "name": "code",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/LoginResponse"
+                                }
+                            }
+                        },
+                        "description": "OK"
+                    }
+                },
+                "summary": "SNS \uacc4\uc815\uc73c\ub85c \ub85c\uadf8\uc778(Google \ucf5c\ubc31 \u2014 code \uad50\ud658 \ud6c4 id_token \uac80\uc99d\u00b7\ud30c\uc2f1)",
+                "tags": [
+                    "02. \ub85c\uadf8\uc778 \uad00\ub828 API"
+                ]
+            }
+        },
+        "/user/v1/users": {
+            "post": {
+                "operationId": "create",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/Request"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Response"
+                                }
+                            }
+                        },
+                        "description": "OK"
+                    }
+                },
+                "summary": "\uc9c1\uc811 \ud68c\uc6d0\uac00\uc785",
+                "tags": [
+                    "01. \ud68c\uc6d0\uc815\ubcf4 \uad00\ub828 API"
+                ]
+            }
+        },
+        "/user/v1/users/me": {
+            "delete": {
+                "operationId": "delete",
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                },
+                "summary": "\ud68c\uc6d0\ud0c8\ud1f4",
+                "tags": [
+                    "01. \ud68c\uc6d0\uc815\ubcf4 \uad00\ub828 API"
+                ]
+            },
+            "get": {
+                "operationId": "getMe",
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Response"
+                                }
+                            }
+                        },
+                        "description": "OK"
+                    }
+                },
+                "summary": "\ud68c\uc6d0\uc815\ubcf4 \uc870\ud68c(\ub0b4 \uc815\ubcf4 \uc870\ud68c)",
+                "tags": [
+                    "01. \ud68c\uc6d0\uc815\ubcf4 \uad00\ub828 API"
+                ]
+            },
+            "patch": {
+                "operationId": "update",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/Request"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Response"
+                                }
+                            }
+                        },
+                        "description": "OK"
+                    }
+                },
+                "summary": "\ud68c\uc6d0\uc815\ubcf4 \uc218\uc815(\ub0b4 \uc815\ubcf4 \uc218\uc815)",
+                "tags": [
+                    "01. \ud68c\uc6d0\uc815\ubcf4 \uad00\ub828 API"
+                ]
+            }
+        },
+        "/user/v1/users/me/merge-oauth": {
+            "post": {
+                "operationId": "merge",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/Request"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                },
+                "summary": "\ud68c\uc6d0\uc815\ubcf4 \ud1b5\ud569",
+                "tags": [
+                    "01. \ud68c\uc6d0\uc815\ubcf4 \uad00\ub828 API"
+                ]
+            }
+        },
+        "/user/v1/users/me/password": {
+            "patch": {
+                "operationId": "updatePassword",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/PasswordRequest"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Response"
+                                }
+                            }
+                        },
+                        "description": "OK"
+                    }
+                },
+                "summary": "\ube44\ubc00\ubc88\ud638 \uc218\uc815(\ub0b4 \uc815\ubcf4 \uc218\uc815)",
+                "tags": [
+                    "01. \ud68c\uc6d0\uc815\ubcf4 \uad00\ub828 API"
+                ]
+            }
+        }
+    },
+    "servers": [
+        {
+            "description": "Generated server url",
+            "url": "http://localhost:8080"
+        }
+    ],
+    "tags": [
+        {
+            "name": "01. \ud68c\uc6d0\uc815\ubcf4 \uad00\ub828 API"
+        },
+        {
+            "name": "02. \ub85c\uadf8\uc778 \uad00\ub828 API"
+        }
+    ]
+}

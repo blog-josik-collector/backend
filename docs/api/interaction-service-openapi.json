@@ -1,0 +1,1596 @@
+{
+    "components": {
+        "schemas": {
+            "com.backend.commondataaccess.dto.OffsetPageResultCom.backend.interactionservice.commentreport.service.dto.CommentReportDto": {
+                "description": "\uc624\ud504\uc14b \uae30\ubc18 \ud398\uc774\uc9d5 \uc751\ub2f5",
+                "properties": {
+                    "items": {
+                        "description": "\ud604\uc7ac \ud398\uc774\uc9c0 \ud56d\ubaa9 \ubaa9\ub85d",
+                        "items": {
+                            "$ref": "#/components/schemas/com.backend.interactionservice.commentreport.service.dto.CommentReportDto"
+                        },
+                        "type": "array"
+                    },
+                    "page": {
+                        "description": "\ud604\uc7ac \ud398\uc774\uc9c0 \ubc88\ud638(0\ubd80\ud130 \uc2dc\uc791)",
+                        "example": 0,
+                        "format": "int32",
+                        "type": "integer"
+                    },
+                    "size": {
+                        "description": "\ud398\uc774\uc9c0 \ud06c\uae30",
+                        "example": 20,
+                        "format": "int32",
+                        "type": "integer"
+                    },
+                    "total_count": {
+                        "description": "\uc804\uccb4 \uac74\uc218",
+                        "example": 95,
+                        "format": "int64",
+                        "type": "integer"
+                    }
+                }
+            },
+            "com.backend.commondataaccess.dto.OffsetPageResultCom.backend.interactionservice.post.service.dto.PostDocument": {
+                "description": "\uc624\ud504\uc14b \uae30\ubc18 \ud398\uc774\uc9d5 \uc751\ub2f5",
+                "properties": {
+                    "items": {
+                        "description": "\ud604\uc7ac \ud398\uc774\uc9c0 \ud56d\ubaa9 \ubaa9\ub85d",
+                        "items": {
+                            "$ref": "#/components/schemas/com.backend.interactionservice.post.service.dto.PostDocument"
+                        },
+                        "type": "array"
+                    },
+                    "page": {
+                        "description": "\ud604\uc7ac \ud398\uc774\uc9c0 \ubc88\ud638(0\ubd80\ud130 \uc2dc\uc791)",
+                        "example": 0,
+                        "format": "int32",
+                        "type": "integer"
+                    },
+                    "size": {
+                        "description": "\ud398\uc774\uc9c0 \ud06c\uae30",
+                        "example": 20,
+                        "format": "int32",
+                        "type": "integer"
+                    },
+                    "total_count": {
+                        "description": "\uc804\uccb4 \uac74\uc218",
+                        "example": 95,
+                        "format": "int64",
+                        "type": "integer"
+                    }
+                }
+            },
+            "com.backend.commondataaccess.dto.OffsetPageResultCom.backend.interactionservice.post.service.dto.PostListItem": {
+                "description": "\uc624\ud504\uc14b \uae30\ubc18 \ud398\uc774\uc9d5 \uc751\ub2f5",
+                "properties": {
+                    "items": {
+                        "description": "\ud604\uc7ac \ud398\uc774\uc9c0 \ud56d\ubaa9 \ubaa9\ub85d",
+                        "items": {
+                            "$ref": "#/components/schemas/com.backend.interactionservice.post.service.dto.PostListItem"
+                        },
+                        "type": "array"
+                    },
+                    "page": {
+                        "description": "\ud604\uc7ac \ud398\uc774\uc9c0 \ubc88\ud638(0\ubd80\ud130 \uc2dc\uc791)",
+                        "example": 0,
+                        "format": "int32",
+                        "type": "integer"
+                    },
+                    "size": {
+                        "description": "\ud398\uc774\uc9c0 \ud06c\uae30",
+                        "example": 20,
+                        "format": "int32",
+                        "type": "integer"
+                    },
+                    "total_count": {
+                        "description": "\uc804\uccb4 \uac74\uc218",
+                        "example": 95,
+                        "format": "int64",
+                        "type": "integer"
+                    }
+                }
+            },
+            "com.backend.commondataaccess.dto.OffsetPageResultCom.backend.interactionservice.postcomment.controller.dto.PostCommentReadDto.Response": {
+                "description": "\uc624\ud504\uc14b \uae30\ubc18 \ud398\uc774\uc9d5 \uc751\ub2f5",
+                "properties": {
+                    "items": {
+                        "description": "\ud604\uc7ac \ud398\uc774\uc9c0 \ud56d\ubaa9 \ubaa9\ub85d",
+                        "items": {
+                            "$ref": "#/components/schemas/com.backend.interactionservice.postcomment.controller.dto.PostCommentReadDto.Response"
+                        },
+                        "type": "array"
+                    },
+                    "page": {
+                        "description": "\ud604\uc7ac \ud398\uc774\uc9c0 \ubc88\ud638(0\ubd80\ud130 \uc2dc\uc791)",
+                        "example": 0,
+                        "format": "int32",
+                        "type": "integer"
+                    },
+                    "size": {
+                        "description": "\ud398\uc774\uc9c0 \ud06c\uae30",
+                        "example": 20,
+                        "format": "int32",
+                        "type": "integer"
+                    },
+                    "total_count": {
+                        "description": "\uc804\uccb4 \uac74\uc218",
+                        "example": 95,
+                        "format": "int64",
+                        "type": "integer"
+                    }
+                }
+            },
+            "com.backend.commondataaccess.dto.OffsetPageResultCom.backend.interactionservice.postreport.service.dto.PostReportDto": {
+                "description": "\uc624\ud504\uc14b \uae30\ubc18 \ud398\uc774\uc9d5 \uc751\ub2f5",
+                "properties": {
+                    "items": {
+                        "description": "\ud604\uc7ac \ud398\uc774\uc9c0 \ud56d\ubaa9 \ubaa9\ub85d",
+                        "items": {
+                            "$ref": "#/components/schemas/com.backend.interactionservice.postreport.service.dto.PostReportDto"
+                        },
+                        "type": "array"
+                    },
+                    "page": {
+                        "description": "\ud604\uc7ac \ud398\uc774\uc9c0 \ubc88\ud638(0\ubd80\ud130 \uc2dc\uc791)",
+                        "example": 0,
+                        "format": "int32",
+                        "type": "integer"
+                    },
+                    "size": {
+                        "description": "\ud398\uc774\uc9c0 \ud06c\uae30",
+                        "example": 20,
+                        "format": "int32",
+                        "type": "integer"
+                    },
+                    "total_count": {
+                        "description": "\uc804\uccb4 \uac74\uc218",
+                        "example": 95,
+                        "format": "int64",
+                        "type": "integer"
+                    }
+                }
+            },
+            "com.backend.interactionservice.commentreport.controller.dto.CommentReportCreateDto.Request": {
+                "description": "\ub313\uae00 \uc2e0\uace0 \ub4f1\ub85d \uc694\uccad",
+                "properties": {
+                    "content": {
+                        "description": "\uc2e0\uace0 \uc0c1\uc138 \uc0ac\uc720",
+                        "example": "\uad11\uace0\uc131 \ub313\uae00\uc785\ub2c8\ub2e4.",
+                        "type": "string"
+                    },
+                    "report_type": {
+                        "description": "\uc2e0\uace0 \uc720\ud615",
+                        "enum": [
+                            "political",
+                            "adult",
+                            "other"
+                        ],
+                        "type": "string"
+                    }
+                }
+            },
+            "com.backend.interactionservice.commentreport.controller.dto.CommentReportCreateDto.Response": {
+                "description": "\ub313\uae00 \uc2e0\uace0 \ub4f1\ub85d \uacb0\uacfc",
+                "properties": {
+                    "created_at": {
+                        "description": "\uc2e0\uace0 \uc811\uc218 \uc2dc\uac01",
+                        "format": "date-time",
+                        "type": "string"
+                    },
+                    "id": {
+                        "description": "\uc0dd\uc131\ub41c \uc2e0\uace0 ID",
+                        "format": "uuid",
+                        "type": "string"
+                    }
+                }
+            },
+            "com.backend.interactionservice.commentreport.controller.dto.CommentReportUpdateDto.Request": {
+                "description": "\ub313\uae00 \uc2e0\uace0 \uc0c1\ud0dc \ubcc0\uacbd \uc694\uccad",
+                "properties": {
+                    "status": {
+                        "description": "\ubcc0\uacbd\ud560 \ucc98\ub9ac \uc0c1\ud0dc. pending \uc0c1\ud0dc\uc758 \uc2e0\uace0\ub9cc resolved_deleted \ub610\ub294 rejected_keep \uc73c\ub85c \ubcc0\uacbd\ud560 \uc218 \uc788\ub2e4",
+                        "enum": [
+                            "pending",
+                            "resolved_deleted",
+                            "rejected_keep"
+                        ],
+                        "type": "string"
+                    }
+                }
+            },
+            "com.backend.interactionservice.commentreport.controller.dto.CommentReportUpdateDto.Response": {
+                "description": "\ub313\uae00 \uc2e0\uace0 \uc0c1\ud0dc \ubcc0\uacbd \uacb0\uacfc",
+                "properties": {
+                    "id": {
+                        "description": "\uc2e0\uace0 ID",
+                        "format": "uuid",
+                        "type": "string"
+                    },
+                    "status": {
+                        "description": "\ubcc0\uacbd\ub41c \ucc98\ub9ac \uc0c1\ud0dc",
+                        "enum": [
+                            "pending",
+                            "resolved_deleted",
+                            "rejected_keep"
+                        ],
+                        "type": "string"
+                    },
+                    "updated_at": {
+                        "description": "\ubcc0\uacbd \uc2dc\uac01",
+                        "format": "date-time",
+                        "type": "string"
+                    }
+                }
+            },
+            "com.backend.interactionservice.commentreport.service.dto.CommentReportDto": {
+                "description": "\ub313\uae00 \uc2e0\uace0 \ub0b4\uc5ed",
+                "properties": {
+                    "comment_id": {
+                        "description": "\uc2e0\uace0 \ub300\uc0c1 \ub313\uae00 ID",
+                        "format": "uuid",
+                        "type": "string"
+                    },
+                    "content": {
+                        "description": "\uc2e0\uace0 \uc0c1\uc138 \uc0ac\uc720",
+                        "type": "string"
+                    },
+                    "created_at": {
+                        "description": "\uc2e0\uace0 \uc811\uc218 \uc2dc\uac01",
+                        "format": "date-time",
+                        "type": "string"
+                    },
+                    "id": {
+                        "description": "\uc2e0\uace0 ID",
+                        "format": "uuid",
+                        "type": "string"
+                    },
+                    "report_type": {
+                        "description": "\uc2e0\uace0 \uc720\ud615",
+                        "enum": [
+                            "political",
+                            "adult",
+                            "other"
+                        ],
+                        "type": "string"
+                    },
+                    "reporter_id": {
+                        "description": "\uc2e0\uace0\uc790 ID",
+                        "format": "uuid",
+                        "type": "string"
+                    },
+                    "status": {
+                        "description": "\ucc98\ub9ac \uc0c1\ud0dc",
+                        "enum": [
+                            "pending",
+                            "resolved_deleted",
+                            "rejected_keep"
+                        ],
+                        "type": "string"
+                    },
+                    "updated_at": {
+                        "description": "\ucd5c\uc885 \ubcc0\uacbd \uc2dc\uac01",
+                        "format": "date-time",
+                        "type": "string"
+                    }
+                }
+            },
+            "com.backend.interactionservice.post.service.dto.PostDocument": {
+                "description": "\uc0c9\uc778\ub41c \uae30\uc220 \ube14\ub85c\uadf8 \ud3ec\uc2a4\ud305 \ubb38\uc11c",
+                "properties": {
+                    "comment_count": {
+                        "description": "\ub313\uae00 \uc218(\ub300\ub313\uae00 \ud3ec\ud568)",
+                        "example": 3,
+                        "format": "int32",
+                        "type": "integer"
+                    },
+                    "created_at": {
+                        "description": "\uc218\uc9d1 \uc2dc\uac01",
+                        "format": "date-time",
+                        "type": "string"
+                    },
+                    "id": {
+                        "description": "\ud3ec\uc2a4\ud305 ID",
+                        "example": "e00be928-87b4-4b07-9b2f-410a8d4b32b1",
+                        "format": "uuid",
+                        "type": "string"
+                    },
+                    "like_count": {
+                        "description": "\uc88b\uc544\uc694 \uc218",
+                        "example": 15,
+                        "format": "int32",
+                        "type": "integer"
+                    },
+                    "provider": {
+                        "description": "\ube14\ub85c\uadf8 \uc81c\uacf5\uc790",
+                        "example": "Toss",
+                        "type": "string"
+                    },
+                    "published_at": {
+                        "description": "\uc6d0\ubb38 \ubc1c\ud589\uc77c",
+                        "example": "2026-07-20",
+                        "format": "date",
+                        "type": "string"
+                    },
+                    "status": {
+                        "description": "\uac8c\uc2dc \uc0c1\ud0dc",
+                        "enum": [
+                            "active",
+                            "blocked",
+                            "deleted"
+                        ],
+                        "type": "string"
+                    },
+                    "summary": {
+                        "description": "\ubcf8\ubb38 \uc694\uc57d",
+                        "type": "string"
+                    },
+                    "thumbnail_url": {
+                        "description": "\uc378\ub124\uc77c \uc774\ubbf8\uc9c0 URL",
+                        "type": "string"
+                    },
+                    "title": {
+                        "description": "\ud3ec\uc2a4\ud305 \uc81c\ubaa9",
+                        "example": "Spring Boot\uc5d0\uc11c Clean Architecture \uc801\uc6a9\ud558\uae30",
+                        "type": "string"
+                    },
+                    "total_report_count": {
+                        "description": "\ub204\uc801 \uc2e0\uace0 \uc218",
+                        "example": 0,
+                        "format": "int32",
+                        "type": "integer"
+                    },
+                    "updated_at": {
+                        "description": "\ucd5c\uc885 \uc218\uc815 \uc2dc\uac01",
+                        "format": "date-time",
+                        "type": "string"
+                    },
+                    "url": {
+                        "description": "\uc6d0\ubb38 \ub9c1\ud06c",
+                        "example": "https://techblog.com/clean-architecture",
+                        "type": "string"
+                    },
+                    "view_count": {
+                        "description": "\uc870\ud68c\uc218",
+                        "example": 120,
+                        "format": "int32",
+                        "type": "integer"
+                    }
+                }
+            },
+            "com.backend.interactionservice.post.service.dto.PostListItem": {
+                "description": "\ud604\uc7ac \ud398\uc774\uc9c0 \ud56d\ubaa9 \ubaa9\ub85d",
+                "properties": {
+                    "bookmarks_of_me": {
+                        "description": "\ud604\uc7ac \ub85c\uadf8\uc778 \uc0ac\uc6a9\uc790\uc758 \uc990\uaca8\ucc3e\uae30 \uc5ec\ubd80. \ubbf8\uc778\uc99d \ud638\ucd9c \uc2dc \ud56d\uc0c1 false",
+                        "type": "boolean"
+                    },
+                    "comment_count": {
+                        "description": "\ub313\uae00 \uc218(\ub300\ub313\uae00 \ud3ec\ud568)",
+                        "example": 3,
+                        "format": "int32",
+                        "type": "integer"
+                    },
+                    "created_at": {
+                        "description": "\uc218\uc9d1/\uc0dd\uc131 \uc2dc\uac01",
+                        "format": "date-time",
+                        "type": "string"
+                    },
+                    "id": {
+                        "description": "\ud3ec\uc2a4\ud305 ID",
+                        "example": "e00be928-87b4-4b07-9b2f-410a8d4b32b1",
+                        "format": "uuid",
+                        "type": "string"
+                    },
+                    "like_count": {
+                        "description": "\uc88b\uc544\uc694 \uc218",
+                        "example": 15,
+                        "format": "int32",
+                        "type": "integer"
+                    },
+                    "likes_of_me": {
+                        "description": "\ud604\uc7ac \ub85c\uadf8\uc778 \uc0ac\uc6a9\uc790\uc758 \uc88b\uc544\uc694 \uc5ec\ubd80. \ubbf8\uc778\uc99d \ud638\ucd9c \uc2dc \ud56d\uc0c1 false",
+                        "type": "boolean"
+                    },
+                    "provider": {
+                        "description": "\ube14\ub85c\uadf8 \uc81c\uacf5\uc790",
+                        "example": "Toss",
+                        "type": "string"
+                    },
+                    "published_at": {
+                        "description": "\uc6d0\ubb38 \ubc1c\ud589\uc77c",
+                        "example": "2026-07-20",
+                        "format": "date",
+                        "type": "string"
+                    },
+                    "status": {
+                        "description": "\uac8c\uc2dc \uc0c1\ud0dc",
+                        "enum": [
+                            "active",
+                            "blocked",
+                            "deleted"
+                        ],
+                        "type": "string"
+                    },
+                    "summary": {
+                        "description": "\ubcf8\ubb38 \uc694\uc57d",
+                        "type": "string"
+                    },
+                    "thumbnail_url": {
+                        "description": "\uc378\ub124\uc77c \uc774\ubbf8\uc9c0 URL",
+                        "type": "string"
+                    },
+                    "title": {
+                        "description": "\ud3ec\uc2a4\ud305 \uc81c\ubaa9",
+                        "example": "Spring Boot\uc5d0\uc11c Clean Architecture \uc801\uc6a9\ud558\uae30",
+                        "type": "string"
+                    },
+                    "total_report_count": {
+                        "description": "\ub204\uc801 \uc2e0\uace0 \uc218",
+                        "example": 0,
+                        "format": "int32",
+                        "type": "integer"
+                    },
+                    "updated_at": {
+                        "description": "\ucd5c\uc885 \uc218\uc815 \uc2dc\uac01",
+                        "format": "date-time",
+                        "type": "string"
+                    },
+                    "url": {
+                        "description": "\uc6d0\ubb38 \ub9c1\ud06c",
+                        "example": "https://techblog.com/clean-architecture",
+                        "type": "string"
+                    },
+                    "view_count": {
+                        "description": "\uc870\ud68c\uc218. Redis \ub204\uc801 \ud6c4 PostViewCountFlushWorker \uac00 \uc8fc\uae30\uc801\uc73c\ub85c DB \ubc18\uc601",
+                        "example": 120,
+                        "format": "int32",
+                        "type": "integer"
+                    }
+                }
+            },
+            "com.backend.interactionservice.postcomment.controller.dto.PostCommentCreateDto.ReplyResponse": {
+                "description": "\ub300\ub313\uae00 \uc791\uc131 \uacb0\uacfc",
+                "properties": {
+                    "created_at": {
+                        "description": "\uc791\uc131 \uc2dc\uac01",
+                        "format": "date-time",
+                        "type": "string"
+                    },
+                    "id": {
+                        "description": "\uc0dd\uc131\ub41c \ub300\ub313\uae00 ID",
+                        "format": "uuid",
+                        "type": "string"
+                    },
+                    "parent_id": {
+                        "description": "\ubd80\ubaa8 \ub313\uae00 ID. \ub300\ub313\uae00\uc758 \ubd80\ubaa8\ub294 \ud56d\uc0c1 1-depth \ub313\uae00\uc774\ub2e4",
+                        "format": "uuid",
+                        "type": "string"
+                    }
+                }
+            },
+            "com.backend.interactionservice.postcomment.controller.dto.PostCommentCreateDto.Request": {
+                "description": "\ub313\uae00/\ub300\ub313\uae00 \uc791\uc131 \uc694\uccad",
+                "properties": {
+                    "content": {
+                        "description": "\ub313\uae00 \ubcf8\ubb38",
+                        "example": "\uc88b\uc740 \uae00 \uac10\uc0ac\ud569\ub2c8\ub2e4.",
+                        "type": "string"
+                    }
+                }
+            },
+            "com.backend.interactionservice.postcomment.controller.dto.PostCommentCreateDto.Response": {
+                "description": "\ub313\uae00 \uc791\uc131 \uacb0\uacfc",
+                "properties": {
+                    "created_at": {
+                        "description": "\uc791\uc131 \uc2dc\uac01",
+                        "format": "date-time",
+                        "type": "string"
+                    },
+                    "id": {
+                        "description": "\uc0dd\uc131\ub41c \ub313\uae00 ID",
+                        "format": "uuid",
+                        "type": "string"
+                    }
+                }
+            },
+            "com.backend.interactionservice.postcomment.controller.dto.PostCommentReadDto.Response": {
+                "description": "\ub313\uae00/\ub300\ub313\uae00 \uc870\ud68c \uacb0\uacfc",
+                "properties": {
+                    "content": {
+                        "description": "\ub313\uae00 \ubcf8\ubb38. \uc0ad\uc81c\ub41c \ub313\uae00\uc740 status \ub85c \uad6c\ubd84\ud55c\ub2e4",
+                        "type": "string"
+                    },
+                    "created_at": {
+                        "description": "\uc791\uc131 \uc2dc\uac01",
+                        "format": "date-time",
+                        "type": "string"
+                    },
+                    "has_child_comment": {
+                        "description": "\ub300\ub313\uae00 \ubcf4\uc720 \uc5ec\ubd80. true \uc774\uba74 replies \uc870\ud68c API\ub85c \ud558\uc704 \ubaa9\ub85d\uc744 \uac00\uc838\uc62c \uc218 \uc788\ub2e4",
+                        "type": "boolean"
+                    },
+                    "id": {
+                        "description": "\ub313\uae00 ID",
+                        "format": "uuid",
+                        "type": "string"
+                    },
+                    "status": {
+                        "description": "\ub313\uae00 \uc0c1\ud0dc",
+                        "enum": [
+                            "active",
+                            "blocked",
+                            "deleted"
+                        ],
+                        "type": "string"
+                    },
+                    "updated_at": {
+                        "description": "\ucd5c\uc885 \uc218\uc815 \uc2dc\uac01",
+                        "format": "date-time",
+                        "type": "string"
+                    },
+                    "user_id": {
+                        "description": "\uc791\uc131\uc790 ID",
+                        "format": "uuid",
+                        "type": "string"
+                    }
+                }
+            },
+            "com.backend.interactionservice.postcomment.controller.dto.PostCommentUpdateDto.Request": {
+                "description": "\ub313\uae00/\ub300\ub313\uae00 \uc218\uc815 \uc694\uccad",
+                "properties": {
+                    "content": {
+                        "description": "\uc218\uc815\ud560 \ub313\uae00 \ubcf8\ubb38",
+                        "example": "\ub0b4\uc6a9\uc744 \uc218\uc815\ud588\uc2b5\ub2c8\ub2e4.",
+                        "type": "string"
+                    }
+                }
+            },
+            "com.backend.interactionservice.postcomment.controller.dto.PostCommentUpdateDto.Response": {
+                "description": "\ub313\uae00/\ub300\ub313\uae00 \uc218\uc815 \uacb0\uacfc",
+                "properties": {
+                    "id": {
+                        "description": "\uc218\uc815\ub41c \ub313\uae00 ID",
+                        "format": "uuid",
+                        "type": "string"
+                    },
+                    "updated_at": {
+                        "description": "\uc218\uc815 \uc2dc\uac01",
+                        "format": "date-time",
+                        "type": "string"
+                    }
+                }
+            },
+            "com.backend.interactionservice.postreport.controller.dto.PostReportCreateDto.Request": {
+                "description": "\uac8c\uc2dc\uae00 \uc2e0\uace0 \ub4f1\ub85d \uc694\uccad",
+                "properties": {
+                    "content": {
+                        "description": "\uc2e0\uace0 \uc0c1\uc138 \uc0ac\uc720",
+                        "example": "\ub9c1\ud06c\uac00 \uae68\uc838 \uc788\uc2b5\ub2c8\ub2e4.",
+                        "type": "string"
+                    },
+                    "report_type": {
+                        "description": "\uc2e0\uace0 \uc720\ud615",
+                        "enum": [
+                            "invalid_content",
+                            "broken_link",
+                            "other"
+                        ],
+                        "type": "string"
+                    }
+                }
+            },
+            "com.backend.interactionservice.postreport.controller.dto.PostReportCreateDto.Response": {
+                "description": "\uac8c\uc2dc\uae00 \uc2e0\uace0 \ub4f1\ub85d \uacb0\uacfc",
+                "properties": {
+                    "created_at": {
+                        "description": "\uc2e0\uace0 \uc811\uc218 \uc2dc\uac01",
+                        "format": "date-time",
+                        "type": "string"
+                    },
+                    "id": {
+                        "description": "\uc0dd\uc131\ub41c \uc2e0\uace0 ID",
+                        "format": "uuid",
+                        "type": "string"
+                    }
+                }
+            },
+            "com.backend.interactionservice.postreport.controller.dto.PostReportUpdateDto.Request": {
+                "description": "\uac8c\uc2dc\uae00 \uc2e0\uace0 \uc0c1\ud0dc \ubcc0\uacbd \uc694\uccad",
+                "properties": {
+                    "status": {
+                        "description": "\ubcc0\uacbd\ud560 \ucc98\ub9ac \uc0c1\ud0dc. pending \uc0c1\ud0dc\uc758 \uc2e0\uace0\ub9cc resolved_deleted \ub610\ub294 rejected_keep \uc73c\ub85c \ubcc0\uacbd\ud560 \uc218 \uc788\ub2e4",
+                        "enum": [
+                            "pending",
+                            "resolved_deleted",
+                            "rejected_keep"
+                        ],
+                        "type": "string"
+                    }
+                }
+            },
+            "com.backend.interactionservice.postreport.controller.dto.PostReportUpdateDto.Response": {
+                "description": "\uac8c\uc2dc\uae00 \uc2e0\uace0 \uc0c1\ud0dc \ubcc0\uacbd \uacb0\uacfc",
+                "properties": {
+                    "id": {
+                        "description": "\uc2e0\uace0 ID",
+                        "format": "uuid",
+                        "type": "string"
+                    },
+                    "status": {
+                        "description": "\ubcc0\uacbd\ub41c \ucc98\ub9ac \uc0c1\ud0dc",
+                        "enum": [
+                            "pending",
+                            "resolved_deleted",
+                            "rejected_keep"
+                        ],
+                        "type": "string"
+                    },
+                    "updated_at": {
+                        "description": "\ubcc0\uacbd \uc2dc\uac01",
+                        "format": "date-time",
+                        "type": "string"
+                    }
+                }
+            },
+            "com.backend.interactionservice.postreport.service.dto.PostReportDto": {
+                "description": "\uac8c\uc2dc\uae00 \uc2e0\uace0 \ub0b4\uc5ed",
+                "properties": {
+                    "content": {
+                        "description": "\uc2e0\uace0 \uc0c1\uc138 \uc0ac\uc720",
+                        "type": "string"
+                    },
+                    "created_at": {
+                        "description": "\uc2e0\uace0 \uc811\uc218 \uc2dc\uac01",
+                        "format": "date-time",
+                        "type": "string"
+                    },
+                    "id": {
+                        "description": "\uc2e0\uace0 ID",
+                        "format": "uuid",
+                        "type": "string"
+                    },
+                    "post_id": {
+                        "description": "\uc2e0\uace0 \ub300\uc0c1 \uac8c\uc2dc\uae00 ID",
+                        "format": "uuid",
+                        "type": "string"
+                    },
+                    "report_type": {
+                        "description": "\uc2e0\uace0 \uc720\ud615",
+                        "enum": [
+                            "invalid_content",
+                            "broken_link",
+                            "other"
+                        ],
+                        "type": "string"
+                    },
+                    "reporter_id": {
+                        "description": "\uc2e0\uace0\uc790 ID",
+                        "format": "uuid",
+                        "type": "string"
+                    },
+                    "status": {
+                        "description": "\ucc98\ub9ac \uc0c1\ud0dc",
+                        "enum": [
+                            "pending",
+                            "resolved_deleted",
+                            "rejected_keep"
+                        ],
+                        "type": "string"
+                    },
+                    "updated_at": {
+                        "description": "\ucd5c\uc885 \ubcc0\uacbd \uc2dc\uac01",
+                        "format": "date-time",
+                        "type": "string"
+                    }
+                }
+            },
+            "org.springdoc.core.converters.models.Pageable": {
+                "properties": {
+                    "page": {
+                        "format": "int32",
+                        "minimum": 0,
+                        "type": "integer"
+                    },
+                    "size": {
+                        "format": "int32",
+                        "minimum": 1,
+                        "type": "integer"
+                    },
+                    "sort": {
+                        "items": {
+                            "type": "string"
+                        },
+                        "type": "array"
+                    }
+                }
+            }
+        },
+        "securitySchemes": {
+            "bearerAuth": {
+                "bearerFormat": "JWT",
+                "description": "user-service \ub85c\uadf8\uc778 \ub610\ub294 \uad6c\uae00 OAuth \ucf5c\ubc31\uc5d0\uc11c \ubc1c\uae09\ubc1b\uc740 access token",
+                "scheme": "bearer",
+                "type": "http"
+            }
+        }
+    },
+    "info": {
+        "description": "interaction-service REST API",
+        "title": "Interaction Service API",
+        "version": "v1"
+    },
+    "openapi": "3.1.0",
+    "paths": {
+        "/interaction/v1/admin/reports/comments": {
+            "get": {
+                "operationId": "getReports_1",
+                "parameters": [
+                    {
+                        "in": "query",
+                        "name": "status",
+                        "required": false,
+                        "schema": {
+                            "enum": [
+                                "pending",
+                                "resolved_deleted",
+                                "rejected_keep"
+                            ],
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "in": "query",
+                        "name": "report_type",
+                        "required": false,
+                        "schema": {
+                            "enum": [
+                                "political",
+                                "adult",
+                                "other"
+                            ],
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "in": "query",
+                        "name": "start_date",
+                        "required": false,
+                        "schema": {
+                            "format": "date",
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "in": "query",
+                        "name": "end_date",
+                        "required": false,
+                        "schema": {
+                            "format": "date",
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "in": "query",
+                        "name": "pageable",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/components/schemas/org.springdoc.core.converters.models.Pageable"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/com.backend.commondataaccess.dto.OffsetPageResultCom.backend.interactionservice.commentreport.service.dto.CommentReportDto"
+                                }
+                            }
+                        },
+                        "description": "OK"
+                    }
+                },
+                "summary": "\ub313\uae00 \uc2e0\uace0 \ubaa9\ub85d \uc870\ud68c",
+                "tags": [
+                    "06. \ub313\uae00 \uc2e0\uace0 API"
+                ]
+            }
+        },
+        "/interaction/v1/admin/reports/comments/{reportId}": {
+            "patch": {
+                "operationId": "changeStatus_1",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "reportId",
+                        "required": true,
+                        "schema": {
+                            "format": "uuid",
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/com.backend.interactionservice.commentreport.controller.dto.CommentReportUpdateDto.Request"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/com.backend.interactionservice.commentreport.controller.dto.CommentReportUpdateDto.Response"
+                                }
+                            }
+                        },
+                        "description": "OK"
+                    }
+                },
+                "summary": "\ub313\uae00 \uc2e0\uace0 \uc0c1\ud0dc \ubcc0\uacbd",
+                "tags": [
+                    "06. \ub313\uae00 \uc2e0\uace0 API"
+                ]
+            }
+        },
+        "/interaction/v1/admin/reports/postings": {
+            "get": {
+                "operationId": "getReports",
+                "parameters": [
+                    {
+                        "in": "query",
+                        "name": "status",
+                        "required": false,
+                        "schema": {
+                            "enum": [
+                                "pending",
+                                "resolved_deleted",
+                                "rejected_keep"
+                            ],
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "in": "query",
+                        "name": "report_type",
+                        "required": false,
+                        "schema": {
+                            "enum": [
+                                "invalid_content",
+                                "broken_link",
+                                "other"
+                            ],
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "in": "query",
+                        "name": "start_date",
+                        "required": false,
+                        "schema": {
+                            "format": "date",
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "in": "query",
+                        "name": "end_date",
+                        "required": false,
+                        "schema": {
+                            "format": "date",
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "in": "query",
+                        "name": "pageable",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/components/schemas/org.springdoc.core.converters.models.Pageable"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/com.backend.commondataaccess.dto.OffsetPageResultCom.backend.interactionservice.postreport.service.dto.PostReportDto"
+                                }
+                            }
+                        },
+                        "description": "OK"
+                    }
+                },
+                "summary": "\uac8c\uc2dc\uae00 \uc2e0\uace0 \ubaa9\ub85d \uc870\ud68c",
+                "tags": [
+                    "05. \uac8c\uc2dc\uae00 \uc2e0\uace0 API"
+                ]
+            }
+        },
+        "/interaction/v1/admin/reports/postings/{reportId}": {
+            "patch": {
+                "operationId": "changeStatus",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "reportId",
+                        "required": true,
+                        "schema": {
+                            "format": "uuid",
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/com.backend.interactionservice.postreport.controller.dto.PostReportUpdateDto.Request"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/com.backend.interactionservice.postreport.controller.dto.PostReportUpdateDto.Response"
+                                }
+                            }
+                        },
+                        "description": "OK"
+                    }
+                },
+                "summary": "\uac8c\uc2dc\uae00 \uc2e0\uace0 \uc0c1\ud0dc \ubcc0\uacbd",
+                "tags": [
+                    "05. \uac8c\uc2dc\uae00 \uc2e0\uace0 API"
+                ]
+            }
+        },
+        "/interaction/v1/comments/{commentId}": {
+            "delete": {
+                "operationId": "deleteComment",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "commentId",
+                        "required": true,
+                        "schema": {
+                            "format": "uuid",
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                },
+                "summary": "\ub313\uae00 \uc0ad\uc81c",
+                "tags": [
+                    "04. \ud3ec\uc2a4\ud305 \ub313\uae00/\ub300\ub313\uae00 API"
+                ]
+            },
+            "patch": {
+                "operationId": "updateComment",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "commentId",
+                        "required": true,
+                        "schema": {
+                            "format": "uuid",
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/com.backend.interactionservice.postcomment.controller.dto.PostCommentUpdateDto.Request"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/com.backend.interactionservice.postcomment.controller.dto.PostCommentUpdateDto.Response"
+                                }
+                            }
+                        },
+                        "description": "OK"
+                    }
+                },
+                "summary": "\ub313\uae00 \uc218\uc815",
+                "tags": [
+                    "04. \ud3ec\uc2a4\ud305 \ub313\uae00/\ub300\ub313\uae00 API"
+                ]
+            }
+        },
+        "/interaction/v1/comments/{commentId}/replies": {
+            "get": {
+                "operationId": "getReplies",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "commentId",
+                        "required": true,
+                        "schema": {
+                            "format": "uuid",
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "in": "query",
+                        "name": "pageable",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/components/schemas/org.springdoc.core.converters.models.Pageable"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/com.backend.commondataaccess.dto.OffsetPageResultCom.backend.interactionservice.postcomment.controller.dto.PostCommentReadDto.Response"
+                                }
+                            }
+                        },
+                        "description": "OK"
+                    }
+                },
+                "summary": "\ub300\ub313\uae00 \uc870\ud68c",
+                "tags": [
+                    "04. \ud3ec\uc2a4\ud305 \ub313\uae00/\ub300\ub313\uae00 API"
+                ]
+            },
+            "post": {
+                "operationId": "createReply",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "commentId",
+                        "required": true,
+                        "schema": {
+                            "format": "uuid",
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/com.backend.interactionservice.postcomment.controller.dto.PostCommentCreateDto.Request"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/com.backend.interactionservice.postcomment.controller.dto.PostCommentCreateDto.ReplyResponse"
+                                }
+                            }
+                        },
+                        "description": "OK"
+                    }
+                },
+                "summary": "\ub300\ub313\uae00 \uc791\uc131",
+                "tags": [
+                    "04. \ud3ec\uc2a4\ud305 \ub313\uae00/\ub300\ub313\uae00 API"
+                ]
+            }
+        },
+        "/interaction/v1/comments/{commentId}/reports": {
+            "post": {
+                "operationId": "createReport_1",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "commentId",
+                        "required": true,
+                        "schema": {
+                            "format": "uuid",
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/com.backend.interactionservice.commentreport.controller.dto.CommentReportCreateDto.Request"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/com.backend.interactionservice.commentreport.controller.dto.CommentReportCreateDto.Response"
+                                }
+                            }
+                        },
+                        "description": "OK"
+                    }
+                },
+                "summary": "\ub313\uae00 \uc2e0\uace0 \ub4f1\ub85d",
+                "tags": [
+                    "06. \ub313\uae00 \uc2e0\uace0 API"
+                ]
+            }
+        },
+        "/interaction/v1/me/bookmarks": {
+            "get": {
+                "operationId": "getMyBookmarks",
+                "parameters": [
+                    {
+                        "in": "query",
+                        "name": "pageable",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/components/schemas/org.springdoc.core.converters.models.Pageable"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/com.backend.commondataaccess.dto.OffsetPageResultCom.backend.interactionservice.post.service.dto.PostDocument"
+                                }
+                            }
+                        },
+                        "description": "OK"
+                    }
+                },
+                "summary": "\ub0b4 \uc990\uaca8\ucc3e\uae30 \ubaa9\ub85d \uc870\ud68c",
+                "tags": [
+                    "03. \ud3ec\uc2a4\ud305 \uc990\uaca8\ucc3e\uae30 API"
+                ]
+            }
+        },
+        "/interaction/v1/me/comments": {
+            "get": {
+                "operationId": "getMyComments",
+                "parameters": [
+                    {
+                        "in": "query",
+                        "name": "pageable",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/components/schemas/org.springdoc.core.converters.models.Pageable"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/com.backend.commondataaccess.dto.OffsetPageResultCom.backend.interactionservice.postcomment.controller.dto.PostCommentReadDto.Response"
+                                }
+                            }
+                        },
+                        "description": "OK"
+                    }
+                },
+                "summary": "\ub0b4\uac00 \uc791\uc131\ud55c \ub313\uae00/\ub300\ub313\uae00 \uc870\ud68c",
+                "tags": [
+                    "04. \ud3ec\uc2a4\ud305 \ub313\uae00/\ub300\ub313\uae00 API"
+                ]
+            }
+        },
+        "/interaction/v1/postings": {
+            "get": {
+                "operationId": "searchPostings",
+                "parameters": [
+                    {
+                        "in": "query",
+                        "name": "title",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "in": "query",
+                        "name": "provider",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "in": "query",
+                        "name": "pageable",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/components/schemas/org.springdoc.core.converters.models.Pageable"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/com.backend.commondataaccess.dto.OffsetPageResultCom.backend.interactionservice.post.service.dto.PostListItem"
+                                }
+                            }
+                        },
+                        "description": "OK"
+                    }
+                },
+                "summary": "\ud3ec\uc2a4\ud305 \ubaa9\ub85d \uc870\ud68c + \ub0b4 \uc0c1\ud638\uc791\uc6a9 \uc0c1\ud0dc",
+                "tags": [
+                    "01. \ud3ec\uc2a4\ud305 \uc870\ud68c API"
+                ]
+            }
+        },
+        "/interaction/v1/postings/{postId}": {
+            "get": {
+                "operationId": "searchPost",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "postId",
+                        "required": true,
+                        "schema": {
+                            "format": "uuid",
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/com.backend.interactionservice.post.service.dto.PostListItem"
+                                }
+                            }
+                        },
+                        "description": "OK"
+                    }
+                },
+                "summary": "\ud3ec\uc2a4\ud305 \ud55c \uac74 \uc870\ud68c + \ub0b4 \uc0c1\ud638\uc791\uc6a9 \uc0c1\ud0dc",
+                "tags": [
+                    "01. \ud3ec\uc2a4\ud305 \uc870\ud68c API"
+                ]
+            }
+        },
+        "/interaction/v1/postings/{postId}/bookmarks": {
+            "delete": {
+                "operationId": "unBookmark",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "postId",
+                        "required": true,
+                        "schema": {
+                            "format": "uuid",
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                },
+                "summary": "\uc990\uaca8\ucc3e\uae30 \uc0ad\uc81c",
+                "tags": [
+                    "03. \ud3ec\uc2a4\ud305 \uc990\uaca8\ucc3e\uae30 API"
+                ]
+            },
+            "post": {
+                "operationId": "bookmark",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "postId",
+                        "required": true,
+                        "schema": {
+                            "format": "uuid",
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                },
+                "summary": "\uc990\uaca8\ucc3e\uae30 \ub4f1\ub85d",
+                "tags": [
+                    "03. \ud3ec\uc2a4\ud305 \uc990\uaca8\ucc3e\uae30 API"
+                ]
+            }
+        },
+        "/interaction/v1/postings/{postId}/comments": {
+            "get": {
+                "operationId": "getComments",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "postId",
+                        "required": true,
+                        "schema": {
+                            "format": "uuid",
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "in": "query",
+                        "name": "pageable",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/components/schemas/org.springdoc.core.converters.models.Pageable"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/com.backend.commondataaccess.dto.OffsetPageResultCom.backend.interactionservice.postcomment.controller.dto.PostCommentReadDto.Response"
+                                }
+                            }
+                        },
+                        "description": "OK"
+                    }
+                },
+                "summary": "\ub313\uae00 \ubaa9\ub85d \uc870\ud68c",
+                "tags": [
+                    "04. \ud3ec\uc2a4\ud305 \ub313\uae00/\ub300\ub313\uae00 API"
+                ]
+            },
+            "post": {
+                "operationId": "createComment",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "postId",
+                        "required": true,
+                        "schema": {
+                            "format": "uuid",
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/com.backend.interactionservice.postcomment.controller.dto.PostCommentCreateDto.Request"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/com.backend.interactionservice.postcomment.controller.dto.PostCommentCreateDto.Response"
+                                }
+                            }
+                        },
+                        "description": "OK"
+                    }
+                },
+                "summary": "\ub313\uae00 \uc791\uc131",
+                "tags": [
+                    "04. \ud3ec\uc2a4\ud305 \ub313\uae00/\ub300\ub313\uae00 API"
+                ]
+            }
+        },
+        "/interaction/v1/postings/{postId}/likes": {
+            "delete": {
+                "operationId": "unLike",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "postId",
+                        "required": true,
+                        "schema": {
+                            "format": "uuid",
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                },
+                "summary": "\uc88b\uc544\uc694 \ucde8\uc18c",
+                "tags": [
+                    "02. \ud3ec\uc2a4\ud305 \uc88b\uc544\uc694 API"
+                ]
+            },
+            "post": {
+                "operationId": "like",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "postId",
+                        "required": true,
+                        "schema": {
+                            "format": "uuid",
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                },
+                "summary": "\uc88b\uc544\uc694 \ub4f1\ub85d",
+                "tags": [
+                    "02. \ud3ec\uc2a4\ud305 \uc88b\uc544\uc694 API"
+                ]
+            }
+        },
+        "/interaction/v1/postings/{postId}/reports": {
+            "post": {
+                "operationId": "createReport",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "postId",
+                        "required": true,
+                        "schema": {
+                            "format": "uuid",
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/com.backend.interactionservice.postreport.controller.dto.PostReportCreateDto.Request"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/com.backend.interactionservice.postreport.controller.dto.PostReportCreateDto.Response"
+                                }
+                            }
+                        },
+                        "description": "OK"
+                    }
+                },
+                "summary": "\uac8c\uc2dc\uae00 \uc2e0\uace0(\uac8c\uc2dc\uae00\uc774 \uc774\uc0c1\ud574\uc694) \ub4f1\ub85d",
+                "tags": [
+                    "05. \uac8c\uc2dc\uae00 \uc2e0\uace0 API"
+                ]
+            }
+        },
+        "/interaction/v1/replies/{replyId}": {
+            "delete": {
+                "operationId": "deleteReply",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "replyId",
+                        "required": true,
+                        "schema": {
+                            "format": "uuid",
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                },
+                "summary": "\ub300\ub313\uae00 \uc0ad\uc81c",
+                "tags": [
+                    "04. \ud3ec\uc2a4\ud305 \ub313\uae00/\ub300\ub313\uae00 API"
+                ]
+            },
+            "patch": {
+                "operationId": "updateReply",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "replyId",
+                        "required": true,
+                        "schema": {
+                            "format": "uuid",
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/com.backend.interactionservice.postcomment.controller.dto.PostCommentUpdateDto.Request"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/com.backend.interactionservice.postcomment.controller.dto.PostCommentUpdateDto.Response"
+                                }
+                            }
+                        },
+                        "description": "OK"
+                    }
+                },
+                "summary": "\ub300\ub313\uae00 \uc218\uc815",
+                "tags": [
+                    "04. \ud3ec\uc2a4\ud305 \ub313\uae00/\ub300\ub313\uae00 API"
+                ]
+            }
+        }
+    },
+    "security": [
+        {
+            "bearerAuth": []
+        }
+    ],
+    "servers": [
+        {
+            "description": "Generated server url",
+            "url": "http://localhost:8083"
+        }
+    ],
+    "tags": [
+        {
+            "name": "01. \ud3ec\uc2a4\ud305 \uc870\ud68c API"
+        },
+        {
+            "name": "02. \ud3ec\uc2a4\ud305 \uc88b\uc544\uc694 API"
+        },
+        {
+            "name": "03. \ud3ec\uc2a4\ud305 \uc990\uaca8\ucc3e\uae30 API"
+        },
+        {
+            "name": "04. \ud3ec\uc2a4\ud305 \ub313\uae00/\ub300\ub313\uae00 API"
+        }
+    ]
+}
