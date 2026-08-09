@@ -9,7 +9,15 @@ PR에서 API 변경이 diff로 보이고, 프론트 codegen / Postman·Bruno imp
 | `integrated-api-openapi.json` | integrated-api (`:8081`)      | http://localhost:8081/integrated-api/swagger-ui | `/integrated-api/v3/api-docs/integrated-v1` |
 | `interaction-service-openapi.json` | interaction-service (`:8083`) | http://localhost:8083/interaction/swagger-ui    | `/interaction/v3/api-docs/interaction-v1` |
 
-## 갱신 방법
+## 로컬에서 OpenAPI 스냅샷 사용해서 서비스별 swagger-ui 화면보는 법
+
+1. swagger editor 실행(https://editor.swagger.io/)
+2. File > Import File에서 XXX-openapi.json 파일 선택
+    - `user-service` swagger-ui 화면 확인시: `user-service-openapi.json` 적용
+    - `integrated-api` swagger-ui 화면 확인시: `integrated-api-openapi.json` 적용
+    - `interaction-service` swagger-ui 화면 확인시: `interaction-service-openapi.json` 적용
+
+## OpenAPI 스냅샷 갱신 방법
 
 1. 변경한 서비스를 로컬에서 기동한다.
 2. 저장소 루트에서 스펙을 다시 덤프한다.
@@ -32,7 +40,7 @@ PR에서 API 변경이 diff로 보이고, 프론트 codegen / Postman·Bruno imp
 INTERACTION_SERVICE_PORT=18083 ./scripts/dump-openapi.sh interaction
 ```
 
-## 규칙
+## OpenAPI 스냅샷 생성 규칙
 
 - API 요청/응답 DTO나 엔드포인트를 바꾼 PR에는 해당 서비스 스냅샷 갱신을 포함한다.
 - 스냅샷은 `json.tool --sort-keys` 로 정렬된 상태로 커밋한다. (키 순서 흔들림으로 인한 노이즈 diff 방지)
