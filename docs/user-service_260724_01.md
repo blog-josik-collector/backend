@@ -81,17 +81,20 @@
 
 ---
 
-### 2.2 관리자 가입
-새로운 관리자(Admin) 계정을 생성합니다.
+### 2.2 초기 운영자(ADMIN) 계정 부트스트랩
+공개 HTTP API로 관리자를 만들지 않는다. `user-service` 기동 시 활성 ADMIN이 없으면 설정값으로 1회 생성한다.
 
-- **엔드포인트**: `POST /user/v1/admins`
-- **인증 필요 여부**: 필요 없음 (Hidden API)
+| 환경변수 | 기본(local) | 기본(prod) | 설명 |
+|---|---|---|---|
+| `ADMIN_BOOTSTRAP_ENABLED` | `true` | `false` | 부트스트랩 활성 여부 |
+| `ADMIN_LOGIN_ID` | `admin` | `admin` | 로그인 ID |
+| `ADMIN_PASSWORD` | `admin` | (필수, 시크릿) | **평문** 비밀번호. DB에는 BCrypt 저장 |
+| `ADMIN_NICKNAME` | `admin` | `admin` | 닉네임 |
 
-#### 요청 본문 (Request Body)
-일반 회원가입 요청 본문과 동일합니다.
-
-#### 응답 본문 (`200 OK`)
-일반 회원가입 응답 본문과 동일합니다.
+- 활성 ADMIN이 이미 있으면 skip(idempotent).
+- `enabled=true` 인데 `ADMIN_PASSWORD`가 비어 있으면 기동 실패.
+- 상용 첫 배포: 시크릿에 `ADMIN_PASSWORD`를 넣고 `ADMIN_BOOTSTRAP_ENABLED=true`로 기동 → 생성 확인 후 `false`로 되돌리거나, 이후에도 enabled를 켜 둬도 재생성되지 않음.
+- 로그인 API(`POST /auth/v1/auth/login`) 호출 시에는 동일 평문 비밀번호를 **Base64 인코딩**해 `password` 필드에 넣는다.
 
 ---
 

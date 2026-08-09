@@ -165,4 +165,8 @@ public class UserService {
 
         userAuthenticationService.deleteAll(id);
     }
+
+    public boolean hasAdmin() {
+        return userRepository.existsByUserTypeAndDeletedAtIsNull(UserType.ADMIN);
+    }
 }

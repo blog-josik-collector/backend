@@ -10,7 +10,6 @@ import com.backend.userservice.user.controller.dto.UserUpdateDto;
 import com.backend.userservice.user.controller.dto.UserUpdateDto.Response;
 import com.backend.userservice.user.service.UserService;
 import com.backend.userservice.user.service.dto.UserDto;
-import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -39,17 +38,6 @@ public class UserController {
                                                         request.getDecodedPassword(),
                                                         request.getDecodedPasswordConfirm(),
                                                         request.nickname()));
-
-        return ResponseEntity.ok(UserCreateDto.Response.from(userDto));
-    }
-
-    @Hidden
-    @PostMapping(value = "/admins", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<UserCreateDto.Response> createAdmin(@RequestBody UserCreateDto.Request request) {
-        UserDto userDto = userService.createAdmin(UserDto.of(request.loginId(),
-                                                             request.getDecodedPassword(),
-                                                             request.getDecodedPasswordConfirm(),
-                                                             request.nickname()));
 
         return ResponseEntity.ok(UserCreateDto.Response.from(userDto));
     }

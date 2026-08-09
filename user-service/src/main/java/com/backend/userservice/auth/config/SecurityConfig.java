@@ -52,7 +52,6 @@ public class SecurityConfig {
                         .accessDeniedHandler(accessDeniedHandler))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/heartbeat",
-                                         "/user/v1/admins",
                                          "/auth/v1/auth/login",
                                          "/auth/v1/oauth/google/callback",
                                          "/users/swagger-ui/**",

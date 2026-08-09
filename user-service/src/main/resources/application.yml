@@ -41,8 +41,32 @@ google:
     client-secret: ${GOOGLE_CLIENT_SECRET:}
     redirect-uri: http://localhost:8080/auth/v1/oauth/google/callback
 
+# 최초 기동 시 ADMIN 계정 부트스트랩 (활성 ADMIN이 없을 때만 생성)
+# - password 는 평문 시크릿. DB에는 BCrypt로 저장됨.
+# - 로그인 API 호출 시에는 동일 평문을 Base64 인코딩해 password 필드에 넣는다.
+app:
+  bootstrap:
+    admin:
+      enabled: ${ADMIN_BOOTSTRAP_ENABLED:true}
+      login-id: ${ADMIN_LOGIN_ID:admin}
+      password: ${ADMIN_PASSWORD:admin}
+      nickname: ${ADMIN_NICKNAME:admin}
+
 ---
 spring:
   config:
     activate:
       on-profile: prod
+  sql:
+    init:
+      mode: never
+  flyway:
+    enabled: false
+app:
+  bootstrap:
+    admin:
+      # 상용은 기본 off. 첫 배포에서만 true + ADMIN_PASSWORD 시크릿 주입 후 생성 확인
+      enabled: ${ADMIN_BOOTSTRAP_ENABLED:false}
+      login-id: ${ADMIN_LOGIN_ID:admin}
+      password: ${ADMIN_PASSWORD:}
+      nickname: ${ADMIN_NICKNAME:admin}

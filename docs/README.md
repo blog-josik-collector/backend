@@ -89,6 +89,8 @@ Authorization: Bearer <your_jwt_access_token>
 ```
 *JWT 액세스 토큰은 user-service의 로그인 혹은 구글 OAuth 콜백 API를 통해 발급됩니다. ([OpenAPI 스냅샷](./api/user-service-openapi.json))*
 
+초기 운영자(`admin`) 계정은 HTTP로 생성하지 않고, `user-service` 기동 시 부트스트랩으로 만든다. 환경변수·로그인 Base64 규약은 [user-service 문서 §2.2](./user-service_260724_01.md)를 참고한다.
+
 ### 3.2 공통 페이징 응답 규격 (Pagination)
 시스템 내 목록 조회 API는 Spring Data의 `Pageable` 스펙(0번 페이지부터 시작)을 따르며, 공통으로 `OffsetPageResult` 형태의 래퍼 구조로 데이터를 반환합니다.
 
