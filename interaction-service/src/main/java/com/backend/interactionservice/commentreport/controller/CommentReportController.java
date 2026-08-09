@@ -58,7 +58,7 @@ public class CommentReportController {
      * <p>
      * - start_date / end_date: created_at 기준 날짜 범위 (KST 기준 양 끝 inclusive). 형식: yyyy-MM-dd. 예: 2026-05-01
      */
-    @Operation(summary = "댓글 신고 목록 조회")
+    @Operation(summary = "댓글 신고 목록 조회", description = "운영자 전용 API")
     @GetMapping("/admin/reports/comments")
     public ResponseEntity<OffsetPageResult<CommentReportDto>> getReports(@RequestParam(required = false) ReportStatus status,
                                                                          @RequestParam(name = "report_type", required = false) CommentReportType reportType,
@@ -72,7 +72,7 @@ public class CommentReportController {
     /**
      * 6. 댓글 신고 상태 변경 (관리자). PENDING 신고를 RESOLVED_DELETED 또는 REJECTED_KEEP 으로만 변경 가능.
      */
-    @Operation(summary = "댓글 신고 상태 변경")
+    @Operation(summary = "댓글 신고 상태 변경", description = "운영자 전용 API")
     @PatchMapping(value = "/admin/reports/comments/{reportId}", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<CommentReportUpdateDto.Response> changeStatus(@PathVariable UUID reportId,
                                                                         @RequestBody CommentReportUpdateDto.Request request) {

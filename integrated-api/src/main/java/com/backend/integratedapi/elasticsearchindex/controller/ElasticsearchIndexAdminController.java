@@ -26,7 +26,7 @@ public class ElasticsearchIndexAdminController {
 
     private final ElasticsearchIndexProvisioner provisioner;
 
-    @Operation(summary = "alias 현재 상태 조회 (alias → 물리 인덱스)")
+    @Operation(summary = "alias 현재 상태 조회 (alias → 물리 인덱스)", description = "운영자 전용 API")
     @GetMapping("/status")
     public ResponseEntity<ElasticsearchIndexReadDto.Status> getStatus() {
         String alias = provisioner.alias();
@@ -34,14 +34,14 @@ public class ElasticsearchIndexAdminController {
         return ResponseEntity.ok(new ElasticsearchIndexReadDto.Status(alias, currentIndex, currentIndex != null));
     }
 
-    @Operation(summary = "인덱스 부트스트랩 (alias 없으면 물리 인덱스 + alias 생성)")
+    @Operation(summary = "인덱스 부트스트랩 (alias 없으면 물리 인덱스 + alias 생성)", description = "운영자 전용 API")
     @PostMapping("/_bootstrap")
     public ResponseEntity<ElasticsearchIndexReadDto.Bootstrap> bootstrap() {
         ProvisionResult result = provisioner.bootstrapIfAbsent();
         return ResponseEntity.ok(ElasticsearchIndexReadDto.Bootstrap.from(result));
     }
 
-    @Operation(summary = "재색인 실행 (새 물리 인덱스 생성 → reindex → alias 원자적 스왑)")
+    @Operation(summary = "재색인 실행 (새 물리 인덱스 생성 → reindex → alias 원자적 스왑)", description = "운영자 전용 API")
     @PostMapping("/_reindex")
     public ResponseEntity<ElasticsearchIndexReadDto.Reindex> reindex() {
         ReindexResult result = provisioner.reindexToNewIndex();

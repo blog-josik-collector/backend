@@ -22,7 +22,7 @@ public class CollectSourcePostController {
 
     private final CollectSourcePostService collectSourcePostService;
 
-    @Operation(summary = "수집 결과(원문/메타) 조회")
+    @Operation(summary = "수집 결과(원문/메타) 조회", description = "운영자 전용 API")
     @GetMapping("/postings/{id}")
     public ResponseEntity<CollectSourcePostReadDto.Response> getSource(@PathVariable UUID id) {
 

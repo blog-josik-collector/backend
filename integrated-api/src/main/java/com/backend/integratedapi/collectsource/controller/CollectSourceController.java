@@ -30,7 +30,7 @@ public class CollectSourceController {
 
     private final CollectSourceService collectSourceService;
 
-    @Operation(summary = "수집 소스 등록")
+    @Operation(summary = "수집 소스 등록", description = "운영자 전용 API")
     @PostMapping(value = "/sources", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<CollectSourceCreateDto.Response> create(@RequestBody CollectSourceCreateDto.Request request) {
 
@@ -45,7 +45,7 @@ public class CollectSourceController {
         return ResponseEntity.ok(CollectSourceCreateDto.Response.from(createdPostProviderDto));
     }
 
-    @Operation(summary = "수집 소스 목록 조회")
+    @Operation(summary = "수집 소스 목록 조회", description = "운영자 전용 API")
     @GetMapping("/sources")
     public ResponseEntity<OffsetPageResult<CollectSourceReadDto.Response>> getSources(@RequestParam(value = "page", required = false, defaultValue = "0") int page,
                                                                                       @RequestParam(value = "size", required = false, defaultValue = "10") int size) {
@@ -54,7 +54,7 @@ public class CollectSourceController {
         return ResponseEntity.ok(collectSourceDtos.map(CollectSourceReadDto.Response::from));
     }
 
-    @Operation(summary = "수집 소스 한 건 조회")
+    @Operation(summary = "수집 소스 한 건 조회", description = "운영자 전용 API")
     @GetMapping("/sources/{id}")
     public ResponseEntity<CollectSourceReadDto.Response> getSource(@PathVariable UUID id) {
 
@@ -62,7 +62,7 @@ public class CollectSourceController {
         return ResponseEntity.ok(CollectSourceReadDto.Response.from(collectSourceDto));
     }
 
-    @Operation(summary = "수집 소스 수정")
+    @Operation(summary = "수집 소스 수정", description = "운영자 전용 API")
     @PatchMapping(value = "/sources/{id}", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<CollectSourceUpdateDto.Response> update(@PathVariable UUID id,
                                                                   @RequestBody CollectSourceUpdateDto.Request request) {
@@ -78,7 +78,7 @@ public class CollectSourceController {
         return ResponseEntity.ok(CollectSourceUpdateDto.Response.from(collectSourceService.getCollectSourceDto(id)));
     }
 
-    @Operation(summary = "수집 소스 삭제")
+    @Operation(summary = "수집 소스 삭제", description = "운영자 전용 API")
     @DeleteMapping("/sources/{id}")
     public ResponseEntity<Void> delete(@PathVariable UUID id) {
 

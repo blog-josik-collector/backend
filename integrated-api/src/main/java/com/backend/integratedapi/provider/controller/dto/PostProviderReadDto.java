@@ -16,28 +16,28 @@ public record PostProviderReadDto() {
             @Schema(description = "Provider ID")
             UUID providerId,
 
-            @Schema(description = "Provider 이름", example = "Toss")
+            @Schema(description = "Provider 이름", example = "kakao")
             String name,
 
-            @Schema(description = "기술 블로그 기본 URL", example = "https://toss.tech")
+            @Schema(description = "기술 블로그 기본 URL", example = "https://tech.kakao.com/blog")
             String baseUrl,
 
-            @Schema(description = "Provider 설명")
+            @Schema(description = "Provider 설명", example = "카카오 기술 블로그")
             String description,
 
-            @Schema(description = "사용 여부")
+            @Schema(description = "사용 여부", example = "true")
             boolean isUsed,
 
-            @Schema(description = "현재 사용 중인 Collect Source 존재 여부")
+            @Schema(description = "현재 사용 중인 Collect Source 존재 여부", example = "false")
             boolean hasUsingCollectSource,
 
             @Schema(description = "현재 사용 중인 Collect Source ID")
             UUID usingCollectSourceId,
 
-            @Schema(description = "생성 시각")
+            @Schema(description = "생성 시각", example = "2026-08-09T20:36:39.262543Z")
             OffsetDateTime createdAt,
 
-            @Schema(description = "최종 수정 시각")
+            @Schema(description = "최종 수정 시각", example = "2026-08-09T20:36:39.262543Z")
             OffsetDateTime updatedAt) {
 
         public static PostProviderReadDto.Response from(PostProviderDto postProviderDto) {

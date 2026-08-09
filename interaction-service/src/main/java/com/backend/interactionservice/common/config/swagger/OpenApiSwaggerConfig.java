@@ -33,7 +33,9 @@ import org.springframework.web.method.HandlerMethod;
                 @Tag(name = "01. 포스팅 조회 API"),
                 @Tag(name = "02. 포스팅 좋아요 API"),
                 @Tag(name = "03. 포스팅 즐겨찾기 API"),
-                @Tag(name = "04. 포스팅 댓글/대댓글 API")
+                @Tag(name = "04. 포스팅 댓글/대댓글 API"),
+                @Tag(name = "05. 게시글 신고 API"),
+                @Tag(name = "06. 댓글 신고 API")
         }
 )
 @Configuration
@@ -78,7 +80,7 @@ public class OpenApiSwaggerConfig {
             operation.getResponses()
                      .addApiResponse("400", errorResponse("요청 값이 올바르지 않음", "FE40001", "입력 데이터에 문제가 있습니다.", 400))
                      .addApiResponse("500", errorResponse("처리되지 않은 서버 오류", "FE50001", "서버 처리 오류(관리자에게 문의하세요).", 500));
-            if (isOptionalAuth(handlerMethod)) {
+            if (isPublic(handlerMethod)) {
                 operation.setSecurity(List.of());
             } else {
                 operation.getResponses()
@@ -97,11 +99,14 @@ public class OpenApiSwaggerConfig {
                              .build();
     }
 
-    private boolean isOptionalAuth(HandlerMethod handlerMethod) {
-        return Arrays.stream(handlerMethod.getMethodParameters())
-                     .map(parameter -> parameter.getParameterAnnotation(CurrentUser.class))
-                     .filter(Objects::nonNull)
-                     .anyMatch(currentUser -> !currentUser.required());
+    private boolean isPublic(HandlerMethod handlerMethod) {
+        var annotations = Arrays.stream(handlerMethod.getMethodParameters())
+                                .map(p -> p.getParameterAnnotation(CurrentUser.class))
+                                .filter(Objects::nonNull)
+                                .toList();
+
+        return annotations.isEmpty()
+                || annotations.stream().anyMatch(a -> !a.required());
     }
 
     private ApiResponse errorResponse(String description, String code, String message, int status) {

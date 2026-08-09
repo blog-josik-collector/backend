@@ -21,7 +21,7 @@ public class IndexedPostController {
 
     private final IndexedPostService indexedPostService;
 
-    @Operation(summary = "색인 대상 문서 색인 상태 조회")
+    @Operation(summary = "색인 대상 문서 색인 상태 조회", description = "운영자 전용 API")
     @GetMapping("/{posting-id}")
     public ResponseEntity<IndexedPost> getIndexedPost(@PathVariable("posting-id") UUID postingId) {
 

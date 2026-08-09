@@ -29,7 +29,7 @@ public class IndexingJobController {
 
     private final IndexingJobService indexingJobService;
 
-    @Operation(summary = "이 '수집 소스'에 포함된 전체 post 재색인")
+    @Operation(summary = "이 '수집 소스'에 포함된 전체 post 재색인", description = "운영자 전용 API")
     @PostMapping("/sources/{source-id}/_reindex")
     public ResponseEntity<IndexingJobStartDto.Response> reindexSource(@CurrentUser JwtPrincipal principal,
                                                                       @PathVariable("source-id") UUID sourceId) {
@@ -38,7 +38,7 @@ public class IndexingJobController {
         return ResponseEntity.accepted().body(new IndexingJobStartDto.Response(jobId, JobStatus.PENDING));
     }
 
-    @Operation(summary = "특정 post 1개 재색인")
+    @Operation(summary = "특정 post 1개 재색인", description = "운영자 전용 API")
     @PostMapping("/posts/{post-id}/_reindex")
     public ResponseEntity<IndexingJobStartDto.Response> reindexPost(@CurrentUser JwtPrincipal principal,
                                                                     @PathVariable("post-id") UUID postId) {
@@ -47,7 +47,7 @@ public class IndexingJobController {
         return ResponseEntity.accepted().body(new IndexingJobStartDto.Response(jobId, JobStatus.PENDING));
     }
 
-    @Operation(summary = "색인 작업 상태 목록 조회")
+    @Operation(summary = "색인 작업 상태 목록 조회", description = "운영자 전용 API")
     @GetMapping("/jobs")
     public ResponseEntity<OffsetPageResult<IndexingJobReadDto.Response>> getIndexingJobs(@RequestParam(value = "page", required = false, defaultValue = "0") int page,
                                                                                          @RequestParam(value = "size", required = false, defaultValue = "10") int size) {
@@ -56,7 +56,7 @@ public class IndexingJobController {
         return ResponseEntity.ok(indexingJobDtos.map(IndexingJobReadDto.Response::from));
     }
 
-    @Operation(summary = "색인 작업 상태 조회")
+    @Operation(summary = "색인 작업 상태 조회", description = "운영자 전용 API")
     @GetMapping("/jobs/{id}")
     public ResponseEntity<IndexingJobReadDto.Response> getIndexingJob(@PathVariable UUID id) {
 

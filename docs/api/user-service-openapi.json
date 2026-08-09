@@ -1,6 +1,32 @@
 {
     "components": {
         "schemas": {
+            "ErrorResponse": {
+                "description": "\uacf5\ud1b5 \uc5d0\ub7ec \uc751\ub2f5",
+                "properties": {
+                    "code": {
+                        "description": "\uc5d0\ub7ec \ucf54\ub4dc",
+                        "example": "BE40101",
+                        "type": "string"
+                    },
+                    "message": {
+                        "description": "\uc5d0\ub7ec \uba54\uc2dc\uc9c0",
+                        "example": "\uc778\uc99d\ub418\uc9c0 \uc54a\uc740 \uc0ac\uc6a9\uc790\uc785\ub2c8\ub2e4.",
+                        "type": "string"
+                    },
+                    "status": {
+                        "description": "HTTP \uc0c1\ud0dc \ucf54\ub4dc",
+                        "example": 401,
+                        "format": "int32",
+                        "type": "integer"
+                    },
+                    "timestamp": {
+                        "description": "\uc5d0\ub7ec \ubc1c\uc0dd \uc2dc\uac01",
+                        "format": "date-time",
+                        "type": "string"
+                    }
+                }
+            },
             "com.backend.userservice.auth.controller.dto.LoginDto.LoginResponse": {
                 "description": "\ub85c\uadf8\uc778 \uc751\ub2f5",
                 "properties": {
@@ -150,6 +176,14 @@
                     }
                 }
             }
+        },
+        "securitySchemes": {
+            "bearerAuth": {
+                "bearerFormat": "JWT",
+                "description": "user-service \ub85c\uadf8\uc778 \ub610\ub294 \uad6c\uae00 OAuth \ucf5c\ubc31\uc5d0\uc11c \ubc1c\uae09\ubc1b\uc740 access token",
+                "scheme": "bearer",
+                "type": "http"
+            }
         }
     },
     "info": {
@@ -182,8 +216,41 @@
                             }
                         },
                         "description": "OK"
+                    },
+                    "400": {
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "code": "FE40001",
+                                    "message": "\uc785\ub825 \ub370\uc774\ud130\uc5d0 \ubb38\uc81c\uac00 \uc788\uc2b5\ub2c8\ub2e4.",
+                                    "status": 400,
+                                    "timestamp": "2026-08-09T12:00:00+09:00"
+                                },
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "\uc694\uccad \uac12\uc774 \uc62c\ubc14\ub974\uc9c0 \uc54a\uc74c"
+                    },
+                    "500": {
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "code": "FE50001",
+                                    "message": "\uc11c\ubc84 \ucc98\ub9ac \uc624\ub958(\uad00\ub9ac\uc790\uc5d0\uac8c \ubb38\uc758\ud558\uc138\uc694).",
+                                    "status": 500,
+                                    "timestamp": "2026-08-09T12:00:00+09:00"
+                                },
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "\ucc98\ub9ac\ub418\uc9c0 \uc54a\uc740 \uc11c\ubc84 \uc624\ub958"
                     }
                 },
+                "security": [],
                 "summary": "\uc9c1\uc811 \uac00\uc785\ud55c \uacc4\uc815\uc73c\ub85c \ub85c\uadf8\uc778",
                 "tags": [
                     "02. \ub85c\uadf8\uc778 \uad00\ub828 API"
@@ -213,8 +280,41 @@
                             }
                         },
                         "description": "OK"
+                    },
+                    "400": {
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "code": "FE40001",
+                                    "message": "\uc785\ub825 \ub370\uc774\ud130\uc5d0 \ubb38\uc81c\uac00 \uc788\uc2b5\ub2c8\ub2e4.",
+                                    "status": 400,
+                                    "timestamp": "2026-08-09T12:00:00+09:00"
+                                },
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "\uc694\uccad \uac12\uc774 \uc62c\ubc14\ub974\uc9c0 \uc54a\uc74c"
+                    },
+                    "500": {
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "code": "FE50001",
+                                    "message": "\uc11c\ubc84 \ucc98\ub9ac \uc624\ub958(\uad00\ub9ac\uc790\uc5d0\uac8c \ubb38\uc758\ud558\uc138\uc694).",
+                                    "status": 500,
+                                    "timestamp": "2026-08-09T12:00:00+09:00"
+                                },
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "\ucc98\ub9ac\ub418\uc9c0 \uc54a\uc740 \uc11c\ubc84 \uc624\ub958"
                     }
                 },
+                "security": [],
                 "summary": "SNS \uacc4\uc815\uc73c\ub85c \ub85c\uadf8\uc778(Google \ucf5c\ubc31 \u2014 code \uad50\ud658 \ud6c4 id_token \uac80\uc99d\u00b7\ud30c\uc2f1)",
                 "tags": [
                     "02. \ub85c\uadf8\uc778 \uad00\ub828 API"
@@ -244,8 +344,41 @@
                             }
                         },
                         "description": "OK"
+                    },
+                    "400": {
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "code": "FE40001",
+                                    "message": "\uc785\ub825 \ub370\uc774\ud130\uc5d0 \ubb38\uc81c\uac00 \uc788\uc2b5\ub2c8\ub2e4.",
+                                    "status": 400,
+                                    "timestamp": "2026-08-09T12:00:00+09:00"
+                                },
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "\uc694\uccad \uac12\uc774 \uc62c\ubc14\ub974\uc9c0 \uc54a\uc74c"
+                    },
+                    "500": {
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "code": "FE50001",
+                                    "message": "\uc11c\ubc84 \ucc98\ub9ac \uc624\ub958(\uad00\ub9ac\uc790\uc5d0\uac8c \ubb38\uc758\ud558\uc138\uc694).",
+                                    "status": 500,
+                                    "timestamp": "2026-08-09T12:00:00+09:00"
+                                },
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "\ucc98\ub9ac\ub418\uc9c0 \uc54a\uc740 \uc11c\ubc84 \uc624\ub958"
                     }
                 },
+                "security": [],
                 "summary": "\uc9c1\uc811 \ud68c\uc6d0\uac00\uc785",
                 "tags": [
                     "01. \ud68c\uc6d0\uc815\ubcf4 \uad00\ub828 API"
@@ -258,6 +391,70 @@
                 "responses": {
                     "200": {
                         "description": "OK"
+                    },
+                    "400": {
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "code": "FE40001",
+                                    "message": "\uc785\ub825 \ub370\uc774\ud130\uc5d0 \ubb38\uc81c\uac00 \uc788\uc2b5\ub2c8\ub2e4.",
+                                    "status": 400,
+                                    "timestamp": "2026-08-09T12:00:00+09:00"
+                                },
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "\uc694\uccad \uac12\uc774 \uc62c\ubc14\ub974\uc9c0 \uc54a\uc74c"
+                    },
+                    "401": {
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "code": "BE40101",
+                                    "message": "\uc778\uc99d\ub418\uc9c0 \uc54a\uc740 \uc0ac\uc6a9\uc790\uc785\ub2c8\ub2e4.",
+                                    "status": 401,
+                                    "timestamp": "2026-08-09T12:00:00+09:00"
+                                },
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "\ud1a0\ud070\uc774 \uc5c6\uac70\ub098 \uc720\ud6a8\ud558\uc9c0 \uc54a\uc74c"
+                    },
+                    "403": {
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "code": "BE40301",
+                                    "message": "\uad8c\ud55c\uc774 \uc5c6\ub294 \uc0ac\uc6a9\uc790\uc785\ub2c8\ub2e4.",
+                                    "status": 403,
+                                    "timestamp": "2026-08-09T12:00:00+09:00"
+                                },
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "\uad8c\ud55c\uc774 \uc5c6\ub294 \uc0ac\uc6a9\uc790"
+                    },
+                    "500": {
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "code": "FE50001",
+                                    "message": "\uc11c\ubc84 \ucc98\ub9ac \uc624\ub958(\uad00\ub9ac\uc790\uc5d0\uac8c \ubb38\uc758\ud558\uc138\uc694).",
+                                    "status": 500,
+                                    "timestamp": "2026-08-09T12:00:00+09:00"
+                                },
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "\ucc98\ub9ac\ub418\uc9c0 \uc54a\uc740 \uc11c\ubc84 \uc624\ub958"
                     }
                 },
                 "summary": "\ud68c\uc6d0\ud0c8\ud1f4",
@@ -277,6 +474,70 @@
                             }
                         },
                         "description": "OK"
+                    },
+                    "400": {
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "code": "FE40001",
+                                    "message": "\uc785\ub825 \ub370\uc774\ud130\uc5d0 \ubb38\uc81c\uac00 \uc788\uc2b5\ub2c8\ub2e4.",
+                                    "status": 400,
+                                    "timestamp": "2026-08-09T12:00:00+09:00"
+                                },
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "\uc694\uccad \uac12\uc774 \uc62c\ubc14\ub974\uc9c0 \uc54a\uc74c"
+                    },
+                    "401": {
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "code": "BE40101",
+                                    "message": "\uc778\uc99d\ub418\uc9c0 \uc54a\uc740 \uc0ac\uc6a9\uc790\uc785\ub2c8\ub2e4.",
+                                    "status": 401,
+                                    "timestamp": "2026-08-09T12:00:00+09:00"
+                                },
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "\ud1a0\ud070\uc774 \uc5c6\uac70\ub098 \uc720\ud6a8\ud558\uc9c0 \uc54a\uc74c"
+                    },
+                    "403": {
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "code": "BE40301",
+                                    "message": "\uad8c\ud55c\uc774 \uc5c6\ub294 \uc0ac\uc6a9\uc790\uc785\ub2c8\ub2e4.",
+                                    "status": 403,
+                                    "timestamp": "2026-08-09T12:00:00+09:00"
+                                },
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "\uad8c\ud55c\uc774 \uc5c6\ub294 \uc0ac\uc6a9\uc790"
+                    },
+                    "500": {
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "code": "FE50001",
+                                    "message": "\uc11c\ubc84 \ucc98\ub9ac \uc624\ub958(\uad00\ub9ac\uc790\uc5d0\uac8c \ubb38\uc758\ud558\uc138\uc694).",
+                                    "status": 500,
+                                    "timestamp": "2026-08-09T12:00:00+09:00"
+                                },
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "\ucc98\ub9ac\ub418\uc9c0 \uc54a\uc740 \uc11c\ubc84 \uc624\ub958"
                     }
                 },
                 "summary": "\ud68c\uc6d0\uc815\ubcf4 \uc870\ud68c(\ub0b4 \uc815\ubcf4 \uc870\ud68c)",
@@ -306,6 +567,70 @@
                             }
                         },
                         "description": "OK"
+                    },
+                    "400": {
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "code": "FE40001",
+                                    "message": "\uc785\ub825 \ub370\uc774\ud130\uc5d0 \ubb38\uc81c\uac00 \uc788\uc2b5\ub2c8\ub2e4.",
+                                    "status": 400,
+                                    "timestamp": "2026-08-09T12:00:00+09:00"
+                                },
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "\uc694\uccad \uac12\uc774 \uc62c\ubc14\ub974\uc9c0 \uc54a\uc74c"
+                    },
+                    "401": {
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "code": "BE40101",
+                                    "message": "\uc778\uc99d\ub418\uc9c0 \uc54a\uc740 \uc0ac\uc6a9\uc790\uc785\ub2c8\ub2e4.",
+                                    "status": 401,
+                                    "timestamp": "2026-08-09T12:00:00+09:00"
+                                },
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "\ud1a0\ud070\uc774 \uc5c6\uac70\ub098 \uc720\ud6a8\ud558\uc9c0 \uc54a\uc74c"
+                    },
+                    "403": {
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "code": "BE40301",
+                                    "message": "\uad8c\ud55c\uc774 \uc5c6\ub294 \uc0ac\uc6a9\uc790\uc785\ub2c8\ub2e4.",
+                                    "status": 403,
+                                    "timestamp": "2026-08-09T12:00:00+09:00"
+                                },
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "\uad8c\ud55c\uc774 \uc5c6\ub294 \uc0ac\uc6a9\uc790"
+                    },
+                    "500": {
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "code": "FE50001",
+                                    "message": "\uc11c\ubc84 \ucc98\ub9ac \uc624\ub958(\uad00\ub9ac\uc790\uc5d0\uac8c \ubb38\uc758\ud558\uc138\uc694).",
+                                    "status": 500,
+                                    "timestamp": "2026-08-09T12:00:00+09:00"
+                                },
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "\ucc98\ub9ac\ub418\uc9c0 \uc54a\uc740 \uc11c\ubc84 \uc624\ub958"
                     }
                 },
                 "summary": "\ud68c\uc6d0\uc815\ubcf4 \uc218\uc815(\ub0b4 \uc815\ubcf4 \uc218\uc815)",
@@ -330,6 +655,70 @@
                 "responses": {
                     "200": {
                         "description": "OK"
+                    },
+                    "400": {
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "code": "FE40001",
+                                    "message": "\uc785\ub825 \ub370\uc774\ud130\uc5d0 \ubb38\uc81c\uac00 \uc788\uc2b5\ub2c8\ub2e4.",
+                                    "status": 400,
+                                    "timestamp": "2026-08-09T12:00:00+09:00"
+                                },
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "\uc694\uccad \uac12\uc774 \uc62c\ubc14\ub974\uc9c0 \uc54a\uc74c"
+                    },
+                    "401": {
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "code": "BE40101",
+                                    "message": "\uc778\uc99d\ub418\uc9c0 \uc54a\uc740 \uc0ac\uc6a9\uc790\uc785\ub2c8\ub2e4.",
+                                    "status": 401,
+                                    "timestamp": "2026-08-09T12:00:00+09:00"
+                                },
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "\ud1a0\ud070\uc774 \uc5c6\uac70\ub098 \uc720\ud6a8\ud558\uc9c0 \uc54a\uc74c"
+                    },
+                    "403": {
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "code": "BE40301",
+                                    "message": "\uad8c\ud55c\uc774 \uc5c6\ub294 \uc0ac\uc6a9\uc790\uc785\ub2c8\ub2e4.",
+                                    "status": 403,
+                                    "timestamp": "2026-08-09T12:00:00+09:00"
+                                },
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "\uad8c\ud55c\uc774 \uc5c6\ub294 \uc0ac\uc6a9\uc790"
+                    },
+                    "500": {
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "code": "FE50001",
+                                    "message": "\uc11c\ubc84 \ucc98\ub9ac \uc624\ub958(\uad00\ub9ac\uc790\uc5d0\uac8c \ubb38\uc758\ud558\uc138\uc694).",
+                                    "status": 500,
+                                    "timestamp": "2026-08-09T12:00:00+09:00"
+                                },
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "\ucc98\ub9ac\ub418\uc9c0 \uc54a\uc740 \uc11c\ubc84 \uc624\ub958"
                     }
                 },
                 "summary": "\ud68c\uc6d0\uc815\ubcf4 \ud1b5\ud569",
@@ -361,6 +750,70 @@
                             }
                         },
                         "description": "OK"
+                    },
+                    "400": {
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "code": "FE40001",
+                                    "message": "\uc785\ub825 \ub370\uc774\ud130\uc5d0 \ubb38\uc81c\uac00 \uc788\uc2b5\ub2c8\ub2e4.",
+                                    "status": 400,
+                                    "timestamp": "2026-08-09T12:00:00+09:00"
+                                },
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "\uc694\uccad \uac12\uc774 \uc62c\ubc14\ub974\uc9c0 \uc54a\uc74c"
+                    },
+                    "401": {
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "code": "BE40101",
+                                    "message": "\uc778\uc99d\ub418\uc9c0 \uc54a\uc740 \uc0ac\uc6a9\uc790\uc785\ub2c8\ub2e4.",
+                                    "status": 401,
+                                    "timestamp": "2026-08-09T12:00:00+09:00"
+                                },
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "\ud1a0\ud070\uc774 \uc5c6\uac70\ub098 \uc720\ud6a8\ud558\uc9c0 \uc54a\uc74c"
+                    },
+                    "403": {
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "code": "BE40301",
+                                    "message": "\uad8c\ud55c\uc774 \uc5c6\ub294 \uc0ac\uc6a9\uc790\uc785\ub2c8\ub2e4.",
+                                    "status": 403,
+                                    "timestamp": "2026-08-09T12:00:00+09:00"
+                                },
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "\uad8c\ud55c\uc774 \uc5c6\ub294 \uc0ac\uc6a9\uc790"
+                    },
+                    "500": {
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "code": "FE50001",
+                                    "message": "\uc11c\ubc84 \ucc98\ub9ac \uc624\ub958(\uad00\ub9ac\uc790\uc5d0\uac8c \ubb38\uc758\ud558\uc138\uc694).",
+                                    "status": 500,
+                                    "timestamp": "2026-08-09T12:00:00+09:00"
+                                },
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "\ucc98\ub9ac\ub418\uc9c0 \uc54a\uc740 \uc11c\ubc84 \uc624\ub958"
                     }
                 },
                 "summary": "\ube44\ubc00\ubc88\ud638 \uc218\uc815(\ub0b4 \uc815\ubcf4 \uc218\uc815)",
@@ -370,6 +823,11 @@
             }
         }
     },
+    "security": [
+        {
+            "bearerAuth": []
+        }
+    ],
     "servers": [
         {
             "description": "Generated server url",

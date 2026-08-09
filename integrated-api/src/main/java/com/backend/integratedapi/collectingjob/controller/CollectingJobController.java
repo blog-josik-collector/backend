@@ -38,7 +38,7 @@ public class CollectingJobController {
 
     @Operation(
             summary = "수집 작업 실행",
-            description = "MANUAL source는 1회 Job 생성 후 종료. CRON source는 자동 생성 사이클 활성화 + 첫 Job 생성."
+            description = "운영자 전용 API, MANUAL source는 1회 Job 생성 후 종료. CRON source는 자동 생성 사이클 활성화 + 첫 Job 생성."
     )
     @PostMapping("/sources/{source-id}/_start")
     public ResponseEntity<CollectingJobStartDto.Response> start(@CurrentUser JwtPrincipal principal,
@@ -58,7 +58,7 @@ public class CollectingJobController {
 
     @Operation(
             summary = "수집 작업 종료",
-            description = "CRON source의 자동 생성 사이클을 종료(isUsed=false). MANUAL source 호출시 무시됨."
+            description = "운영자 전용 API, CRON source의 자동 생성 사이클을 종료(isUsed=false). MANUAL source 호출시 무시됨."
     )
     @PostMapping("/sources/{source-id}/_stop")
     public ResponseEntity<Void> stop(@PathVariable("source-id") UUID sourceId) {
@@ -68,7 +68,7 @@ public class CollectingJobController {
         return ResponseEntity.accepted().build();
     }
 
-    @Operation(summary = "수집 작업 상태 목록 조회")
+    @Operation(summary = "수집 작업 상태 목록 조회", description = "운영자 전용 API")
     @GetMapping("/jobs")
     public ResponseEntity<OffsetPageResult<CollectingJobReadDto.Response>> getCollectingJobs(@RequestParam(value = "page", required = false, defaultValue = "0") int page,
                                                                                              @RequestParam(value = "size", required = false, defaultValue = "10") int size) {
@@ -77,7 +77,7 @@ public class CollectingJobController {
         return ResponseEntity.ok(collectSourceDtos.map(CollectingJobReadDto.Response::from));
     }
 
-    @Operation(summary = "수집 작업 상태 조회")
+    @Operation(summary = "수집 작업 상태 조회", description = "운영자 전용 API")
     @GetMapping("/jobs/{id}")
     public ResponseEntity<CollectingJobReadDto.Response> getSource(@PathVariable UUID id) {
 

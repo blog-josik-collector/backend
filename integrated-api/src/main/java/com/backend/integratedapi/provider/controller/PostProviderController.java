@@ -30,7 +30,7 @@ public class PostProviderController {
 
     private final PostProviderService postProviderService;
 
-    @Operation(summary = "Provider 등록")
+    @Operation(summary = "Provider 등록", description = "운영자 전용 API")
     @PostMapping(value = "/providers", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<PostProviderCreateDto.Response> create(@RequestBody PostProviderCreateDto.Request request) {
 
@@ -41,7 +41,7 @@ public class PostProviderController {
         return ResponseEntity.ok(PostProviderCreateDto.Response.from(createdPostProviderDto));
     }
 
-    @Operation(summary = "Provider 목록 조회")
+    @Operation(summary = "Provider 목록 조회", description = "운영자 전용 API")
     @GetMapping("/providers")
     public ResponseEntity<OffsetPageResult<PostProviderReadDto.Response>> getProviders(@RequestParam(value = "page", required = false, defaultValue = "0") int page,
                                                                                        @RequestParam(value = "size", required = false, defaultValue = "10") int size) {
@@ -50,7 +50,7 @@ public class PostProviderController {
         return ResponseEntity.ok(postProviderDtos.map(PostProviderReadDto.Response::from));
     }
 
-    @Operation(summary = "Provider 한 건 조회")
+    @Operation(summary = "Provider 한 건 조회", description = "운영자 전용 API")
     @GetMapping("/providers/{id}")
     public ResponseEntity<PostProviderReadDto.Response> getProvider(@PathVariable UUID id) {
 
@@ -58,7 +58,7 @@ public class PostProviderController {
         return ResponseEntity.ok(PostProviderReadDto.Response.from(postProviderDto));
     }
 
-    @Operation(summary = "Provider 수정")
+    @Operation(summary = "Provider 수정", description = "운영자 전용 API")
     @PatchMapping(value = "/providers/{id}", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<PostProviderUpdateDto.Response> update(@PathVariable UUID id,
                                                                  @RequestBody PostProviderUpdateDto.Request request) {
@@ -68,7 +68,7 @@ public class PostProviderController {
         return ResponseEntity.ok(PostProviderUpdateDto.Response.from(postProviderService.getPostProviderDto(id)));
     }
 
-    @Operation(summary = "Provider 삭제")
+    @Operation(summary = "Provider 삭제", description = "운영자 전용 API")
     @DeleteMapping("/providers/{id}")
     public ResponseEntity<Void> delete(@PathVariable UUID id) {
 
