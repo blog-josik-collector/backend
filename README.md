@@ -86,7 +86,14 @@ docker compose -f docker-backend/docker-compose.yml down
 ./gradlew :user-service:test
 ```
 
-## 데이터베이스/Flyway 설정 참고
+Jacoco LINE 커버리지 게이트 (Service 계층~, Repository 제외, 기준 ≥ 80%):
+
+```bash
+./scripts/check-coverage.sh                 # user / integrated-api / worker / interaction
+./scripts/check-coverage.sh user-service    # 특정 모듈만
+```
+
+상세 규칙: [docs/testing-guide.md](./docs/testing-guide.md)
 
 - DB를 사용하는 서비스(`user-service`, `search-service`, `interaction-service`)는 `application.yml`의 `spring.datasource`를 기준으로 PostgreSQL에 연결됩니다.
 - Flyway 사용 시 PostgreSQL 환경에서는 `flyway-core`와 함께 `flyway-database-postgresql` 의존성이 필요합니다.

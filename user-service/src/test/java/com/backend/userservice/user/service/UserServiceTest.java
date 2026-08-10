@@ -122,6 +122,76 @@ class UserServiceTest {
             Assertions.assertThat(createdUser.nickname()).isNotNull();
             Assertions.assertThat(createdUser.userType()).isEqualTo(mockUser.userType());
         }
+
+        @Test
+        void user_dto를_통해_ADMIN_User를_생성할_수_있다() {
+            String loginId = "admin_login";
+            String password = "admin_password";
+            User adminUser = User.builder()
+                                 .id(UUID.randomUUID())
+                                 .userType(UserType.ADMIN)
+                                 .nickname("admin_nickname")
+                                 .build();
+            UserDto userDto = UserDto.builder()
+                                     .loginId(loginId)
+                                     .nickname(adminUser.nickname())
+                                     .password(password)
+                                     .passwordConfirm(password)
+                                     .build();
+            UserAuthentication userAuthentication = UserAuthentication.builder()
+                                                                      .user(adminUser)
+                                                                      .loginProvider(LoginProvider.LOCAL)
+                                                                      .identifier(loginId)
+                                                                      .credential(password)
+                                                                      .build();
+
+            Mockito.doReturn(Boolean.FALSE).when(userRepository).existsByNickname(any());
+            Mockito.doReturn(adminUser).when(userRepository).save(any());
+            Mockito.doReturn(userAuthentication).when(userAuthenticationService).create(any(), any(), any(), any());
+
+            UserDto created = userService.createAdmin(userDto);
+
+            Assertions.assertThat(created).isNotNull();
+            Assertions.assertThat(created.userId()).isEqualTo(adminUser.id());
+            Assertions.assertThat(created.userType()).isEqualTo(UserType.ADMIN);
+            Assertions.assertThat(created.nickname()).isEqualTo(adminUser.nickname());
+            Mockito.verify(userRepository).save(Mockito.argThat(user -> user.userType() == UserType.ADMIN));
+        }
+    }
+
+    @DisplayName("닉네임 생성 테스트")
+    @Nested
+    class SafeNicknameTest {
+
+        @Test
+        void 닉네임이_5번_이상_충돌하면_타임스탬프를_붙여_재시도한다() {
+            Mockito.when(userRepository.existsByNickname(any()))
+                   .thenReturn(true, true, true, true, true, false);
+
+            String nickname = userService.getSafeNickname();
+
+            Assertions.assertThat(nickname).isNotBlank();
+            Mockito.verify(userRepository, Mockito.atLeast(6)).existsByNickname(any());
+        }
+    }
+
+    @DisplayName("ADMIN 존재 여부 테스트")
+    @Nested
+    class HasAdminTest {
+
+        @Test
+        void ADMIN이_있으면_true를_반환한다() {
+            Mockito.when(userRepository.existsByUserTypeAndDeletedAtIsNull(UserType.ADMIN)).thenReturn(true);
+
+            Assertions.assertThat(userService.hasAdmin()).isTrue();
+        }
+
+        @Test
+        void ADMIN이_없으면_false를_반환한다() {
+            Mockito.when(userRepository.existsByUserTypeAndDeletedAtIsNull(UserType.ADMIN)).thenReturn(false);
+
+            Assertions.assertThat(userService.hasAdmin()).isFalse();
+        }
     }
 
     @DisplayName("User 조회 테스트")

@@ -19,6 +19,7 @@ ext {
 
 subprojects {
     apply plugin: "java"
+    apply plugin: "jacoco"
     apply plugin: "io.spring.dependency-management"
 
     java {
@@ -35,6 +36,46 @@ subprojects {
 
     test {
         useJUnitPlatform() // 이 설정이 반드시 있어야 JUnit 5 테스트를 인식합니다.
+        finalizedBy jacocoTestReport
+    }
+
+    jacoco {
+        toolVersion = "0.8.12"
+    }
+
+    jacocoTestReport {
+        dependsOn test
+        reports {
+            xml.required = true
+            csv.required = true
+            html.required = true
+        }
+        // QClass·설정·DTO·Repository 제외 (커버리지는 Service 계층부터)
+        classDirectories.setFrom(
+                files(classDirectories.files.collect {
+                    fileTree(dir: it, exclude: [
+                            "**/Q*.class",
+                            "**/*Application.class",
+                            "**/dto/**",
+                            "**/config/**",
+                            "**/repository/**",
+                    ])
+                })
+        )
+    }
+
+    jacocoTestCoverageVerification {
+        dependsOn jacocoTestReport
+        violationRules {
+            rule {
+                limit {
+                    counter = "LINE"
+                    value = "COVEREDRATIO"
+                    minimum = 0.80
+                }
+            }
+        }
+        classDirectories.setFrom(jacocoTestReport.classDirectories)
     }
 
     dependencies {
