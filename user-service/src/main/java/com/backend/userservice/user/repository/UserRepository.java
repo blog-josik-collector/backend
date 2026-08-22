@@ -9,7 +9,9 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface UserRepository extends JpaRepository<User, UUID> {
 
-    boolean existsByNickname(String nickname);
+    boolean existsByNicknameAndDeletedAtIsNull(String nickname);
+
+    boolean existsByNicknameAndIdNotAndDeletedAtIsNull(String nickname, UUID id);
 
     boolean existsByUserTypeAndDeletedAtIsNull(UserType userType);
 }

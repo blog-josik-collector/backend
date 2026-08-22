@@ -33,7 +33,7 @@ public class UserService {
                       .next(UserValidator.validatePasswordAndPasswordConfirm())
                       .end();
 
-        UserValidator.verifyDuplicateNickname(userDto.nickname(), userRepository::existsByNickname);
+        UserValidator.verifyDuplicateNickname(userDto.nickname(), userRepository::existsByNicknameAndDeletedAtIsNull);
 
         User user = User.builder()
                         .userType(UserType.USER)
@@ -74,7 +74,7 @@ public class UserService {
                       .next(UserValidator.validatePasswordAndPasswordConfirm())
                       .end();
 
-        UserValidator.verifyDuplicateNickname(userDto.nickname(), userRepository::existsByNickname);
+        UserValidator.verifyDuplicateNickname(userDto.nickname(), userRepository::existsByNicknameAndDeletedAtIsNull);
 
         User user = User.builder()
                         .userType(UserType.ADMIN)
@@ -128,7 +128,7 @@ public class UserService {
                 // 5번 이상 충돌 시 더 긴 랜덤값을 붙이거나 예외 처리
                 nickname += System.currentTimeMillis() % 1000;
             }
-        } while (userRepository.existsByNickname(nickname));
+        } while (userRepository.existsByNicknameAndDeletedAtIsNull(nickname));
 
         return nickname;
     }
@@ -139,7 +139,9 @@ public class UserService {
                       .next(UserValidator.validateNickname())
                       .end();
 
-        UserValidator.verifyDuplicateNickname(userDto.nickname(), userRepository::existsByNickname);
+        UserValidator.verifyDuplicateNickname(
+                userDto.nickname(),
+                nickname -> userRepository.existsByNicknameAndIdNotAndDeletedAtIsNull(nickname, userDto.userId()));
 
         User user = getUser(userDto.userId());
 

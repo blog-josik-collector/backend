@@ -138,7 +138,7 @@ class UserAuthenticationServiceTest {
             String passwordConfirm = "test_password";
             String duplicatedSubject = "duplicated_subject";
 
-            Mockito.doReturn(Boolean.TRUE).when(userAuthenticationRepository).existsByIdentifier(any());
+            Mockito.doReturn(Boolean.TRUE).when(userAuthenticationRepository).existsByIdentifierAndDeletedAtIsNull(any());
 
             // when & then
             Assertions.assertThatThrownBy(() -> userAuthenticationService.create(mockUser, duplicatedLoginId, password, passwordConfirm))

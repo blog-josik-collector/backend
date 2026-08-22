@@ -33,7 +33,7 @@ public class UserAuthenticationService {
         UserAuthenticationValidator.validateCredential(password);
 
         UserAuthenticationValidator.validateIsSameCredentialAndCredentialConfirm(password, passwordConfirm);
-        UserAuthenticationValidator.verifyDuplicateIdentifier(loginId, userAuthenticationRepository::existsByIdentifier);
+        UserAuthenticationValidator.verifyDuplicateIdentifier(loginId, userAuthenticationRepository::existsByIdentifierAndDeletedAtIsNull);
 
         String encodedPassword = passwordEncoder.encode(password);
 
@@ -51,7 +51,7 @@ public class UserAuthenticationService {
         UserAuthenticationValidator.validateUser(user);
         UserAuthenticationValidator.validateIdentifier(subject);
 
-        UserAuthenticationValidator.verifyDuplicateIdentifier(subject, userAuthenticationRepository::existsByIdentifier);
+        UserAuthenticationValidator.verifyDuplicateIdentifier(subject, userAuthenticationRepository::existsByIdentifierAndDeletedAtIsNull);
 
         UserAuthentication userAuthentication = UserAuthentication.builder()
                                                                   .user(user)

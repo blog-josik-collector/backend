@@ -82,7 +82,7 @@ class UserServiceTest {
                                                                       .credential(password)
                                                                       .build();
 
-            Mockito.doReturn(Boolean.FALSE).when(userRepository).existsByNickname(any());
+            Mockito.doReturn(Boolean.FALSE).when(userRepository).existsByNicknameAndDeletedAtIsNull(any());
             Mockito.doReturn(mockUser).when(userRepository).save(any());
 
             Mockito.doReturn(userAuthentication).when(userAuthenticationService).create(any(), any(), any(), any());
@@ -108,7 +108,7 @@ class UserServiceTest {
                                                                       .identifier(subject)
                                                                       .build();
 
-            Mockito.doReturn(Boolean.FALSE).when(userRepository).existsByNickname(any());
+            Mockito.doReturn(Boolean.FALSE).when(userRepository).existsByNicknameAndDeletedAtIsNull(any());
             Mockito.doReturn(mockUser).when(userRepository).save(any());
 
             Mockito.doReturn(userAuthentication).when(userAuthenticationService).create(any(), any());
@@ -145,7 +145,7 @@ class UserServiceTest {
                                                                       .credential(password)
                                                                       .build();
 
-            Mockito.doReturn(Boolean.FALSE).when(userRepository).existsByNickname(any());
+            Mockito.doReturn(Boolean.FALSE).when(userRepository).existsByNicknameAndDeletedAtIsNull(any());
             Mockito.doReturn(adminUser).when(userRepository).save(any());
             Mockito.doReturn(userAuthentication).when(userAuthenticationService).create(any(), any(), any(), any());
 
@@ -165,13 +165,13 @@ class UserServiceTest {
 
         @Test
         void 닉네임이_5번_이상_충돌하면_타임스탬프를_붙여_재시도한다() {
-            Mockito.when(userRepository.existsByNickname(any()))
+            Mockito.when(userRepository.existsByNicknameAndDeletedAtIsNull(any()))
                    .thenReturn(true, true, true, true, true, false);
 
             String nickname = userService.getSafeNickname();
 
             Assertions.assertThat(nickname).isNotBlank();
-            Mockito.verify(userRepository, Mockito.atLeast(6)).existsByNickname(any());
+            Mockito.verify(userRepository, Mockito.atLeast(6)).existsByNicknameAndDeletedAtIsNull(any());
         }
     }
 
@@ -278,7 +278,7 @@ class UserServiceTest {
                                            .nickname(nickName)
                                            .build();
 
-            Mockito.doReturn(Boolean.FALSE).when(userRepository).existsByNickname(any());
+            Mockito.doReturn(Boolean.FALSE).when(userRepository).existsByNicknameAndIdNotAndDeletedAtIsNull(any(), any());
             Mockito.doReturn(Optional.of(mockUser)).when(queryRepository).fetchOneById(any());
 
             Assertions.assertThat(mockUser.nickname()).isNotEqualTo(nickName);

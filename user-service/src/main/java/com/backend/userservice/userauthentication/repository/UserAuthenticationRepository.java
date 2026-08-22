@@ -8,5 +8,5 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface UserAuthenticationRepository extends JpaRepository<UserAuthentication, UUID> {
 
-    boolean existsByIdentifier(String identifier);
+    boolean existsByIdentifierAndDeletedAtIsNull(String identifier);
 }
