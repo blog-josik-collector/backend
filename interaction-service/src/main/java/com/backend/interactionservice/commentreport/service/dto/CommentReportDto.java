@@ -12,11 +12,11 @@ public record CommentReportDto(
         @Schema(description = "신고 ID")
         UUID id,
 
-        @Schema(description = "신고 대상 댓글 ID")
-        UUID commentId,
+        @Schema(description = "신고 대상 댓글 본문")
+        String commentContent,
 
-        @Schema(description = "신고자 ID")
-        UUID reporterId,
+        @Schema(description = "신고자 닉네임")
+        String nickname,
 
         @Schema(description = "처리 상태")
         ReportStatus status,
@@ -36,8 +36,8 @@ public record CommentReportDto(
     public static CommentReportDto from(CommentReport report) {
         return new CommentReportDto(
                 report.id(),
-                report.comment() != null ? report.comment().id() : null,
-                report.user() != null ? report.user().id() : null,
+                report.comment() != null ? report.comment().content() : null,
+                report.user() != null ? report.user().nickname() : null,
                 report.reportStatus(),
                 report.commentReportType(),
                 report.content(),

@@ -7,6 +7,7 @@ import com.backend.commondataaccess.persistence.common.enums.ReportStatus;
 import com.backend.commondataaccess.persistence.post.Post;
 import com.backend.commondataaccess.persistence.report.PostReport;
 import com.backend.commondataaccess.persistence.user.User;
+import com.backend.interactionservice.post.repository.CollectSourcePostQueryRepository;
 import com.backend.interactionservice.post.repository.PostQueryRepository;
 import com.backend.interactionservice.post.service.PostService;
 import com.backend.interactionservice.postreport.repository.PostReportQueryRepository;
@@ -18,7 +19,12 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -35,6 +41,7 @@ public class PostReportService {
     private final PostReportRepository postReportRepository;
     private final PostReportQueryRepository queryRepository;
     private final PostQueryRepository postQueryRepository;
+    private final CollectSourcePostQueryRepository collectSourcePostQueryRepository;
     private final PostService postService;
     private final UserService userService;
 
@@ -63,7 +70,7 @@ public class PostReportService {
 
         PostReport saved = postReportRepository.saveAndFlush(report);
         postQueryRepository.incrementTotalReportCount(postId);
-        return PostReportDto.from(saved);
+        return toDto(saved);
     }
 
     /**
@@ -81,8 +88,8 @@ public class PostReportService {
         OffsetDateTime startDateTime = startDate == null ? null : startDate.atStartOfDay().atOffset(KST);
         OffsetDateTime endDateTime = endDate == null ? null : endDate.atTime(END_OF_DAY).atOffset(KST);
 
-        return queryRepository.fetchPage(status, reportType, startDateTime, endDateTime, pageable)
-                              .map(PostReportDto::from);
+        OffsetPageResult<PostReport> page = queryRepository.fetchPage(status, reportType, startDateTime, endDateTime, pageable);
+        return mapWithTitles(page);
     }
 
     /**
@@ -102,6 +109,32 @@ public class PostReportService {
             }
         }
 
-        return PostReportDto.from(report);
+        return toDto(report);
+    }
+
+    private OffsetPageResult<PostReportDto> mapWithTitles(OffsetPageResult<PostReport> page) {
+        List<PostReport> items = page.getItems();
+        if (items.isEmpty()) {
+            return page.map(report -> PostReportDto.from(report, null));
+        }
+
+        Set<UUID> postIds = items.stream()
+                                 .map(PostReport::post)
+                                 .filter(Objects::nonNull)
+                                 .map(Post::id)
+                                 .collect(Collectors.toSet());
+        Map<UUID, String> titlesByPostId = collectSourcePostQueryRepository.findTitlesByIds(postIds);
+
+        return page.map(report -> {
+            UUID postId = report.post() != null ? report.post().id() : null;
+            String title = postId != null ? titlesByPostId.get(postId) : null;
+            return PostReportDto.from(report, title);
+        });
+    }
+
+    private PostReportDto toDto(PostReport report) {
+        UUID postId = report.post() != null ? report.post().id() : null;
+        String title = postId == null ? null : collectSourcePostQueryRepository.findTitlesByIds(List.of(postId)).get(postId);
+        return PostReportDto.from(report, title);
     }
 }

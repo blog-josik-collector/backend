@@ -15,8 +15,8 @@ public record PostCommentReadDto() {
             @Schema(description = "댓글 ID")
             UUID id,
 
-            @Schema(description = "작성자 ID")
-            UUID userId,
+            @Schema(description = "작성자 닉네임")
+            String nickname,
 
             @Schema(description = "대댓글 보유 여부. true 이면 replies 조회 API로 하위 목록을 가져올 수 있다")
             boolean hasChildComment,
@@ -36,7 +36,7 @@ public record PostCommentReadDto() {
         public static Response from(PostCommentDto postCommentDto) {
             return Response.builder()
                            .id(postCommentDto.id())
-                           .userId(postCommentDto.userId())
+                           .nickname(postCommentDto.nickname())
                            .hasChildComment(postCommentDto.hasChildComment())
                            .content(postCommentDto.content())
                            .status(postCommentDto.status())
