@@ -1,7 +1,7 @@
 package com.backend.integratedworker.common.config.hibernate;
 
 import java.time.OffsetDateTime;
-import java.time.ZoneOffset;
+import java.time.ZoneId;
 import java.util.Optional;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.context.annotation.Bean;
@@ -24,6 +24,6 @@ public class JpaConfig {
 
     @Bean
     public DateTimeProvider auditingDateTimeProvider() {
-        return () -> Optional.of(OffsetDateTime.now(ZoneOffset.UTC));
+        return () -> Optional.of(OffsetDateTime.now(ZoneId.of("Asia/Seoul")));
     }
 }
