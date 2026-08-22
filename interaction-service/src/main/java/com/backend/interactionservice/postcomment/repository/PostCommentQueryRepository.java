@@ -90,9 +90,10 @@ public class PostCommentQueryRepository {
     }
 
     /**
-     * 주어진 parentIds 중에서 활성 상태인 자식 댓글을 1개 이상 가진 parent의 id 집합을 반환한다. 페이지 결과에 has_child_comment 플래그를 일괄로 매핑할 때 사용한다.
+     * 주어진 parentIds 중에서 자식 댓글(soft-delete 포함)을 1개 이상 가진 parent의 id 집합을 반환한다.
+     * 삭제된 대댓글 아래의 하위 댓글을 클라이언트가 계속 조회할 수 있도록 has_child_comment 는 활성 여부와 무관하게 계산한다.
      */
-    public Set<UUID> findParentIdsHavingActiveChildren(Collection<UUID> parentIds) {
+    public Set<UUID> findParentIdsHavingChildren(Collection<UUID> parentIds) {
         if (parentIds == null || parentIds.isEmpty()) {
             return Set.of();
         }
@@ -100,8 +101,7 @@ public class PostCommentQueryRepository {
         List<UUID> result = queryFactory.select(postComment.parentComment.id)
                                         .distinct()
                                         .from(postComment)
-                                        .where(postComment.parentComment.id.in(parentIds),
-                                               isActive())
+                                        .where(postComment.parentComment.id.in(parentIds))
                                         .fetch();
 
         return Set.copyOf(result);

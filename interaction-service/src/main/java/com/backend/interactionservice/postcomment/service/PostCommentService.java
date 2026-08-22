@@ -64,7 +64,7 @@ public class PostCommentService {
     }
 
     /**
-     * 2. 포스팅의 댓글(1-depth) 목록 조회. 각 댓글에 대해 활성 자식 댓글(대댓글) 존재 여부(has_child_comment)를 함께 채워서 반환한다.
+     * 2. 포스팅의 댓글(1-depth) 목록 조회. 각 댓글에 대해 자식 댓글(대댓글, soft-delete 포함) 존재 여부(has_child_comment)를 함께 채워서 반환한다.
      */
     @Transactional(readOnly = true)
     public OffsetPageResult<PostCommentDto> getComments(UUID postId, Pageable pageable) {
@@ -125,7 +125,7 @@ public class PostCommentService {
     }
 
     /**
-     * 6. 특정 댓글의 자식 댓글 목록 조회. 부모가 최상위 댓글이든 다른 대댓글이든 동일하게 직접 자식들만 반환한다. 각 항목에 대해 또 다른 자식이 달려있는지 여부(has_child_comment)도 함께 계산한다.
+     * 6. 특정 댓글의 자식 댓글 목록 조회. 부모가 최상위 댓글이든 다른 대댓글이든 동일하게 직접 자식들만 반환한다. 각 항목에 대해 또 다른 자식이 달려있는지 여부(has_child_comment, soft-delete 포함)도 함께 계산한다.
      */
     @Transactional(readOnly = true)
     public OffsetPageResult<PostCommentDto> getReplies(UUID parentCommentId, Pageable pageable) {
@@ -173,14 +173,15 @@ public class PostCommentService {
     }
 
     /**
-     * 페이지 결과의 각 댓글에 대해 활성 자식 댓글(대댓글) 존재 여부를 1회의 추가 쿼리로 일괄 조회하여 PostCommentDto로 매핑한다. 페이지가 비어 있으면 추가 쿼리를 생략한다.
+     * 페이지 결과의 각 댓글에 대해 자식 댓글(대댓글, soft-delete 포함) 존재 여부를 1회의 추가 쿼리로 일괄 조회하여 PostCommentDto로 매핑한다.
+     * 삭제된 자식이 있어도 has_child_comment 를 true 로 유지해 하위 replies 조회가 가능하도록 한다. 페이지가 비어 있으면 추가 쿼리를 생략한다.
      */
     private OffsetPageResult<PostCommentDto> mapWithHasChildComment(OffsetPageResult<PostComment> page) {
         List<UUID> ids = page.getItems().stream()
                              .map(PostComment::id)
                              .toList();
 
-        Set<UUID> parentIdsHavingChildren = queryRepository.findParentIdsHavingActiveChildren(ids);
+        Set<UUID> parentIdsHavingChildren = queryRepository.findParentIdsHavingChildren(ids);
 
         return page.map(comment -> PostCommentDto.from(comment, parentIdsHavingChildren.contains(comment.id())));
     }

@@ -534,7 +534,11 @@
                         "type": "string"
                     },
                     "has_child_comment": {
-                        "description": "\ub300\ub313\uae00 \ubcf4\uc720 \uc5ec\ubd80. true \uc774\uba74 replies \uc870\ud68c API\ub85c \ud558\uc704 \ubaa9\ub85d\uc744 \uac00\uc838\uc62c \uc218 \uc788\ub2e4",
+                        "description": "\ub300\ub313\uae00 \ubcf4\uc720 \uc5ec\ubd80(soft-delete \ud3ec\ud568). true \uc774\uba74 replies \uc870\ud68c API\ub85c \ud558\uc704 \ubaa9\ub85d\uc744 \uac00\uc838\uc62c \uc218 \uc788\ub2e4",
+                        "type": "boolean"
+                    },
+                    "has_parent_comment": {
+                        "description": "\ubd80\ubaa8 \ub313\uae00 \ubcf4\uc720 \uc5ec\ubd80. false \uc774\uba74 \ub313\uae00, true \uc774\uba74 \ub300\ub313\uae00(\uc0ad\uc81c API \ubd84\uae30\uc6a9)",
                         "type": "boolean"
                     },
                     "id": {

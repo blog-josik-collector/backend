@@ -19,7 +19,10 @@ public record PostCommentReadDto() {
             @Schema(description = "작성자 닉네임")
             String nickname,
 
-            @Schema(description = "대댓글 보유 여부. true 이면 replies 조회 API로 하위 목록을 가져올 수 있다")
+            @Schema(description = "부모 댓글 보유 여부. false 이면 댓글, true 이면 대댓글(삭제 API 분기용)")
+            boolean hasParentComment,
+
+            @Schema(description = "대댓글 보유 여부(soft-delete 포함). true 이면 replies 조회 API로 하위 목록을 가져올 수 있다")
             boolean hasChildComment,
 
             @Schema(description = "댓글 본문. 삭제된 댓글(status=deleted)은 '삭제된 댓글입니다.'로 치환된다")
@@ -42,6 +45,7 @@ public record PostCommentReadDto() {
             return Response.builder()
                            .id(postCommentDto.id())
                            .nickname(postCommentDto.nickname())
+                           .hasParentComment(postCommentDto.reply())
                            .hasChildComment(postCommentDto.hasChildComment())
                            .content(content)
                            .status(postCommentDto.status())
