@@ -24,6 +24,20 @@ public class CommentReportQueryRepository {
     private final QCommentReport commentReport = QCommentReport.commentReport;
 
     /**
+     * 동일 사용자가 동일 댓글에 대해 PENDING 상태인 활성 신고가 존재하는지 확인한다.
+     */
+    public boolean existsPendingByUserIdAndCommentId(UUID userId, UUID commentId) {
+        Integer result = queryFactory.selectOne()
+                                       .from(commentReport)
+                                       .where(commentReport.user.id.eq(userId),
+                                              commentReport.comment.id.eq(commentId),
+                                              commentReport.reportStatus.eq(ReportStatus.PENDING),
+                                              commentReport.deletedAt.isNull())
+                                       .fetchFirst();
+        return result != null;
+    }
+
+    /**
      * soft-delete 되지 않은 단건 조회. 신고자, 신고 대상 댓글까지 fetch join 한다.
      */
     public Optional<CommentReport> fetchOneById(UUID id) {

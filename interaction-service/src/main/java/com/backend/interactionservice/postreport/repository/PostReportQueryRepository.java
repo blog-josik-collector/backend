@@ -24,6 +24,20 @@ public class PostReportQueryRepository {
     private final QPostReport postReport = QPostReport.postReport;
 
     /**
+     * 동일 사용자가 동일 게시글에 대해 PENDING 상태인 활성 신고가 존재하는지 확인한다.
+     */
+    public boolean existsPendingByUserIdAndPostId(UUID userId, UUID postId) {
+        Integer result = queryFactory.selectOne()
+                                       .from(postReport)
+                                       .where(postReport.user.id.eq(userId),
+                                              postReport.post.id.eq(postId),
+                                              postReport.reportStatus.eq(ReportStatus.PENDING),
+                                              postReport.deletedAt.isNull())
+                                       .fetchFirst();
+        return result != null;
+    }
+
+    /**
      * soft-delete 되지 않은 단건 조회. 신고자, 신고 대상 게시글까지 fetch join 한다.
      */
     public Optional<PostReport> fetchOneById(UUID id) {

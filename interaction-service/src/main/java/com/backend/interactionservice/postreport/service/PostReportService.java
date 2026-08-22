@@ -1,7 +1,6 @@
 package com.backend.interactionservice.postreport.service;
 
 import com.backend.commondataaccess.dto.OffsetPageResult;
-import com.backend.commondataaccess.exception.StateConflictException;
 import com.backend.commondataaccess.persistence.common.enums.PostReportType;
 import com.backend.commondataaccess.persistence.common.enums.PostStatus;
 import com.backend.commondataaccess.persistence.common.enums.ReportStatus;
@@ -21,7 +20,6 @@ import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -43,13 +41,14 @@ public class PostReportService {
     /**
      * 1. 게시글 신고 등록. 등록 시점의 상태는 항상 PENDING 이다.
      * <p>
-     * 동일 사용자가 동일 게시글에 대해 활성 상태(deleted_at IS NULL)인 신고를 이미 가지고 있으면 부분 unique index에 의해 INSERT가 실패한다. 이 경우 명시적으로 "이미 신고한 게시글입니다." 예외로 변환한다.
+     * 동일 사용자가 동일 게시글에 대해 PENDING 상태인 활성 신고가 이미 있으면 중복 신고를 허용하지 않는다.
      */
     public PostReportDto createReport(UUID userId, UUID postId, PostReportType reportType, String content) {
         PostReportValidator.validateUserId(userId);
         PostReportValidator.validatePostId(postId);
         PostReportValidator.validateReportType(reportType);
         PostReportValidator.validateContent(content);
+        PostReportValidator.validateNoPendingReport(queryRepository.existsPendingByUserIdAndPostId(userId, postId));
 
         User user = userService.getUser(userId);
         Post post = postService.getPost(postId);
@@ -62,13 +61,9 @@ public class PostReportService {
                                       .content(content)
                                       .build();
 
-        try {
-            PostReport saved = postReportRepository.saveAndFlush(report);
-            postQueryRepository.incrementTotalReportCount(postId);
-            return PostReportDto.from(saved);
-        } catch (DataIntegrityViolationException e) {
-            throw new StateConflictException("이미 신고한 게시글입니다.");
-        }
+        PostReport saved = postReportRepository.saveAndFlush(report);
+        postQueryRepository.incrementTotalReportCount(postId);
+        return PostReportDto.from(saved);
     }
 
     /**

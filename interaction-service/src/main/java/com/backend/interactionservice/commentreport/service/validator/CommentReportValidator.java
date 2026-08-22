@@ -51,6 +51,12 @@ public final class CommentReportValidator {
         }
     }
 
+    public static void validateNoPendingReport(boolean existsPending) {
+        if (existsPending) {
+            throw new BadRequestException("이미 처리 대기 중인 댓글 신고가 있습니다.");
+        }
+    }
+
     public static void validateNewStatus(ReportStatus newStatus) {
         if (newStatus == null) {
             throw new BadRequestException("변경할 신고 상태는 필수 입력값입니다.");

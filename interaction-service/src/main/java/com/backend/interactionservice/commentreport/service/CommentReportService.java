@@ -1,7 +1,6 @@
 package com.backend.interactionservice.commentreport.service;
 
 import com.backend.commondataaccess.dto.OffsetPageResult;
-import com.backend.commondataaccess.exception.StateConflictException;
 import com.backend.commondataaccess.persistence.common.enums.CommentReportType;
 import com.backend.commondataaccess.persistence.common.enums.PostCommentStatus;
 import com.backend.commondataaccess.persistence.common.enums.ReportStatus;
@@ -22,7 +21,6 @@ import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -45,13 +43,14 @@ public class CommentReportService {
     /**
      * 2. 댓글 신고 등록. 등록 시점의 상태는 항상 PENDING 이다.
      * <p>
-     * 동일 사용자가 동일 댓글에 대해 활성 상태(deleted_at IS NULL)인 신고를 이미 가지고 있으면 부분 unique index에 의해 INSERT가 실패한다. 이 경우 명시적으로 "이미 신고한 댓글입니다." 예외로 변환한다.
+     * 동일 사용자가 동일 댓글에 대해 PENDING 상태인 활성 신고가 이미 있으면 중복 신고를 허용하지 않는다.
      */
     public CommentReportDto createReport(UUID userId, UUID commentId, CommentReportType reportType, String content) {
         CommentReportValidator.validateUserId(userId);
         CommentReportValidator.validateCommentId(commentId);
         CommentReportValidator.validateReportType(reportType);
         CommentReportValidator.validateContent(content);
+        CommentReportValidator.validateNoPendingReport(queryRepository.existsPendingByUserIdAndCommentId(userId, commentId));
 
         User user = userService.getUser(userId);
         PostComment comment = postCommentService.getComment(commentId);
@@ -64,13 +63,9 @@ public class CommentReportService {
                                             .content(content)
                                             .build();
 
-        try {
-            CommentReport saved = commentReportRepository.saveAndFlush(report);
-            postCommentQueryRepository.incrementTotalReportCount(commentId);
-            return CommentReportDto.from(saved);
-        } catch (DataIntegrityViolationException e) {
-            throw new StateConflictException(e, "이미 신고한 댓글입니다.");
-        }
+        CommentReport saved = commentReportRepository.saveAndFlush(report);
+        postCommentQueryRepository.incrementTotalReportCount(commentId);
+        return CommentReportDto.from(saved);
     }
 
     /**

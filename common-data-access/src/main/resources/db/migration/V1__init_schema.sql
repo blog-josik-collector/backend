@@ -246,7 +246,7 @@ CREATE TABLE post_reports
     id               UUID PRIMARY KEY,
     user_id          UUID      NOT NULL,
     post_id          UUID      NOT NULL,
-    report_status    VARCHAR   NOT NULL, -- 사용자가 남긴 포스팅 신고 처리상태 (예: 대기중, 삭제완료(처리완료), 유지(반려))
+    report_status    VARCHAR   NOT NULL, -- 사용자가 남긴 포스팅 신고 처리상태 (예: 대기중, 처리완료, 유지(반려))
     post_report_type VARCHAR   NOT NULL, -- 포스트 오류, 링크 오류, 기타 신고
     content          VARCHAR   NOT NULL,
     created_at       TIMESTAMP NOT NULL,
@@ -256,9 +256,6 @@ CREATE TABLE post_reports
     CONSTRAINT fk_post_reports_user_id FOREIGN KEY (user_id) REFERENCES users (id),
     CONSTRAINT fk_post_reports_post_id FOREIGN KEY (post_id) REFERENCES posts (id)
 );
-
--- UNIQUE 제약 조건 추가
-CREATE UNIQUE INDEX IF NOT EXISTS uk_post_reports_user_id_post_id ON post_reports (user_id, post_id) WHERE deleted_at IS NULL;
 
 CREATE TABLE comment_reports
 (
@@ -275,6 +272,3 @@ CREATE TABLE comment_reports
     CONSTRAINT fk_comment_reports_user_id FOREIGN KEY (user_id) REFERENCES users (id),
     CONSTRAINT fk_comment_reports_comment_id FOREIGN KEY (comment_id) REFERENCES post_comments (id)
 );
-
--- UNIQUE 제약 조건 추가
-CREATE UNIQUE INDEX IF NOT EXISTS uk_comment_reports_user_id_comment_id ON comment_reports (user_id, comment_id) WHERE deleted_at IS NULL;
