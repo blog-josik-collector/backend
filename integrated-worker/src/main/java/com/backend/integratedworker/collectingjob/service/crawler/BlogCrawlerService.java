@@ -51,11 +51,25 @@ public class BlogCrawlerService {
     }
 
     public <T> List<T> crawl(CrawlerStrategy<T> strategy, PostProvider postProvider, int page) {
-        WebDriverManager.chromedriver().setup(); // Chrome WebDriver를 자동으로 다운로드하고 설정
+        ChromeOptions options = new ChromeOptions();
+        options.addArguments("--headless=new");
+        options.addArguments("--no-sandbox");
+        options.addArguments("--disable-dev-shm-usage");
+        options.addArguments("--disable-gpu");
 
-        ChromeOptions options = new ChromeOptions();  // Chrome 브라우저 설정을 위한 객체 생성
-        options.addArguments("--headless=new"); // 헤드리스 모드 설정 (브라우저 UI 없이 실행)
-        WebDriver driver = new ChromeDriver(options); // 설정된 옵션으로 Chrome 브라우저 인스턴스 생성
+        String chromeBinary = System.getenv("CHROME_BINARY");
+        if (chromeBinary != null && !chromeBinary.isBlank()) {
+            options.setBinary(chromeBinary);
+        }
+
+        String chromeDriver = System.getenv("CHROME_DRIVER");
+        if (chromeDriver != null && !chromeDriver.isBlank()) {
+            System.setProperty("webdriver.chrome.driver", chromeDriver);
+        } else {
+            WebDriverManager.chromedriver().setup();
+        }
+
+        WebDriver driver = new ChromeDriver(options);
 
         List<T> posts = new ArrayList<>();
 

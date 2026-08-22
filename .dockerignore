@@ -1,0 +1,14 @@
+.git
+.github
+.idea
+.gradle
+**/.gradle
+**/build
+**/out
+**/*.iml
+docker-backend/postgres-data
+logs
+.env
+docs
+*.md
+!gradle/wrapper/gradle-wrapper.jar

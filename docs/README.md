@@ -102,14 +102,3 @@ Authorization: Bearer <your_jwt_access_token>
   "items": [ ... ]
 }
 ```
-
----
-
-## 4. 테스트 가이드
-
-단위/통합 테스트 작성 순서, 모듈별 체크리스트, 현황 대시보드는 Living Doc으로 관리한다.
-
-- [testing-guide.md](./testing-guide.md) — 작성 순서·Jacoco 규칙(Service~, Repository 제외, LINE ≥ 80%)
-- 커버리지 바로 확인: [`./scripts/check-coverage.sh`](../scripts/check-coverage.sh)
-- 단위 테스트: `./gradlew test` 또는 `./gradlew :user-service:test`
-- 기능별 현황 표는 구글 시트에서 관리 (가이드는 규칙, 시트는 행 상태)

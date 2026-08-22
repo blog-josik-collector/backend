@@ -15,9 +15,6 @@ import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.web.cors.CorsConfiguration;
-import org.springframework.web.cors.CorsConfigurationSource;
-import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 /**
  * 역할: UserService의 보안 정책(허용 URL, role 매칭, 세션 정책)과 공통 JWT 필터를 필터체인에 연결하는 구성 클래스. <p> 책임 <p> - JwtAuthenticationFilter를 UsernamePasswordAuthenticationFilter 앞에 추가 <p> - endpoint별 접근 제어 <p>
@@ -37,7 +34,7 @@ public class SecurityConfig {
         http
                 .csrf(AbstractHttpConfigurer::disable) // 람다식 사용
                 .headers(headers -> headers.disable())
-                .cors(cors -> cors.configurationSource(configurationSource()))
+                .cors(AbstractHttpConfigurer::disable)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .exceptionHandling(exception -> exception
                         .authenticationEntryPoint(authenticationEntryPoint)
@@ -66,17 +63,4 @@ public class SecurityConfig {
                            .requestMatchers("/swagger-resources/**", "/webjars/**", "/static/**", "/templates/**", "/h2-console/**");
     }
 
-    // 4. CORS 설정
-    @Bean
-    public CorsConfigurationSource configurationSource() {
-        CorsConfiguration configuration = new CorsConfiguration();
-        configuration.addAllowedOriginPattern("*");
-        configuration.addAllowedHeader("*");
-        configuration.addAllowedMethod("*");
-        configuration.setAllowCredentials(true);
-
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", configuration);
-        return source;
-    }
 }

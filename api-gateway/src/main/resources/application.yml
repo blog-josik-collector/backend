@@ -1,0 +1,39 @@
+server:
+  port: 8000
+
+spring:
+  application:
+    name: api-gateway
+  cloud:
+    gateway:
+      server:
+        webflux:
+          globalcors:
+            add-to-simple-url-handler-mapping: true
+            cors-configurations:
+              "[/**]":
+                allowed-origin-patterns: "*"
+                allowed-methods: "*"
+                allowed-headers: "*"
+                allow-credentials: true
+          routes:
+            - id: user-service-auth
+              uri: ${USER_SERVICE_URI:http://localhost:8080}
+              predicates:
+                - Path=/auth/v1/**
+            - id: user-service-user
+              uri: ${USER_SERVICE_URI:http://localhost:8080}
+              predicates:
+                - Path=/user/v1/**
+            - id: interaction-service
+              uri: ${INTERACTION_SERVICE_URI:http://localhost:8083}
+              predicates:
+                - Path=/interaction/v1/**
+            - id: integrated-api-collect
+              uri: ${INTEGRATED_API_URI:http://localhost:8081}
+              predicates:
+                - Path=/collect/v1/**
+            - id: integrated-api-index
+              uri: ${INTEGRATED_API_URI:http://localhost:8081}
+              predicates:
+                - Path=/index/v1/**

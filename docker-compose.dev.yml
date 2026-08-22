@@ -1,0 +1,183 @@
+# VM/로컬과 동일한 Spring 기본 프로필( prod 아님 )로 전체 스택을 Docker로 띄운다.
+# - DB: postgres / postgres / backend_db (application.yml 기본과 동일)
+# - Flyway·admin bootstrap·ES auto-provisioning: application.yml 기본값 유지
+# - .env 없이도 동작. 필요 시 .env.dev.example 참고
+#
+# 사용:
+#   docker compose -f docker-compose.dev.yml up -d --build
+#   docker compose -f docker-compose.dev.yml logs -f api-gateway
+
+name: backend-dev
+
+services:
+  postgres:
+    image: postgres:15.7
+    restart: unless-stopped
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-backend_db}
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+    volumes:
+      - dev_postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-backend_db}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    networks:
+      - backend
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - dev_redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - backend
+
+  elasticsearch:
+    build:
+      context: ./docker-backend/elasticsearch
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    ports:
+      - "9200:9200"
+    environment:
+      discovery.type: single-node
+      xpack.security.enabled: "false"
+      ES_JAVA_OPTS: "-Xms1g -Xmx2g"
+    volumes:
+      - dev_elasticsearch_data:/usr/share/elasticsearch/data
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://localhost:9200 >/dev/null || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 20
+    networks:
+      - backend
+
+  user-service:
+    build:
+      context: .
+      dockerfile: docker/app.Dockerfile
+      args:
+        MODULE: user-service
+    restart: unless-stopped
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB:-backend_db}
+      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER:-postgres}
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      GOOGLE_OAUTH_REDIRECT_URI: ${GOOGLE_OAUTH_REDIRECT_URI:-http://localhost:8000/auth/v1/oauth/google/callback}
+      ADMIN_BOOTSTRAP_ENABLED: ${ADMIN_BOOTSTRAP_ENABLED:-true}
+      ADMIN_LOGIN_ID: ${ADMIN_LOGIN_ID:-admin}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:-admin}
+      ADMIN_NICKNAME: ${ADMIN_NICKNAME:-admin}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - backend
+
+  interaction-service:
+    build:
+      context: .
+      dockerfile: docker/app.Dockerfile
+      args:
+        MODULE: interaction-service
+    restart: unless-stopped
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB:-backend_db}
+      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER:-postgres}
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      SPRING_DATA_REDIS_HOST: redis
+      ES_HOST: elasticsearch
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      elasticsearch:
+        condition: service_healthy
+    networks:
+      - backend
+
+  integrated-api:
+    build:
+      context: .
+      dockerfile: docker/app.Dockerfile
+      args:
+        MODULE: integrated-api
+    restart: unless-stopped
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB:-backend_db}
+      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER:-postgres}
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      ES_HOST: elasticsearch
+    depends_on:
+      postgres:
+        condition: service_healthy
+      elasticsearch:
+        condition: service_healthy
+      user-service:
+        condition: service_started
+    networks:
+      - backend
+
+  integrated-worker:
+    build:
+      context: .
+      dockerfile: docker/worker.Dockerfile
+    restart: unless-stopped
+    shm_size: "2gb"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB:-backend_db}
+      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER:-postgres}
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      ES_HOST: elasticsearch
+      CHROME_BINARY: /usr/bin/chromium
+      CHROME_DRIVER: /usr/bin/chromedriver
+    depends_on:
+      postgres:
+        condition: service_healthy
+      elasticsearch:
+        condition: service_healthy
+    networks:
+      - backend
+
+  api-gateway:
+    build:
+      context: .
+      dockerfile: docker/app.Dockerfile
+      args:
+        MODULE: api-gateway
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    environment:
+      USER_SERVICE_URI: http://user-service:8080
+      INTERACTION_SERVICE_URI: http://interaction-service:8083
+      INTEGRATED_API_URI: http://integrated-api:8081
+    depends_on:
+      - user-service
+      - interaction-service
+      - integrated-api
+    networks:
+      - backend
+
+volumes:
+  dev_postgres_data:
+  dev_redis_data:
+  dev_elasticsearch_data:
+
+networks:
+  backend:
+    driver: bridge
