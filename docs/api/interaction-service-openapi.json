@@ -218,6 +218,7 @@
                         "description": "\ubcc0\uacbd\ud560 \ucc98\ub9ac \uc0c1\ud0dc. pending \uc0c1\ud0dc\uc758 \uc2e0\uace0\ub9cc resolved_deleted \ub610\ub294 rejected_keep \uc73c\ub85c \ubcc0\uacbd\ud560 \uc218 \uc788\ub2e4",
                         "enum": [
                             "pending",
+                            "resolved_fixed",
                             "resolved_deleted",
                             "rejected_keep"
                         ],
@@ -237,6 +238,7 @@
                         "description": "\ubcc0\uacbd\ub41c \ucc98\ub9ac \uc0c1\ud0dc",
                         "enum": [
                             "pending",
+                            "resolved_fixed",
                             "resolved_deleted",
                             "rejected_keep"
                         ],
@@ -252,9 +254,8 @@
             "com.backend.interactionservice.commentreport.service.dto.CommentReportDto": {
                 "description": "\ub313\uae00 \uc2e0\uace0 \ub0b4\uc5ed",
                 "properties": {
-                    "comment_id": {
-                        "description": "\uc2e0\uace0 \ub300\uc0c1 \ub313\uae00 ID",
-                        "format": "uuid",
+                    "comment_content": {
+                        "description": "\uc2e0\uace0 \ub300\uc0c1 \ub313\uae00 \ubcf8\ubb38",
                         "type": "string"
                     },
                     "content": {
@@ -271,6 +272,10 @@
                         "format": "uuid",
                         "type": "string"
                     },
+                    "nickname": {
+                        "description": "\uc2e0\uace0\uc790 \ub2c9\ub124\uc784",
+                        "type": "string"
+                    },
                     "report_type": {
                         "description": "\uc2e0\uace0 \uc720\ud615",
                         "enum": [
@@ -280,15 +285,11 @@
                         ],
                         "type": "string"
                     },
-                    "reporter_id": {
-                        "description": "\uc2e0\uace0\uc790 ID",
-                        "format": "uuid",
-                        "type": "string"
-                    },
                     "status": {
                         "description": "\ucc98\ub9ac \uc0c1\ud0dc",
                         "enum": [
                             "pending",
+                            "resolved_fixed",
                             "resolved_deleted",
                             "rejected_keep"
                         ],
@@ -541,6 +542,10 @@
                         "format": "uuid",
                         "type": "string"
                     },
+                    "nickname": {
+                        "description": "\uc791\uc131\uc790 \ub2c9\ub124\uc784",
+                        "type": "string"
+                    },
                     "status": {
                         "description": "\ub313\uae00 \uc0c1\ud0dc",
                         "enum": [
@@ -553,11 +558,6 @@
                     "updated_at": {
                         "description": "\ucd5c\uc885 \uc218\uc815 \uc2dc\uac01",
                         "format": "date-time",
-                        "type": "string"
-                    },
-                    "user_id": {
-                        "description": "\uc791\uc131\uc790 ID",
-                        "format": "uuid",
                         "type": "string"
                     }
                 }
@@ -628,6 +628,7 @@
                         "description": "\ubcc0\uacbd\ud560 \ucc98\ub9ac \uc0c1\ud0dc. pending \uc0c1\ud0dc\uc758 \uc2e0\uace0\ub9cc resolved_deleted \ub610\ub294 rejected_keep \uc73c\ub85c \ubcc0\uacbd\ud560 \uc218 \uc788\ub2e4",
                         "enum": [
                             "pending",
+                            "resolved_fixed",
                             "resolved_deleted",
                             "rejected_keep"
                         ],
@@ -647,6 +648,7 @@
                         "description": "\ubcc0\uacbd\ub41c \ucc98\ub9ac \uc0c1\ud0dc",
                         "enum": [
                             "pending",
+                            "resolved_fixed",
                             "resolved_deleted",
                             "rejected_keep"
                         ],
@@ -676,9 +678,8 @@
                         "format": "uuid",
                         "type": "string"
                     },
-                    "post_id": {
-                        "description": "\uc2e0\uace0 \ub300\uc0c1 \uac8c\uc2dc\uae00 ID",
-                        "format": "uuid",
+                    "nickname": {
+                        "description": "\uc2e0\uace0\uc790 \ub2c9\ub124\uc784",
                         "type": "string"
                     },
                     "report_type": {
@@ -690,18 +691,18 @@
                         ],
                         "type": "string"
                     },
-                    "reporter_id": {
-                        "description": "\uc2e0\uace0\uc790 ID",
-                        "format": "uuid",
-                        "type": "string"
-                    },
                     "status": {
                         "description": "\ucc98\ub9ac \uc0c1\ud0dc",
                         "enum": [
                             "pending",
+                            "resolved_fixed",
                             "resolved_deleted",
                             "rejected_keep"
                         ],
+                        "type": "string"
+                    },
+                    "title": {
+                        "description": "\uc2e0\uace0 \ub300\uc0c1 \uac8c\uc2dc\uae00 \uc81c\ubaa9",
                         "type": "string"
                     },
                     "updated_at": {
@@ -760,6 +761,7 @@
                         "schema": {
                             "enum": [
                                 "pending",
+                                "resolved_fixed",
                                 "resolved_deleted",
                                 "rejected_keep"
                             ],
@@ -1007,6 +1009,7 @@
                         "schema": {
                             "enum": [
                                 "pending",
+                                "resolved_fixed",
                                 "resolved_deleted",
                                 "rejected_keep"
                             ],

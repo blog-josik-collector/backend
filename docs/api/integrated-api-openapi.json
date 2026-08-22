@@ -1118,7 +1118,6 @@
         },
         "/collect/v1/providers": {
             "get": {
-                "description": "\uc6b4\uc601\uc790 \uc804\uc6a9 API",
                 "operationId": "getProviders",
                 "parameters": [
                     {

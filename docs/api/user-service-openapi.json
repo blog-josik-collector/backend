@@ -112,6 +112,10 @@
                         "format": "date-time",
                         "type": "string"
                     },
+                    "login_id": {
+                        "description": "\ub85c\uadf8\uc778 ID",
+                        "type": "string"
+                    },
                     "nickname": {
                         "description": "\ub2c9\ub124\uc784",
                         "example": "cycy",
@@ -123,7 +127,7 @@
                         "type": "string"
                     },
                     "user_id": {
-                        "description": "\uc0ac\uc6a9\uc790 ID",
+                        "description": "\uc0ac\uc6a9\uc790 ID(PK)",
                         "type": "string"
                     },
                     "user_type": {
