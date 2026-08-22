@@ -6,6 +6,7 @@ import com.backend.commondataaccess.security.jwt.JwtAuthenticationConverter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
@@ -43,6 +44,8 @@ public class SecurityConfig {
                         .requestMatchers("/api/heartbeat",
                                          "/integrated-api/swagger-ui/**",
                                          "/integrated-api/v3/api-docs/**").permitAll()
+                        .requestMatchers(HttpMethod.GET,
+                                         "/collect/v1/providers").permitAll()
                         .requestMatchers("/collect/v1/**").hasRole(UserType.ADMIN.name()) // 운영진
                         .requestMatchers("/index/v1/**").hasRole(UserType.ADMIN.name()) // 운영진
                         .anyRequest().authenticated()

@@ -43,7 +43,7 @@ public class PostProviderController {
         return ResponseEntity.ok(PostProviderCreateDto.Response.from(createdPostProviderDto));
     }
 
-    @Operation(summary = "Provider 목록 조회", description = "운영자 전용 API")
+    @Operation(summary = "Provider 목록 조회")
     @GetMapping("/providers")
     public ResponseEntity<OffsetPageResult<PostProviderReadDto.Response>> getProviders(@RequestParam(value = "page", required = false, defaultValue = "0") int page,
                                                                                        @RequestParam(value = "size", required = false, defaultValue = "10") int size) {
