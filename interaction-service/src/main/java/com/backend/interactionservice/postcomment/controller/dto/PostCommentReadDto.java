@@ -1,6 +1,7 @@
 package com.backend.interactionservice.postcomment.controller.dto;
 
 import com.backend.commondataaccess.persistence.common.enums.PostCommentStatus;
+import com.backend.interactionservice.postcomment.constant.PostCommentConstant;
 import com.backend.interactionservice.postcomment.service.dto.PostCommentDto;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.time.OffsetDateTime;
@@ -21,7 +22,7 @@ public record PostCommentReadDto() {
             @Schema(description = "대댓글 보유 여부. true 이면 replies 조회 API로 하위 목록을 가져올 수 있다")
             boolean hasChildComment,
 
-            @Schema(description = "댓글 본문. 삭제된 댓글은 status 로 구분한다")
+            @Schema(description = "댓글 본문. 삭제된 댓글(status=deleted)은 '삭제된 댓글입니다.'로 치환된다")
             String content,
 
             @Schema(description = "댓글 상태")
@@ -34,11 +35,15 @@ public record PostCommentReadDto() {
             OffsetDateTime updatedAt) {
 
         public static Response from(PostCommentDto postCommentDto) {
+            String content = postCommentDto.status() == PostCommentStatus.DELETED
+                    ? PostCommentConstant.DELETED_COMMENT_CONTENT
+                    : postCommentDto.content();
+
             return Response.builder()
                            .id(postCommentDto.id())
                            .nickname(postCommentDto.nickname())
                            .hasChildComment(postCommentDto.hasChildComment())
-                           .content(postCommentDto.content())
+                           .content(content)
                            .status(postCommentDto.status())
                            .createdAt(postCommentDto.createdAt())
                            .updatedAt(postCommentDto.updatedAt())
