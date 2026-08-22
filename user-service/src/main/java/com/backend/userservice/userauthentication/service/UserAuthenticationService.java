@@ -84,6 +84,14 @@ public class UserAuthenticationService {
     }
 
     @Transactional(readOnly = true)
+    public Optional<String> findLocalLoginIdByUserId(UUID userId) {
+        UserAuthenticationValidator.validateUserId(userId);
+
+        return queryRepository.fetchLocalByUserId(userId)
+                              .map(UserAuthentication::identifier);
+    }
+
+    @Transactional(readOnly = true)
     public Optional<UserAuthentication> findUserAuthentication(String identifier) {
         UserAuthenticationValidator.validateIdentifier(identifier);
         return queryRepository.fetchOneByIdentifier(identifier);

@@ -3,6 +3,7 @@ package com.backend.userservice.userauthentication.repository;
 import com.backend.commondataaccess.persistence.user.QUser;
 import com.backend.commondataaccess.persistence.user.QUserAuthentication;
 import com.backend.commondataaccess.persistence.user.UserAuthentication;
+import com.backend.commondataaccess.persistence.user.enums.LoginProvider;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import java.util.List;
 import java.util.Optional;
@@ -50,6 +51,18 @@ public class UserAuthenticationQueryRepository {
                         userAuthentication.deletedAt.isNull()
                 )
                 .fetch();
+    }
+
+    public Optional<UserAuthentication> fetchLocalByUserId(UUID userId) {
+        return Optional.ofNullable(queryFactory
+                                           .selectFrom(userAuthentication)
+                                           .join(userAuthentication.user, user).fetchJoin()
+                                           .where(
+                                                   userAuthentication.user.id.eq(userId),
+                                                   userAuthentication.loginProvider.eq(LoginProvider.LOCAL),
+                                                   userAuthentication.deletedAt.isNull()
+                                           )
+                                           .fetchOne());
     }
 
 }

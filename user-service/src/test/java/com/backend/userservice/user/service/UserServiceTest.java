@@ -243,6 +243,25 @@ class UserServiceTest {
             Assertions.assertThat(result.userId()).isEqualTo(mockUser.id());
             Assertions.assertThat(result.nickname()).isEqualTo(mockUser.nickname());
         }
+
+        @Test
+        void id를_입력하면_loginId를_포함한_UserDto를_조회할_수_있다() {
+            // given
+            String loginId = "test_login_id";
+
+            Mockito.doReturn(Optional.of(mockUser)).when(queryRepository).fetchOneById(any());
+            Mockito.doReturn(Optional.of(loginId)).when(userAuthenticationService).findLocalLoginIdByUserId(mockUser.id());
+
+            // when
+            UserDto userDto = userService.getMeUserDto(mockUser.id());
+
+            // then
+            Assertions.assertThat(userDto).isNotNull();
+            Assertions.assertThat(userDto.userId()).isEqualTo(mockUser.id());
+            Assertions.assertThat(userDto.loginId()).isEqualTo(loginId);
+            Assertions.assertThat(userDto.nickname()).isEqualTo(mockUser.nickname());
+            Assertions.assertThat(userDto.userType()).isEqualTo(mockUser.userType());
+        }
     }
 
     @DisplayName("User 수정 테스트")

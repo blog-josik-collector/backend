@@ -103,6 +103,13 @@ public class UserService {
     }
 
     @Transactional(readOnly = true)
+    public UserDto getMeUserDto(UUID id) {
+        User user = getUser(id);
+        String loginId = userAuthenticationService.findLocalLoginIdByUserId(id).orElse(null);
+        return UserDto.from(user, loginId);
+    }
+
+    @Transactional(readOnly = true)
     public User getUser(UUID id) {
         UserValidator.validateId(id);
         return UserValidator.getUserOrThrow(id, userQueryRepository::fetchOneById);

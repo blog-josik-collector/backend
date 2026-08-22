@@ -12,8 +12,11 @@ public record UserReadDto() {
     @Schema(description = "회원정보 조회 결과")
     @Builder
     public record Response(
-            @Schema(description = "사용자 ID")
+            @Schema(description = "사용자 ID(PK)")
             String userId,
+
+            @Schema(description = "로그인 ID")
+            String loginId,
 
             @Schema(description = "사용자 유형")
             UserType userType,
@@ -33,6 +36,7 @@ public record UserReadDto() {
         public static Response from(UserDto userDto) {
             return Response.builder()
                            .userId(userDto.userId().toString())
+                           .loginId(userDto.loginId())
                            .userType(userDto.userType())
                            .nickname(userDto.nickname())
                            .createdAt(userDto.createdAt())

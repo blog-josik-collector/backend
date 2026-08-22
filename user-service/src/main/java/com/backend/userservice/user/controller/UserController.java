@@ -1,6 +1,5 @@
 package com.backend.userservice.user.controller;
 
-import com.backend.commondataaccess.persistence.user.User;
 import com.backend.commondataaccess.security.CurrentUser;
 import com.backend.commondataaccess.security.JwtPrincipal;
 import com.backend.userservice.user.controller.dto.UserCreateDto;
@@ -47,9 +46,7 @@ public class UserController {
     @Operation(summary = "회원정보 조회(내 정보 조회)")
     @GetMapping("/users/me")
     public ResponseEntity<UserReadDto.Response> getMe(@CurrentUser JwtPrincipal principal) {
-        User user = userService.getUser(principal.getUserId());
-        UserDto userDto = UserDto.from(user);
-        return ResponseEntity.ok(UserReadDto.Response.from(userDto));
+        return ResponseEntity.ok(UserReadDto.Response.from(userService.getMeUserDto(principal.getUserId())));
     }
 
     @Operation(summary = "회원정보 수정(내 정보 수정)")

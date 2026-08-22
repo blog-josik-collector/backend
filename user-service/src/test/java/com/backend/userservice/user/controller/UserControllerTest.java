@@ -98,12 +98,24 @@ class UserControllerTest {
 
     @Test
     void 회원정보를_조회_한다() throws Exception {
-        Mockito.doReturn(mockUser).when(userService).getUser(MockJwtPrincipalResolver.USER_ID);
+        String loginId = "test_login_id";
+        UserDto userDto = UserDto.builder()
+                                 .userId(mockUser.id())
+                                 .loginId(loginId)
+                                 .nickname(mockUser.nickname())
+                                 .userType(mockUser.userType())
+                                 .createdAt(mockUser.createdAt())
+                                 .updatedAt(mockUser.updatedAt())
+                                 .lastLoginAt(mockUser.lastLoginAt())
+                                 .build();
+
+        Mockito.doReturn(userDto).when(userService).getMeUserDto(MockJwtPrincipalResolver.USER_ID);
 
         mockMvc.perform(get("/user/v1/users/me")
                                 .contentType(MediaType.APPLICATION_JSON))
                .andExpect(status().isOk())
                .andExpect(jsonPath("$.userId").value(mockUser.id().toString()))
+               .andExpect(jsonPath("$.loginId").value(loginId))
                .andExpect(jsonPath("$.userType").value(mockUser.userType().toString()))
                .andExpect(jsonPath("$.nickname").value(mockUser.nickname()))
                .andExpect(jsonPath("$.createdAt").value(mockUser.createdAt()))

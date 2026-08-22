@@ -37,8 +37,13 @@ public class UserDto {
     private OffsetDateTime lastLoginAt;
 
     public static UserDto from(User user) {
+        return from(user, null);
+    }
+
+    public static UserDto from(User user, String loginId) {
         return UserDto.builder()
                       .userId(user.id())
+                      .loginId(loginId)
                       .nickname(user.nickname())
                       .userType(user.userType())
                       .createdAt(user.createdAt())
