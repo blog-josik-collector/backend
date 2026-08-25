@@ -61,6 +61,17 @@ public class PostCommentQueryRepository {
     }
 
     /**
+     * 특정 유저가 작성한 soft-delete 되지 않은 댓글/대댓글 전체 조회. 회원 탈퇴 시 bulk soft-delete 용.
+     */
+    public List<PostComment> fetchAllActiveByUserId(UUID userId) {
+        return queryFactory.selectFrom(postComment)
+                           .leftJoin(postComment.post).fetchJoin()
+                           .where(postComment.user.id.eq(userId),
+                                  postComment.deletedAt.isNull())
+                           .fetch();
+    }
+
+    /**
      * 특정 유저가 작성한 댓글/대댓글 전체 페이지 조회. 댓글, 대댓글을 구분하지 않고 createdAt 내림차순으로 반환한다.
      */
     public OffsetPageResult<PostComment> fetchByUserId(UUID userId, Pageable pageable) {

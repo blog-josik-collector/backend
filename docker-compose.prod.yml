@@ -79,9 +79,12 @@ services:
       ADMIN_LOGIN_ID: ${ADMIN_LOGIN_ID}
       ADMIN_PASSWORD: ${ADMIN_PASSWORD}
       ADMIN_NICKNAME: ${ADMIN_NICKNAME}
+      INTERACTION_SERVICE_URI: http://interaction-service:8083
     depends_on:
       postgres:
         condition: service_healthy
+      interaction-service:
+        condition: service_started
     networks:
       - backend
 

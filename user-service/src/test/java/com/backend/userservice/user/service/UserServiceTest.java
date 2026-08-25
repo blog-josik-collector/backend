@@ -8,6 +8,7 @@ import com.backend.commondataaccess.persistence.user.enums.LoginProvider;
 import com.backend.commondataaccess.persistence.user.enums.UserType;
 import com.backend.commondataaccess.security.jwt.JwtService;
 import com.backend.commondataaccess.security.jwt.JwtService.Claims;
+import com.backend.userservice.user.event.UserDeletedEvent;
 import com.backend.userservice.user.repository.UserQueryRepository;
 import com.backend.userservice.user.repository.UserRepository;
 import com.backend.userservice.user.service.dto.UserDto;
@@ -20,11 +21,13 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.context.ApplicationEventPublisher;
 
 @DisplayName("UserService 테스트")
 @ExtendWith(MockitoExtension.class)
@@ -45,6 +48,9 @@ class UserServiceTest {
 
     @Mock
     private JwtService jwtService;
+
+    @Mock
+    private ApplicationEventPublisher eventPublisher;
 
     private User mockUser;
 
@@ -346,6 +352,10 @@ class UserServiceTest {
             // then
             Assertions.assertThat(mockUser.deletedAt()).isNotNull();
             Assertions.assertThat(mockUser.isDelete()).isEqualTo(true);
+
+            ArgumentCaptor<UserDeletedEvent> eventCaptor = ArgumentCaptor.forClass(UserDeletedEvent.class);
+            Mockito.verify(eventPublisher).publishEvent(eventCaptor.capture());
+            Assertions.assertThat(eventCaptor.getValue().userId()).isEqualTo(mockUser.id());
         }
     }
 

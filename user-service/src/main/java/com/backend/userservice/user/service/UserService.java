@@ -5,6 +5,7 @@ import com.backend.commondataaccess.persistence.user.enums.UserType;
 import com.backend.commondataaccess.security.jwt.JwtService;
 import com.backend.commondataaccess.security.jwt.JwtService.Claims;
 import com.backend.commondataaccess.service.validator.ValidationFlow;
+import com.backend.userservice.user.event.UserDeletedEvent;
 import com.backend.userservice.user.repository.UserQueryRepository;
 import com.backend.userservice.user.repository.UserRepository;
 import com.backend.userservice.user.service.dto.UserDto;
@@ -13,6 +14,7 @@ import com.backend.userservice.userauthentication.service.UserAuthenticationServ
 import com.backend.userservice.utils.NicknameGenerateUtil;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,6 +27,7 @@ public class UserService {
     private final UserQueryRepository userQueryRepository;
     private final UserAuthenticationService userAuthenticationService;
     private final JwtService jwtService;
+    private final ApplicationEventPublisher eventPublisher;
 
     public UserDto create(UserDto userDto) {
         ValidationFlow.start(userDto)
@@ -173,6 +176,7 @@ public class UserService {
         user.delete();
 
         userAuthenticationService.deleteAll(id);
+        eventPublisher.publishEvent(new UserDeletedEvent(id));
     }
 
     public boolean hasAdmin() {

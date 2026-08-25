@@ -31,6 +31,16 @@ public class PostBookmarkQueryRepository {
     }
 
     /**
+     * 특정 유저의 soft-delete 되지 않은 즐겨찾기 전체 조회. 회원 탈퇴 시 bulk soft-delete 용.
+     */
+    public List<PostBookmark> fetchAllActiveByUserId(UUID userId) {
+        return queryFactory.selectFrom(postBookmark)
+                           .where(postBookmark.user.id.eq(userId),
+                                  postBookmark.deletedAt.isNull())
+                           .fetch();
+    }
+
+    /**
      * 사용자가 활성 상태로 즐겨찾기한 post_id 목록을 createdAt 내림차순으로 페이지 조회한다.
      */
     public OffsetPageResult<UUID> fetchActivePostIdsByUserId(UUID userId, Pageable pageable) {

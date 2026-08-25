@@ -44,6 +44,8 @@ public class SecurityConfig {
                         .requestMatchers("/api/heartbeat",
                                          "/interaction/swagger-ui/**",
                                          "/interaction/v3/api-docs/**").permitAll()
+                        // 서비스 간 호출 전용. gateway(/interaction/v1/**) 밖에 두어 외부 노출을 피한다.
+                        .requestMatchers("/interaction/internal/**").permitAll()
                         .requestMatchers(HttpMethod.GET,
                                          "/interaction/v1/postings",
                                          "/interaction/v1/postings/{postId}",

@@ -3,6 +3,7 @@ package com.backend.interactionservice.postlike.repository;
 import com.backend.commondataaccess.persistence.post.PostLike;
 import com.backend.commondataaccess.persistence.post.QPostLike;
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -24,5 +25,16 @@ public class PostLikeQueryRepository {
                                       .fetchOne();
 
         return Optional.ofNullable(result);
+    }
+
+    /**
+     * 특정 유저의 soft-delete 되지 않은 좋아요 전체 조회. 회원 탈퇴 시 bulk soft-delete 용.
+     */
+    public List<PostLike> fetchAllActiveByUserId(UUID userId) {
+        return queryFactory.selectFrom(postLike)
+                           .leftJoin(postLike.post).fetchJoin()
+                           .where(postLike.user.id.eq(userId),
+                                  postLike.deletedAt.isNull())
+                           .fetch();
     }
 }

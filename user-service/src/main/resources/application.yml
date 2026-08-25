@@ -53,6 +53,10 @@ app:
       password: ${ADMIN_PASSWORD:admin}
       nickname: ${ADMIN_NICKNAME:admin}
 
+# interaction-service 직접 호출 (gateway /interaction/v1 경로 밖)
+interaction-service:
+  base-url: ${INTERACTION_SERVICE_URI:http://localhost:8083}
+
 ---
 spring:
   config:
