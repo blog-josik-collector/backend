@@ -1,21 +1,48 @@
-# 서버 배포용. 로컬 인프라는 docker-backend/docker-compose.yml 을 그대로 쓴다.
+# 서버 배포용 (단일 VM + 컨테이너 저비용 상용).
+# 로컬 인프라는 docker-backend/docker-compose.yml / docker-compose.dev.yml 을 쓴다.
+#
 # 사용:
 #   cp .env.example .env
+#   mkdir -p data/postgres data/backups/postgres
 #   docker compose -f docker-compose.prod.yml up -d --build
+#
+# 운영 포인트:
+#   - Postgres 데이터: ./data/postgres (bind mount) — rsync/이전·점검이 named volume 보다 쉽다
+#   - Postgres 백업: VM cron + scripts/backup-postgres.sh (compose 밖 — CI/CD 배포와 분리)
+#     dump → ./data/backups/postgres , 원격(R2/S3)은 호스트 rclone 등으로 동기화
+#   - Redis/ES: named volume 유지. Redis 는 view 버퍼, ES 는 DB 재색인으로 복구 가능
+#   - mem_limit: 한 컨테이너 폭주가 VM 전체를 OOM 내지 않도록 천장만 둔다 (예약 reservation 아님)
+#   - logging: 컨테이너 로그가 디스크를 채우지 않도록 롤링
+#
+# 기존 named volume(postgres_data) → bind mount 이전 예:
+#   mkdir -p data/postgres
+#   docker run --rm \
+#     -v backend-prod_postgres_data:/from \
+#     -v "$(pwd)/data/postgres:/to" \
+#     alpine sh -c 'cp -a /from/. /to/'
 
 name: backend-prod
+
+x-logging: &default-logging
+  driver: json-file # Docker 기본 로그 드라이버
+  options:
+    max-size: "10m" # 로그 파일이 약 10MB 되면 로테이션(새 파일로 넘김
+    max-file: "3" # 그런 파일을 최대 3개만 유지 → 서비스당 대략 30MB 상한. (넘치면 오래된 파일부터 지움)
 
 services:
   postgres:
     image: postgres:15.7
     restart: unless-stopped
+    mem_limit: 1g
+    logging: *default-logging
     environment:
       TZ: Asia/Seoul
       POSTGRES_DB: ${POSTGRES_DB}
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      # named volume 대신 호스트 경로 — 백업·VM 이전 시 경로가 보인다
+      - ./data/postgres:/var/lib/postgresql/data
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
       interval: 5s
@@ -27,8 +54,11 @@ services:
   redis:
     image: redis:7-alpine
     restart: unless-stopped
+    mem_limit: 256m
+    logging: *default-logging
     environment:
       TZ: Asia/Seoul
+    # view_count 버퍼용 — AOF 강제하지 않음. 유실 허용(주기적 DB flush).
     volumes:
       - redis_data:/data
     healthcheck:
@@ -44,6 +74,9 @@ services:
       context: ./docker-backend/elasticsearch
       dockerfile: Dockerfile
     restart: unless-stopped
+    # heap 1g + Lucene/OS 오버헤드. limit < heap 이면 ES 가 바로 죽는다.
+    mem_limit: 1536m
+    logging: *default-logging
     environment:
       TZ: Asia/Seoul
       discovery.type: single-node
@@ -66,6 +99,8 @@ services:
       args:
         MODULE: user-service
     restart: unless-stopped
+    mem_limit: 768m
+    logging: *default-logging
     environment:
       TZ: Asia/Seoul
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB}
@@ -95,6 +130,8 @@ services:
       args:
         MODULE: interaction-service
     restart: unless-stopped
+    mem_limit: 768m
+    logging: *default-logging
     environment:
       TZ: Asia/Seoul
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB}
@@ -120,6 +157,8 @@ services:
       args:
         MODULE: integrated-api
     restart: unless-stopped
+    mem_limit: 768m
+    logging: *default-logging
     environment:
       TZ: Asia/Seoul
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB}
@@ -143,6 +182,9 @@ services:
       dockerfile: docker/worker.Dockerfile
     restart: unless-stopped
     shm_size: "2gb"
+    # Chromium + Spring. 크롤 피크를 감안해 여유를 둔다.
+    mem_limit: 2560m
+    logging: *default-logging
     environment:
       TZ: Asia/Seoul
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB}
@@ -167,6 +209,8 @@ services:
       args:
         MODULE: api-gateway
     restart: unless-stopped
+    mem_limit: 512m
+    logging: *default-logging
     ports:
       - "8000:8000"
     environment:
@@ -182,7 +226,7 @@ services:
       - backend
 
 volumes:
-  postgres_data:
+  # postgres 는 ./data/postgres bind mount — named volume 불필요
   redis_data:
   elasticsearch_data:
 

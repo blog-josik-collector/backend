@@ -24,4 +24,6 @@ out/
 
 ### Project Ignore Folder ###
 docker-backend/postgres-data
+# prod compose bind mounts (DB data + local dumps)
+/data/
 .env
