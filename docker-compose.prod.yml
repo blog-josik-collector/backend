@@ -141,6 +141,8 @@ services:
       SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
       SPRING_DATA_REDIS_HOST: redis
       ES_HOST: elasticsearch
+      ES_SCHEME: http
+      ES_NUMBER_OF_REPLICAS: "0"
       JWT_CLIENT_SECRET: ${JWT_CLIENT_SECRET}
     depends_on:
       postgres:
@@ -168,6 +170,8 @@ services:
       SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER}
       SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
       ES_HOST: elasticsearch
+      ES_SCHEME: http
+      ES_NUMBER_OF_REPLICAS: "0"
       JWT_CLIENT_SECRET: ${JWT_CLIENT_SECRET}
     depends_on:
       postgres:
@@ -195,6 +199,8 @@ services:
       SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER}
       SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
       ES_HOST: elasticsearch
+      ES_SCHEME: http
+      ES_NUMBER_OF_REPLICAS: "0"
       JWT_CLIENT_SECRET: ${JWT_CLIENT_SECRET}
       CHROME_BINARY: /usr/bin/chromium
       CHROME_DRIVER: /usr/bin/chromedriver
