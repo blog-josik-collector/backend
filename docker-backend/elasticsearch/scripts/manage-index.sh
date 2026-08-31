@@ -12,17 +12,17 @@
 #   ./manage-index.sh bootstrap              # alias 없으면 물리 인덱스 + alias 생성
 #   ./manage-index.sh reindex                # 새 인덱스 생성 -> reindex -> alias 원자적 스왑
 #
-# 환경변수:
-#   ES_URL       (기본: http://localhost:9200)
-#   ES_USER      (선택: basic auth 사용자)
-#   ES_PASSWORD  (선택: basic auth 비밀번호)
-#   ES_ALIAS     (기본: techblog-posts)
+# 환경변수 (앱과 동일한 ELASTICSEARCH_* 접두사):
+#   ELASTICSEARCH_URL              (기본: http://localhost:9200)
+#   ELASTICSEARCH_USERNAME         (선택: basic auth 사용자)
+#   ELASTICSEARCH_PASSWORD         (선택: basic auth 비밀번호)
+#   ELASTICSEARCH_INDEX_ALIAS      (기본: techblog-posts)
 #
 # 의존: curl, jq
 set -euo pipefail
 
-ES_URL="${ES_URL:-http://localhost:9200}"
-ES_ALIAS="${ES_ALIAS:-techblog-posts}"
+ELASTICSEARCH_URL="${ELASTICSEARCH_URL:-http://localhost:9200}"
+ELASTICSEARCH_INDEX_ALIAS="${ELASTICSEARCH_INDEX_ALIAS:-techblog-posts}"
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 DEFINITION_FILE="${DEFINITION_FILE:-$SCRIPT_DIR/../../../common-elasticsearch/src/main/resources/elasticsearch/techblog-posts.json}"
@@ -55,22 +55,22 @@ curl_es() {
   local method="$1"; shift
   local path="$1"; shift
   local auth=()
-  if [[ -n "${ES_USER:-}" ]]; then
-    auth=(-u "${ES_USER}:${ES_PASSWORD:-}")
+  if [[ -n "${ELASTICSEARCH_USERNAME:-}" ]]; then
+    auth=(-u "${ELASTICSEARCH_USERNAME}:${ELASTICSEARCH_PASSWORD:-}")
   fi
   curl -sS --fail-with-body "${auth[@]}" \
-    -X "$method" "${ES_URL}${path}" \
+    -X "$method" "${ELASTICSEARCH_URL}${path}" \
     -H 'Content-Type: application/json' "$@"
 }
 
 new_physical_index_name() {
-  echo "${ES_ALIAS}-$(date +%y%m%d%H%M%S)"
+  echo "${ELASTICSEARCH_INDEX_ALIAS}-$(date +%y%m%d%H%M%S)"
 }
 
 # alias 가 현재 가리키는 물리 인덱스명 출력(없으면 빈 문자열)
 current_index() {
   local resp
-  if ! resp="$(curl_es GET "/_alias/${ES_ALIAS}" 2>/dev/null)"; then
+  if ! resp="$(curl_es GET "/_alias/${ELASTICSEARCH_INDEX_ALIAS}" 2>/dev/null)"; then
     echo ""
     return 0
   fi
@@ -118,8 +118,8 @@ create_physical_index() {
 }
 
 cmd_status() {
-  echo "[INFO] alias=${ES_ALIAS} @ ${ES_URL}"
-  if ! curl_es GET "/_alias/${ES_ALIAS}"; then
+  echo "[INFO] alias=${ELASTICSEARCH_INDEX_ALIAS} @ ${ELASTICSEARCH_URL}"
+  if ! curl_es GET "/_alias/${ELASTICSEARCH_INDEX_ALIAS}"; then
     echo "[INFO] alias 가 존재하지 않습니다."
   fi
   echo
@@ -129,7 +129,7 @@ cmd_bootstrap() {
   local existing
   existing="$(current_index)"
   if [[ -n "$existing" ]]; then
-    echo "[INFO] 이미 존재합니다. alias=${ES_ALIAS} -> ${existing} (생성 생략)"
+    echo "[INFO] 이미 존재합니다. alias=${ELASTICSEARCH_INDEX_ALIAS} -> ${existing} (생성 생략)"
     return 0
   fi
 
@@ -137,12 +137,12 @@ cmd_bootstrap() {
   index="$(new_physical_index_name)"
   create_physical_index "$index"
 
-  echo "[INFO] write alias 연결: ${ES_ALIAS} -> ${index}"
+  echo "[INFO] write alias 연결: ${ELASTICSEARCH_INDEX_ALIAS} -> ${index}"
   curl_es POST "/_aliases" -d "$(cat <<EOF
-{ "actions": [ { "add": { "index": "${index}", "alias": "${ES_ALIAS}", "is_write_index": true } } ] }
+{ "actions": [ { "add": { "index": "${index}", "alias": "${ELASTICSEARCH_INDEX_ALIAS}", "is_write_index": true } } ] }
 EOF
 )" >/dev/null
-  echo "[DONE] bootstrap 완료. alias=${ES_ALIAS} -> ${index}"
+  echo "[DONE] bootstrap 완료. alias=${ELASTICSEARCH_INDEX_ALIAS} -> ${index}"
 }
 
 cmd_reindex() {
@@ -168,16 +168,16 @@ cmd_reindex() {
 EOF
 )" >/dev/null
 
-  echo "[INFO] alias 원자적 스왑: ${ES_ALIAS} ${source} -> ${dest}"
+  echo "[INFO] alias 원자적 스왑: ${ELASTICSEARCH_INDEX_ALIAS} ${source} -> ${dest}"
   curl_es POST "/_aliases" -d "$(cat <<EOF
 { "actions": [
-  { "remove": { "index": "${source}", "alias": "${ES_ALIAS}" } },
-  { "add": { "index": "${dest}", "alias": "${ES_ALIAS}", "is_write_index": true } }
+  { "remove": { "index": "${source}", "alias": "${ELASTICSEARCH_INDEX_ALIAS}" } },
+  { "add": { "index": "${dest}", "alias": "${ELASTICSEARCH_INDEX_ALIAS}", "is_write_index": true } }
 ] }
 EOF
 )" >/dev/null
 
-  echo "[DONE] reindex 완료. alias=${ES_ALIAS} -> ${dest} (이전 ${source} 는 검증 후 수동 삭제)"
+  echo "[DONE] reindex 완료. alias=${ELASTICSEARCH_INDEX_ALIAS} -> ${dest} (이전 ${source} 는 검증 후 수동 삭제)"
 }
 
 main() {

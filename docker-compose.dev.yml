@@ -110,7 +110,7 @@ services:
       SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
       SPRING_DATA_REDIS_HOST: redis
       SPRING_FLYWAY_ENABLED: ${SPRING_FLYWAY_ENABLED:-false}
-      ES_HOST: elasticsearch
+      ELASTICSEARCH_HOST: elasticsearch
     depends_on:
       postgres:
         condition: service_healthy
@@ -133,7 +133,7 @@ services:
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB:-backend_db}
       SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER:-postgres}
       SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
-      ES_HOST: elasticsearch
+      ELASTICSEARCH_HOST: elasticsearch
     depends_on:
       postgres:
         condition: service_healthy
@@ -155,7 +155,7 @@ services:
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB:-backend_db}
       SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER:-postgres}
       SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
-      ES_HOST: elasticsearch
+      ELASTICSEARCH_HOST: elasticsearch
       CHROME_BINARY: /usr/bin/chromium
       CHROME_DRIVER: /usr/bin/chromedriver
     depends_on:

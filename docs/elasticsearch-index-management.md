@@ -86,11 +86,11 @@ graph LR
 
 ```yaml
 elasticsearch:
-  index-alias: ${ES_INDEX_ALIAS:techblog-posts}   # 앱이 읽고/쓰는 alias
+  index-alias: ${ELASTICSEARCH_INDEX_ALIAS:techblog-posts}   # 앱이 읽고/쓰는 alias
   provisioning:
-    enabled: ${ES_PROVISIONING_ENABLED:true}       # 자동 부트스트랩(로컬 true / prod false)
-    definition-location: ${ES_INDEX_DEFINITION:classpath:elasticsearch/techblog-posts.json}
-    number-of-replicas: ${ES_NUMBER_OF_REPLICAS:0} # 로컬 0(green) / prod 1
+    enabled: ${ELASTICSEARCH_PROVISIONING_ENABLED:true}       # 자동 부트스트랩(로컬 true / prod false)
+    definition-location: ${ELASTICSEARCH_PROVISIONING_DEFINITION_LOCATION:classpath:elasticsearch/techblog-posts.json}
+    number-of-replicas: ${ELASTICSEARCH_PROVISIONING_NUMBER_OF_REPLICAS:0} # 로컬 0(green) / prod 1
 ```
 
 | 키 | 로컬 기본값 | 운영(prod) |
@@ -157,7 +157,7 @@ docker-backend/elasticsearch/scripts/manage-index.sh
 ./manage-index.sh reindex
 ```
 
-환경변수: `ES_URL`(기본 `http://localhost:9200`), `ES_USER` / `ES_PASSWORD`(basic auth), `ES_ALIAS`(기본 `techblog-posts`).
+환경변수: `ELASTICSEARCH_URL`(기본 `http://localhost:9200`), `ELASTICSEARCH_USERNAME` / `ELASTICSEARCH_PASSWORD`(basic auth), `ELASTICSEARCH_INDEX_ALIAS`(기본 `techblog-posts`).
 
 ---
 

@@ -13,7 +13,7 @@ ES 인프라 코드는 **`common-elasticsearch`** 공통 모듈에 모여 있고
 
 - **ES 버전**: `8.18.0` (`common-elasticsearch/build.gradle` 의 `elasticsearchVersion`)
 - **클라이언트**: 공식 Java 클라이언트 `co.elastic.clients:elasticsearch-java` (Low-level `RestClient` 기반)
-- **인덱스명**: `techblog-posts-v1` (`elasticsearch.index-name`, `ES_INDEX_NAME` 로 오버라이드)
+- **인덱스 alias**: `techblog-posts` (`elasticsearch.index-alias`, `ELASTICSEARCH_INDEX_ALIAS` 로 오버라이드)
 - **형태소 분석**: 한글 분석기 **Nori** (`analysis-nori` 플러그인)
 
 ---
@@ -87,51 +87,51 @@ spring:
 ```yaml
 # 기본 문서 = 로컬(옵션 A): 보안 꺼진 컨테이너에 평문 http 접속
 elasticsearch:
-  host: ${ES_HOST:localhost}
-  port: ${ES_PORT:9200}
-  scheme: ${ES_SCHEME:http}
-  username: ${ES_USERNAME:}
-  password: ${ES_PASSWORD:}
-  fingerprint: ${ES_FINGERPRINT:}
-  index-name: ${ES_INDEX_NAME:techblog-posts-v1}
+  host: ${ELASTICSEARCH_HOST:localhost}
+  port: ${ELASTICSEARCH_PORT:9200}
+  scheme: ${ELASTICSEARCH_SCHEME:http}
+  username: ${ELASTICSEARCH_USERNAME:}
+  password: ${ELASTICSEARCH_PASSWORD:}
+  fingerprint: ${ELASTICSEARCH_FINGERPRINT:}
+  index-alias: ${ELASTICSEARCH_INDEX_ALIAS:techblog-posts}
 ```
 
 - 인증 없이(`username` 공백) `http://localhost:9200` 접속.
 - 모든 값에 기본값이 있어 **환경변수 없이도 로컬에서 바로 기동**됩니다.
 
-### 3.2 `prod` 프로필(운영) — https + 인증 + CA fingerprint
+### 3.2 `prod` 프로필(운영)
 
 ```yaml
-# prod 프로필 = 운영(옵션 C): https + 인증 + CA fingerprint 검증
-# 시크릿은 기본값 없이 → 미주입 시 기동 실패하도록(누락 방지)
 spring:
   config:
     activate:
       on-profile: prod
 
 elasticsearch:
-  host: ${ES_HOST}
-  port: ${ES_PORT:9200}
-  scheme: https
-  username: ${ES_USERNAME:elastic}
-  password: ${ES_PASSWORD}
-  fingerprint: ${ES_FINGERPRINT}
+  host: ${ELASTICSEARCH_HOST}
+  port: ${ELASTICSEARCH_PORT:9200}
+  scheme: ${ELASTICSEARCH_SCHEME:http}
+  username: ${ELASTICSEARCH_USERNAME:}
+  password: ${ELASTICSEARCH_PASSWORD:}
+  fingerprint: ${ELASTICSEARCH_FINGERPRINT:}
 ```
 
-- `host` / `password` / `fingerprint` 는 **기본값이 없어**, 미주입 시 기동이 실패합니다(운영 시크릿 누락 방지 의도).
-- `scheme: https` 고정.
+- `docker-compose.prod.yml`: `ELASTICSEARCH_SCHEME=http` + basic auth (docker 내부망).
+- 외부 TLS ES: `ELASTICSEARCH_SCHEME=https` + `ELASTICSEARCH_FINGERPRINT` 필수.
 
 ### 3.3 환경변수 요약
 
 | 변수 | 로컬 기본값 | 운영(prod) |
 |------|------------|-----------|
-| `ES_HOST` | `localhost` | **필수** |
-| `ES_PORT` | `9200` | `9200` |
-| `ES_SCHEME` | `http` | `https` (고정) |
-| `ES_USERNAME` | 공백(인증 X) | `elastic` |
-| `ES_PASSWORD` | 공백 | **필수** |
-| `ES_FINGERPRINT` | 공백 | **필수(CA 지문 검증)** |
-| `ES_INDEX_NAME` | `techblog-posts-v1` | 동일 |
+| `ELASTICSEARCH_HOST` | `localhost` | **필수** |
+| `ELASTICSEARCH_PORT` | `9200` | `9200` |
+| `ELASTICSEARCH_SCHEME` | `http` | `http`(compose) / `https`(외부 TLS ES) |
+| `ELASTICSEARCH_USERNAME` | 공백(인증 X) | `elastic`(compose) |
+| `ELASTICSEARCH_PASSWORD` | 공백 | compose prod **필수** |
+| `ELASTICSEARCH_FINGERPRINT` | 공백 | 외부 TLS ES **필수** |
+| `ELASTICSEARCH_INDEX_ALIAS` | `techblog-posts` | 동일 |
+| `ELASTICSEARCH_PROVISIONING_ENABLED` | `true` | `false` |
+| `ELASTICSEARCH_PROVISIONING_NUMBER_OF_REPLICAS` | `0` | `1`(단일 노드 compose는 `0`) |
 
 ### 3.4 프로퍼티 → 클라이언트 매핑
 

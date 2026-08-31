@@ -1,44 +1,42 @@
 # 공통 Elasticsearch 기본값 (ES 사용하는 서비스가 spring.config.import 로 로드)
+# 환경변수 접두사: ELASTICSEARCH_* (= elasticsearch.* @ConfigurationProperties 바인딩)
 # 기본 문서 = 로컬(옵션 A): 보안 꺼진 컨테이너에 평문 http 접속
 elasticsearch:
-  host: ${ES_HOST:localhost}
-  port: ${ES_PORT:9200}
-  scheme: ${ES_SCHEME:http}
-  username: ${ES_USERNAME:}
-  password: ${ES_PASSWORD:}
-  fingerprint: ${ES_FINGERPRINT:}
+  host: ${ELASTICSEARCH_HOST:localhost}
+  port: ${ELASTICSEARCH_PORT:9200}
+  scheme: ${ELASTICSEARCH_SCHEME:http}
+  username: ${ELASTICSEARCH_USERNAME:}
+  password: ${ELASTICSEARCH_PASSWORD:}
+  fingerprint: ${ELASTICSEARCH_FINGERPRINT:}
   # index-alias = 애플리케이션이 읽고/쓰는 alias 이름.
   # 물리 인덱스는 프로비저너가 techblog-posts-<yyMMddHHmmss>로 생성하고 이 alias로 연결한다.
-  index-alias: ${ES_INDEX_ALIAS:techblog-posts}
+  index-alias: ${ELASTICSEARCH_INDEX_ALIAS:techblog-posts}
   provisioning:
     # 로컬 편의: alias 부재 시 기동 직후 물리 인덱스 + alias 자동 생성.
     # 자동 부트스트랩 러너는 integrated-api 에만 존재하므로 실제 생성은 integrated-api 기동 시 1회만 수행된다
     # (다중 서비스 동시 기동 시 인덱스 중복 생성 경쟁 방지).
-    enabled: ${ES_PROVISIONING_ENABLED:true}
-    definition-location: ${ES_INDEX_DEFINITION:classpath:elasticsearch/techblog-posts.json}
+    enabled: ${ELASTICSEARCH_PROVISIONING_ENABLED:true}
+    definition-location: ${ELASTICSEARCH_PROVISIONING_DEFINITION_LOCATION:classpath:elasticsearch/techblog-posts.json}
     # 로컬 단일 노드는 복제본을 배치할 노드가 없어 0 권장(green 유지)
-    number-of-replicas: ${ES_NUMBER_OF_REPLICAS:0}
+    number-of-replicas: ${ELASTICSEARCH_PROVISIONING_NUMBER_OF_REPLICAS:0}
 
 ---
-# prod 프로필 = 운영(옵션 C): https + 인증 + CA fingerprint 검증
-# 시크릿은 기본값 없이 → 미주입 시 기동 실패하도록(누락 방지)
+# prod 프로필 — docker-compose.prod: http + basic auth / 외부 TLS ES: https + fingerprint
 spring:
   config:
     activate:
       on-profile: prod
 
 elasticsearch:
-  host: ${ES_HOST}
-  port: ${ES_PORT:9200}
-  # docker-compose.prod.yml: docker 내부망 평문 http + basic auth (ES_SCHEME=http, ES_USERNAME=elastic)
-  # 외부 TLS ES(옵션 C): ES_SCHEME=https + ES_FINGERPRINT 필수
-  scheme: ${ES_SCHEME:https}
-  username: ${ES_USERNAME:}
-  password: ${ES_PASSWORD:}
-  fingerprint: ${ES_FINGERPRINT:}
-  index-alias: ${ES_INDEX_ALIAS:techblog-posts}
+  host: ${ELASTICSEARCH_HOST}
+  port: ${ELASTICSEARCH_PORT:9200}
+  scheme: ${ELASTICSEARCH_SCHEME:http}
+  username: ${ELASTICSEARCH_USERNAME:}
+  password: ${ELASTICSEARCH_PASSWORD:}
+  fingerprint: ${ELASTICSEARCH_FINGERPRINT:}
+  index-alias: ${ELASTICSEARCH_INDEX_ALIAS:techblog-posts}
   provisioning:
     # 운영은 스크립트/관리 API 로 명시적 생성·재색인 → 자동 부트스트랩 비활성
-    enabled: ${ES_PROVISIONING_ENABLED:false}
-    definition-location: ${ES_INDEX_DEFINITION:classpath:elasticsearch/techblog-posts.json}
-    number-of-replicas: ${ES_NUMBER_OF_REPLICAS:1}
+    enabled: ${ELASTICSEARCH_PROVISIONING_ENABLED:false}
+    definition-location: ${ELASTICSEARCH_PROVISIONING_DEFINITION_LOCATION:classpath:elasticsearch/techblog-posts.json}
+    number-of-replicas: ${ELASTICSEARCH_PROVISIONING_NUMBER_OF_REPLICAS:1}

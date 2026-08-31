@@ -30,12 +30,13 @@ x-logging: &default-logging
     max-file: "3" # 그런 파일을 최대 3개만 유지 → 서비스당 대략 30MB 상한. (넘치면 오래된 파일부터 지움)
 
 # ES 사용 서비스 공통 — docker 내부망 평문 http + basic auth (9200 은 호스트에 publish 하지 않음)
-x-es-env: &es-env
-  ES_HOST: elasticsearch
-  ES_SCHEME: http
-  ES_USERNAME: elastic
-  ES_PASSWORD: ${ES_PASSWORD}
-  ES_NUMBER_OF_REPLICAS: "0"
+x-elasticsearch-env: &elasticsearch-env
+  ELASTICSEARCH_HOST: elasticsearch
+  ELASTICSEARCH_SCHEME: http
+  ELASTICSEARCH_USERNAME: elastic
+  ELASTICSEARCH_PASSWORD: ${ELASTICSEARCH_PASSWORD}
+  ELASTICSEARCH_FINGERPRINT: ""
+  ELASTICSEARCH_PROVISIONING_NUMBER_OF_REPLICAS: "0"
 
 services:
   postgres:
@@ -88,15 +89,15 @@ services:
     environment:
       TZ: Asia/Seoul
       discovery.type: single-node
-      # docker 내부망 전용: TLS 끄고 basic auth 만 (외부 HTTPS ES 는 ES_SCHEME=https + ES_FINGERPRINT)
+      # docker 내부망 전용: TLS 끄고 basic auth 만 (외부 TLS ES 는 ELASTICSEARCH_SCHEME=https + ELASTICSEARCH_FINGERPRINT)
       xpack.security.enabled: "true"
       xpack.security.http.ssl.enabled: "false"
-      ELASTIC_PASSWORD: ${ES_PASSWORD}
+      ELASTIC_PASSWORD: ${ELASTICSEARCH_PASSWORD}
       ES_JAVA_OPTS: "-Xms512m -Xmx1g"
     volumes:
       - elasticsearch_data:/usr/share/elasticsearch/data
     healthcheck:
-      test: ["CMD-SHELL", "curl -fsS -u elastic:${ES_PASSWORD} http://localhost:9200 >/dev/null || exit 1"]
+      test: ["CMD-SHELL", "curl -fsS -u elastic:${ELASTICSEARCH_PASSWORD} http://localhost:9200 >/dev/null || exit 1"]
       interval: 10s
       timeout: 5s
       retries: 20
@@ -151,7 +152,7 @@ services:
       SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER}
       SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
       SPRING_DATA_REDIS_HOST: redis
-      <<: *es-env
+      <<: *elasticsearch-env
       JWT_CLIENT_SECRET: ${JWT_CLIENT_SECRET}
     depends_on:
       postgres:
@@ -178,7 +179,7 @@ services:
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB}
       SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER}
       SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
-      <<: *es-env
+      <<: *elasticsearch-env
       JWT_CLIENT_SECRET: ${JWT_CLIENT_SECRET}
     depends_on:
       postgres:
@@ -205,7 +206,7 @@ services:
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB}
       SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER}
       SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
-      <<: *es-env
+      <<: *elasticsearch-env
       JWT_CLIENT_SECRET: ${JWT_CLIENT_SECRET}
       CHROME_BINARY: /usr/bin/chromium
       CHROME_DRIVER: /usr/bin/chromedriver
