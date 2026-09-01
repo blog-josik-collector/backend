@@ -2,12 +2,14 @@ package com.backend.interactionservice.post.service;
 
 import com.backend.commondataaccess.persistence.post.Post;
 import com.backend.commonelasticsearch.operation.bulk.BulkOperationResult;
+import com.backend.commonelasticsearch.provision.ElasticsearchIndexProvisioner;
 import com.backend.interactionservice.post.repository.PostCountsElasticsearchRepository;
 import com.backend.interactionservice.post.repository.PostQueryRepository;
 import com.backend.interactionservice.post.service.dto.PostCountSyncResult;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,7 +19,9 @@ import org.springframework.transaction.annotation.Transactional;
  * soft-delete 되지 않은 모든 post 를 id keyset pagination 으로 batch 조회한 뒤 ES bulk partial upsert 를 반복 호출한다.
  * <p>
  * DB 조회와 ES bulk 를 분리해 read-only 트랜잭션이 ES I/O 동안 커넥션을 점유하지 않도록 한다.
+ * ES write alias 가 없으면 sync 하지 않는다 — doc_as_upsert 가 alias 이름으로 물리 인덱스를 자동 생성해 매핑/bootstrap 를 깨는 것을 막기 위함.
  */
+@Slf4j
 @Service
 @Transactional
 @RequiredArgsConstructor
@@ -25,11 +29,18 @@ public class PostCountsSyncService {
 
     private final PostQueryRepository postQueryRepository;
     private final PostCountsElasticsearchRepository postCountsElasticsearchRepository;
+    private final ElasticsearchIndexProvisioner elasticsearchIndexProvisioner;
 
     @Value("${post-count-sync-worker.post-batch-size:100}")
     private int postBatchSize;
 
     public PostCountSyncResult syncAll() {
+        if (!elasticsearchIndexProvisioner.aliasExists()) {
+            log.debug("[PostCount] ES alias not ready (alias={}), skipping count sync",
+                      elasticsearchIndexProvisioner.alias());
+            return PostCountSyncResult.skipped();
+        }
+
         UUID cursor = null;
         int totalPosts = 0;
         int successCount = 0;

@@ -9,7 +9,8 @@ import org.springframework.stereotype.Component;
 
 /**
  * posts 테이블의 카운트 필드를 Elasticsearch techblog-posts 인덱스에 주기적으로 bulk upsert 하는 worker. <br>
- * PostViewCountFlushWorker 가 Redis view 를 DB 로 flush 한 뒤, 이 worker 가 DB 의 최신 카운트를 ES 로 반영하는 흐름을 기대한다.
+ * PostViewCountFlushWorker 가 Redis view 를 DB 로 flush 한 뒤, 이 worker 가 DB 의 최신 카운트를 ES 로 반영하는 흐름을 기대한다. <br>
+ * ES write alias 가 없으면 sync 를 건너뛴다({@link PostCountsSyncService}).
  */
 @Slf4j
 @Component
