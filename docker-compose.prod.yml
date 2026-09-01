@@ -6,11 +6,15 @@
 #   mkdir -p data/postgres data/backups/postgres
 #   docker compose -f docker-compose.prod.yml up -d --build
 #
+# .env 주의: compose 파일의 ${VAR} 치환에만 쓰인다. 컨테이너로 넘기려면 각 서비스 environment: 에
+#   KEY: ${KEY} 형태로 명시해야 한다 (.env 만 적어 두면 Spring 앱은 못 본다).
+#
 # 운영 포인트:
 #   - Postgres 데이터: ./data/postgres (bind mount) — rsync/이전·점검이 named volume 보다 쉽다
 #   - Postgres 백업: VM cron + scripts/backup-postgres.sh (compose 밖 — CI/CD 배포와 분리)
 #     dump → ./data/backups/postgres , 원격(R2/S3)은 호스트 rclone 등으로 동기화
 #   - Redis/ES: named volume 유지. Redis 는 view 버퍼, ES 는 DB 재색인으로 복구 가능
+#   - ES 인덱스: integrated-api 기동 시 alias 없으면 자동 생성(ELASTICSEARCH_PROVISIONING_ENABLED=true)
 #   - mem_limit: 한 컨테이너 폭주가 VM 전체를 OOM 내지 않도록 천장만 둔다 (예약 reservation 아님)
 #   - logging: 컨테이너 로그가 디스크를 채우지 않도록 롤링
 #
@@ -180,6 +184,8 @@ services:
       SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER}
       SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
       <<: *elasticsearch-env
+      # .env 의 ELASTICSEARCH_PROVISIONING_ENABLED 를 컨테이너에 전달 (미설정 시 compose prod 기본 true)
+      ELASTICSEARCH_PROVISIONING_ENABLED: ${ELASTICSEARCH_PROVISIONING_ENABLED:-false}
       JWT_CLIENT_SECRET: ${JWT_CLIENT_SECRET}
     depends_on:
       postgres:

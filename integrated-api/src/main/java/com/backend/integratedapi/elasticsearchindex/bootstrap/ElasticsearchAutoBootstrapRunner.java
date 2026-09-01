@@ -33,7 +33,8 @@ public class ElasticsearchAutoBootstrapRunner implements ApplicationRunner {
                 log.info("[ES] auto bootstrap: alias={} already exists (index={})", result.alias(), result.index());
             }
         } catch (Exception e) {
-            log.warn("[ES] auto bootstrap skipped (continuing startup): {}", e.getMessage());
+            log.error("[ES] auto bootstrap failed (continuing startup). index may be missing — "
+                    + "check ES connectivity/auth or run manage-index.sh bootstrap", e);
         }
     }
 }
