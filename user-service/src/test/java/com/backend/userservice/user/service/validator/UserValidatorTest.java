@@ -103,6 +103,42 @@ class UserValidatorTest {
     }
 
     @Nested
+    @DisplayName("금지어 검증")
+    class ReservedWords {
+
+        @ParameterizedTest
+        @ValueSource(strings = {"admin", "Admin", "myadmin", "admin_user", "superADMIN"})
+        void login_id에_admin이_포함되면_BadRequestException을_던진다(String loginId) {
+            Assertions.assertThatThrownBy(() -> UserValidator.validateLoginIdNotReserved(loginId))
+                      .isInstanceOf(BadRequestException.class)
+                      .hasMessageContaining("login_id")
+                      .hasMessageContaining("admin");
+        }
+
+        @ParameterizedTest
+        @ValueSource(strings = {"user123", "cycy", "test_login"})
+        void login_id에_admin이_없으면_통과한다(String loginId) {
+            Assertions.assertThatCode(() -> UserValidator.validateLoginIdNotReserved(loginId))
+                      .doesNotThrowAnyException();
+        }
+
+        @ParameterizedTest
+        @ValueSource(strings = {"admin", "Admin", "myadmin", "어드민", "슈퍼어드민", "어드민님"})
+        void nickname에_admin_또는_어드민이_포함되면_BadRequestException을_던진다(String nickname) {
+            Assertions.assertThatThrownBy(() -> UserValidator.validateNicknameNotReserved(nickname))
+                      .isInstanceOf(BadRequestException.class)
+                      .hasMessageContaining("nickname");
+        }
+
+        @ParameterizedTest
+        @ValueSource(strings = {"cycy", "happy_user", "행복한_다람쥐"})
+        void nickname에_금지어가_없으면_통과한다(String nickname) {
+            Assertions.assertThatCode(() -> UserValidator.validateNicknameNotReserved(nickname))
+                      .doesNotThrowAnyException();
+        }
+    }
+
+    @Nested
     @DisplayName("verifyDuplicateNickname")
     class VerifyDuplicateNickname {
 

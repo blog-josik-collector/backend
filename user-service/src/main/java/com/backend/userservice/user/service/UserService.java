@@ -32,7 +32,9 @@ public class UserService {
     public UserDto create(UserDto userDto) {
         ValidationFlow.start(userDto)
                       .next(UserValidator.validateLoginId())
+                      .next(UserValidator.validateLoginIdNotReserved())
                       .next(UserValidator.validateNickname())
+                      .next(UserValidator.validateNicknameNotReserved())
                       .next(UserValidator.validatePasswordAndPasswordConfirm())
                       .end();
 
