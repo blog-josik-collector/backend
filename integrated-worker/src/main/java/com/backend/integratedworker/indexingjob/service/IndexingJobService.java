@@ -25,12 +25,11 @@ public class IndexingJobService {
 
     /**
      * 오케스트레이터가 IndexingService에 넘길 IndexingJob 엔티티를 조회한다.
-     * 반환 시점에 트랜잭션이 닫히므로 detached 상태로 넘어간다.
-     * LAZY 필드(targetSource, targetPost)는 id() 접근만 안전하다.
+     * targetSource/targetPost 는 fetch join 으로 미리 로드한다 (detached LAZY 프록시 접근 방지).
      */
     @Transactional(readOnly = true)
     public IndexingJob getJob(UUID jobId) {
-        return IndexingJobValidator.getIndexingJobOrThrow(jobId, queryRepository::fetchOneById);
+        return IndexingJobValidator.getIndexingJobOrThrow(jobId, queryRepository::fetchOneWithTargetsById);
     }
 
     public void updateCounts(UUID jobId, int totalCount, int indexedCount) {

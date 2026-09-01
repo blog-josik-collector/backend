@@ -50,7 +50,7 @@ class IndexingJobServiceTest {
 
         @Test
         void jobId로_조회된_IndexingJob을_반환한다() {
-            Mockito.doReturn(Optional.of(job)).when(queryRepository).fetchOneById(jobId);
+            Mockito.doReturn(Optional.of(job)).when(queryRepository).fetchOneWithTargetsById(jobId);
 
             IndexingJob result = indexingJobService.getJob(jobId);
 
@@ -59,7 +59,7 @@ class IndexingJobServiceTest {
 
         @Test
         void jobId가_없으면_NotFoundException을_던진다() {
-            Mockito.doReturn(Optional.empty()).when(queryRepository).fetchOneById(jobId);
+            Mockito.doReturn(Optional.empty()).when(queryRepository).fetchOneWithTargetsById(jobId);
 
             Assertions.assertThatThrownBy(() -> indexingJobService.getJob(jobId))
                       .isInstanceOf(NotFoundException.class)
