@@ -108,9 +108,41 @@ Jacoco LINE 커버리지 게이트 (Service 계층~, Repository 제외, 기준 �
 
 커버리지 현황: [docs/test-coverage.md](./docs/test-coverage.md)
 
-## CI
+## CI / CD
 
-GitHub Actions (`.github/workflows/ci.yml`): PR/`main`에서 `./gradlew test`만 실행한다. 커버리지는 로컬에서 `./scripts/check-coverage.sh`로 확인한다.
+| Workflow | 트리거 | 동작 |
+|----------|--------|------|
+| `.github/workflows/ci.yml` | PR / `main` | `./gradlew build -x test` (docs·md 등만 바뀌면 skip) |
+| `.github/workflows/deploy.yml` | `main` push / manual | SSH → `git pull` → path 기반 `docker compose ... --build` |
+
+테스트·커버리지는 CI에 넣지 않는다. 로컬에서 `./gradlew test` / `./scripts/check-coverage.sh`로 확인한다.  
+Docker 이미지 빌드(`docker/app.Dockerfile`, `worker.Dockerfile`)도 이미 `bootJar -x test`다.
+
+### Deploy 설정 (GitHub)
+
+**Secrets**
+
+- `DEPLOY_HOST` — VM 호스트/IP
+- `DEPLOY_USER` — SSH 사용자
+- `DEPLOY_SSH_KEY` — 배포용 private key (PEM)
+
+**Variables** (선택)
+
+- `DEPLOY_PORT` — 기본 `22`
+- `DEPLOY_PATH` — 기본 `/opt/backend` (클론된 저장소 루트)
+
+Environment `production`을 쓰므로, GitHub → Settings → Environments에 `production`을 만들고 위 시크릿을 넣으면 된다.
+
+VM에는 미리 `git clone` + `.env` + Docker가 있어야 하며, deploy key(또는 동일 SSH key)로 `git pull`이 되어야 한다.
+
+수동 배포 / 서비스 지정:
+
+```bash
+# Actions → Deploy → Run workflow → services 예: user-service api-gateway 또는 all
+# VM에서 직접:
+./scripts/deploy-prod.sh user-service
+./scripts/compose-services-from-paths.sh user-service/src/... common-web/...
+```
 
 ## Docker Compose (전체 스택)
 

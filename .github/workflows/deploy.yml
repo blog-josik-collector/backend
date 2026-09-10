@@ -1,0 +1,129 @@
+# main 푸시 시 변경 path → 서비스만 VM에서 rebuild (SSH).
+# Secrets: DEPLOY_HOST, DEPLOY_USER, DEPLOY_SSH_KEY
+# Vars(선택): DEPLOY_PORT(기본 22), DEPLOY_PATH(기본 /opt/backend)
+name: Deploy
+
+on:
+  push:
+    branches: [main]
+    paths-ignore:
+      - "docs/**"
+      - "**/*.md"
+      - ".gitignore"
+      - ".dockerignore"
+      - ".env.example"
+      - ".env.dev.example"
+      - "scripts/backup-postgres.sh"
+      - "scripts/dump-openapi.sh"
+      - "scripts/check-coverage.sh"
+      - ".github/workflows/ci.yml"
+  workflow_dispatch:
+    inputs:
+      services:
+        description: 'Rebuild targets (empty=auto from last commit, "all", or e.g. "user-service api-gateway")'
+        required: false
+        default: ""
+
+concurrency:
+  group: deploy-prod
+  cancel-in-progress: false
+
+jobs:
+  select:
+    runs-on: ubuntu-latest
+    outputs:
+      services: ${{ steps.pick.outputs.services }}
+      skip: ${{ steps.pick.outputs.skip }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          # push 시 before..sha 전체 diff (여러 커밋 squash/merge 포함)
+          fetch-depth: 0
+
+      - name: Resolve compose services
+        id: pick
+        shell: bash
+        run: |
+          set -euo pipefail
+          chmod +x scripts/compose-services-from-paths.sh
+
+          trim() {
+            local s="$1"
+            s="${s#"${s%%[![:space:]]*}"}"
+            s="${s%"${s##*[![:space:]]}"}"
+            printf '%s' "$s"
+          }
+
+          MANUAL="${{ github.event.inputs.services || '' }}"
+          if [[ -n "${MANUAL}" ]]; then
+            SERVICES="${MANUAL}"
+          else
+            BEFORE="${{ github.event.before || '' }}"
+            if [[ "${{ github.event_name }}" == "push" && -n "${BEFORE}" && "${BEFORE}" != "0000000000000000000000000000000000000000" ]]; then
+              mapfile -t FILES < <(git diff --name-only "${BEFORE}" "${{ github.sha }}")
+            else
+              mapfile -t FILES < <(git diff --name-only HEAD~1 HEAD 2>/dev/null || true)
+            fi
+            if [[ ${#FILES[@]} -eq 0 ]]; then
+              SERVICES="all"
+            else
+              SERVICES="$(./scripts/compose-services-from-paths.sh "${FILES[@]}")"
+            fi
+          fi
+
+          SERVICES="$(trim "${SERVICES}")"
+          echo "services=${SERVICES}"
+          if [[ -z "${SERVICES}" ]]; then
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+            echo "services=" >> "$GITHUB_OUTPUT"
+          else
+            echo "skip=false" >> "$GITHUB_OUTPUT"
+            echo "services=${SERVICES}" >> "$GITHUB_OUTPUT"
+          fi
+
+  deploy:
+    needs: select
+    if: needs.select.outputs.skip != 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    environment: production
+
+    steps:
+      - name: Start SSH agent
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.DEPLOY_SSH_KEY }}
+
+      - name: Add host to known_hosts
+        env:
+          DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
+          DEPLOY_PORT: ${{ vars.DEPLOY_PORT || 22 }}
+        run: |
+          set -euo pipefail
+          mkdir -p ~/.ssh
+          ssh-keyscan -p "${DEPLOY_PORT}" -H "${DEPLOY_HOST}" >> ~/.ssh/known_hosts
+
+      - name: Deploy over SSH
+        env:
+          DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
+          DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
+          DEPLOY_PORT: ${{ vars.DEPLOY_PORT || 22 }}
+          DEPLOY_PATH: ${{ vars.DEPLOY_PATH || '/opt/backend' }}
+          SERVICES: ${{ needs.select.outputs.services }}
+        run: |
+          set -euo pipefail
+          echo "Deploying services: ${SERVICES}"
+          # shellcheck disable=SC2029
+          ssh -p "${DEPLOY_PORT}" \
+            -o IdentitiesOnly=yes \
+            -o StrictHostKeyChecking=yes \
+            "${DEPLOY_USER}@${DEPLOY_HOST}" \
+            "set -euo pipefail
+             cd '${DEPLOY_PATH}'
+             git fetch --prune origin
+             git checkout main
+             git pull --ff-only origin main
+             chmod +x scripts/deploy-prod.sh scripts/compose-services-from-paths.sh
+             ./scripts/deploy-prod.sh ${SERVICES}
+            "

@@ -1,0 +1,52 @@
+# PR / main: 컴파일·패키징만 (-x test). 테스트·커버리지는 로컬.
+name: CI
+
+on:
+  pull_request:
+    paths-ignore:
+      - "docs/**"
+      - "**/*.md"
+      - ".gitignore"
+      - ".dockerignore"
+      - ".env.example"
+      - ".env.dev.example"
+      - "scripts/backup-postgres.sh"
+      - "scripts/dump-openapi.sh"
+  push:
+    branches: [main]
+    paths-ignore:
+      - "docs/**"
+      - "**/*.md"
+      - ".gitignore"
+      - ".dockerignore"
+      - ".env.example"
+      - ".env.dev.example"
+      - "scripts/backup-postgres.sh"
+      - "scripts/dump-openapi.sh"
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          cache-read-only: ${{ github.ref != 'refs/heads/main' }}
+
+      - name: Build (skip tests)
+        run: ./gradlew build -x test --no-daemon
