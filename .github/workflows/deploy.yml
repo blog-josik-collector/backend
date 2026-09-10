@@ -1,26 +1,13 @@
-# main 푸시 시 변경 path → 서비스만 VM에서 rebuild (SSH).
+# GitHub Actions UI에서 수동 실행(Run workflow)만. push로는 안 돈다.
 # Secrets: DEPLOY_HOST, DEPLOY_USER, DEPLOY_SSH_KEY
 # Vars(선택): DEPLOY_PORT(기본 22), DEPLOY_PATH(기본 /opt/backend)
 name: Deploy
 
 on:
-  push:
-    branches: [main]
-    paths-ignore:
-      - "docs/**"
-      - "**/*.md"
-      - ".gitignore"
-      - ".dockerignore"
-      - ".env.example"
-      - ".env.dev.example"
-      - "scripts/backup-postgres.sh"
-      - "scripts/dump-openapi.sh"
-      - "scripts/check-coverage.sh"
-      - ".github/workflows/ci.yml"
   workflow_dispatch:
     inputs:
       services:
-        description: 'Rebuild targets (empty=auto from last commit, "all", or e.g. "user-service api-gateway")'
+        description: 'Rebuild targets (empty=auto from last commit on main, "all", or e.g. "user-service api-gateway")'
         required: false
         default: ""
 

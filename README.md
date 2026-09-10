@@ -113,7 +113,7 @@ Jacoco LINE 커버리지 게이트 (Service 계층~, Repository 제외, 기준 �
 | Workflow | 트리거 | 동작 |
 |----------|--------|------|
 | `.github/workflows/ci.yml` | PR / `main` | `./gradlew build -x test` (docs·md 등만 바뀌면 skip) |
-| `.github/workflows/deploy.yml` | `main` push / manual | SSH → `git pull` → path 기반 `docker compose ... --build` |
+| `.github/workflows/deploy.yml` | **수동만** (Actions → Deploy → Run workflow) | SSH → `git pull` → path 기반 `docker compose ... --build` |
 
 테스트·커버리지는 CI에 넣지 않는다. 로컬에서 `./gradlew test` / `./scripts/check-coverage.sh`로 확인한다.  
 Docker 이미지 빌드(`docker/app.Dockerfile`, `worker.Dockerfile`)도 이미 `bootJar -x test`다.
