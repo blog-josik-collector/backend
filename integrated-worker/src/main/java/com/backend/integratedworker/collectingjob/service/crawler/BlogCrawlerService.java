@@ -9,6 +9,12 @@ import com.backend.integratedworker.collectingjob.service.crawler.strategy.Crawl
 import com.backend.integratedworker.collectingjob.service.crawler.toss.TossBlogCrawler;
 import com.backend.integratedworker.collectingjob.service.dto.Post;
 import io.github.bonigarcia.wdm.WebDriverManager;
+import java.io.IOException;
+import java.nio.file.FileVisitResult;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.SimpleFileVisitor;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -51,6 +57,14 @@ public class BlogCrawlerService {
     }
 
     public <T> List<T> crawl(CrawlerStrategy<T> strategy, PostProvider postProvider, int page) {
+        Path userDataDir;
+        try {
+            // @Async collectingExecutor 에서 잡이 동시에 돌면 동일 user-data-dir 은 Chromium singleton lock 으로 즉시 종료된다.
+            userDataDir = Files.createTempDirectory("chrome-user-data-");
+        } catch (IOException e) {
+            throw new CrawlingException("Failed to create chrome user-data-dir", e);
+        }
+
         ChromeOptions options = new ChromeOptions();
         // Docker + non-root(UID 1001) 에서 Chromium이 바로 죽는 것 방지
         options.addArguments("--headless=new");
@@ -58,7 +72,7 @@ public class BlogCrawlerService {
         options.addArguments("--disable-setuid-sandbox");
         options.addArguments("--disable-dev-shm-usage");
         options.addArguments("--disable-gpu");
-        options.addArguments("--user-data-dir=/tmp/chrome-user-data");
+        options.addArguments("--user-data-dir=" + userDataDir.toAbsolutePath());
         options.addArguments("--remote-allow-origins=*");
 
         String chromeBinary = System.getenv("CHROME_BINARY");
@@ -96,9 +110,36 @@ public class BlogCrawlerService {
             throw new CrawlingException(
                     "Crawl failed provider=%s page=%d".formatted(postProvider.name(), page), e);
         } finally {
-            driver.quit();
+            try {
+                driver.quit();
+            } finally {
+                deleteRecursively(userDataDir);
+            }
         }
 
         return posts;
+    }
+
+    private static void deleteRecursively(Path root) {
+        if (root == null || !Files.exists(root)) {
+            return;
+        }
+        try {
+            Files.walkFileTree(root, new SimpleFileVisitor<>() {
+                @Override
+                public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+                    Files.deleteIfExists(file);
+                    return FileVisitResult.CONTINUE;
+                }
+
+                @Override
+                public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
+                    Files.deleteIfExists(dir);
+                    return FileVisitResult.CONTINUE;
+                }
+            });
+        } catch (IOException ignored) {
+            // best-effort cleanup; /tmp 는 컨테이너 재시작 시 정리됨
+        }
     }
 }
