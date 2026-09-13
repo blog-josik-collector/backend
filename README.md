@@ -176,7 +176,7 @@ docker compose -f docker-compose.prod.yml up -d --build
 - DB를 사용하는 서비스(`user-service`, `search-service`, `interaction-service`)는 `application.yml`의 `spring.datasource`를 기준으로 PostgreSQL에 연결됩니다.
 - Flyway 사용 시 PostgreSQL 환경에서는 `flyway-core`와 함께 `flyway-database-postgresql` 의존성이 필요합니다.
 - 로컬 Docker 기본값을 사용할 경우 일반적으로 아래 값으로 맞춰 사용합니다.
-  - URL: `jdbc:postgresql://localhost:5432/backend_db`
+  - URL: `jdbc:postgresql://localhost:5432/db_backend`
   - USERNAME: `postgres`
   - PASSWORD: `postgres`
 

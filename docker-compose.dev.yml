@@ -1,5 +1,5 @@
 # VM/로컬과 동일한 Spring 기본 프로필( prod 아님 )로 전체 스택을 Docker로 띄운다.
-# - DB: postgres / postgres / backend_db (application.yml 기본과 동일)
+# - DB: postgres / postgres / db_backend (application.yml 기본과 동일)
 # - Flyway·admin bootstrap·ES auto-provisioning: application.yml 기본값 유지
 # - .env 없이도 동작. 필요 시 .env.dev.example 참고
 #
@@ -17,13 +17,13 @@ services:
       - "5432:5432"
     environment:
       TZ: Asia/Seoul
-      POSTGRES_DB: ${POSTGRES_DB:-backend_db}
+      POSTGRES_DB: ${POSTGRES_DB:-db_backend}
       POSTGRES_USER: ${POSTGRES_USER:-postgres}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
     volumes:
       - dev_postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-backend_db}"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-db_backend}"]
       interval: 5s
       timeout: 5s
       retries: 10
@@ -78,7 +78,7 @@ services:
     restart: unless-stopped
     environment:
       TZ: Asia/Seoul
-      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB:-backend_db}
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB:-db_backend}
       SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER:-postgres}
       SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
       GOOGLE_OAUTH_REDIRECT_URI: ${GOOGLE_OAUTH_REDIRECT_URI:-http://localhost:8000/auth/v1/oauth/google/callback}
@@ -105,7 +105,7 @@ services:
     restart: unless-stopped
     environment:
       TZ: Asia/Seoul
-      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB:-backend_db}
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB:-db_backend}
       SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER:-postgres}
       SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
       SPRING_DATA_REDIS_HOST: redis
@@ -130,7 +130,7 @@ services:
     restart: unless-stopped
     environment:
       TZ: Asia/Seoul
-      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB:-backend_db}
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB:-db_backend}
       SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER:-postgres}
       SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
       ELASTICSEARCH_HOST: elasticsearch
@@ -152,7 +152,7 @@ services:
     shm_size: "2gb"
     environment:
       TZ: Asia/Seoul
-      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB:-backend_db}
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB:-db_backend}
       SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER:-postgres}
       SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
       ELASTICSEARCH_HOST: elasticsearch
