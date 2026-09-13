@@ -45,6 +45,7 @@ x-elasticsearch-env: &elasticsearch-env
 services:
   postgres:
     image: postgres:15.7
+    user: "1001:1001"
     restart: unless-stopped
     mem_limit: 1g
     logging: *default-logging
@@ -66,6 +67,7 @@ services:
 
   redis:
     image: redis:7-alpine
+    user: "1001:1001"
     restart: unless-stopped
     mem_limit: 256m
     logging: *default-logging
@@ -86,6 +88,7 @@ services:
     build:
       context: ./docker-backend/elasticsearch
       dockerfile: Dockerfile
+    user: "1001:1001"
     restart: unless-stopped
     # heap 1g + Lucene/OS 오버헤드. limit < heap 이면 ES 가 바로 죽는다.
     mem_limit: 1536m
@@ -114,6 +117,7 @@ services:
       dockerfile: docker/app.Dockerfile
       args:
         MODULE: user-service
+    user: "1001:1001"
     restart: unless-stopped
     mem_limit: 768m
     logging: *default-logging
@@ -146,6 +150,7 @@ services:
       dockerfile: docker/app.Dockerfile
       args:
         MODULE: interaction-service
+    user: "1001:1001"
     restart: unless-stopped
     mem_limit: 768m
     logging: *default-logging
@@ -174,6 +179,7 @@ services:
       dockerfile: docker/app.Dockerfile
       args:
         MODULE: integrated-api
+    user: "1001:1001"
     restart: unless-stopped
     mem_limit: 768m
     logging: *default-logging
@@ -201,6 +207,7 @@ services:
     build:
       context: .
       dockerfile: docker/worker.Dockerfile
+    user: "1001:1001"
     restart: unless-stopped
     shm_size: "2gb"
     # Chromium + Spring. 크롤 피크를 감안해 여유를 둔다.
@@ -230,6 +237,7 @@ services:
       dockerfile: docker/app.Dockerfile
       args:
         MODULE: api-gateway
+    user: "1001:1001"
     restart: unless-stopped
     mem_limit: 512m
     logging: *default-logging
