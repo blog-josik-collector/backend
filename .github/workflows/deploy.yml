@@ -1,6 +1,9 @@
 # GitHub Actions UI에서 수동 실행(Run workflow)만. push로는 안 돈다.
-# Secrets: DEPLOY_HOST, DEPLOY_USER, DEPLOY_SSH_KEY
-# Vars(선택): DEPLOY_PORT(기본 22), DEPLOY_PATH(기본 /opt/backend)
+# 배포는 GitHub-hosted → SSH 가 아니라, prod VM의 self-hosted runner가
+# 로컬에서 git pull + deploy-prod.sh 를 실행한다 (인바운드 SSH 불필요).
+#
+# Runner: Settings → Actions → Runners 에서 [self-hosted, production] 등록
+# Vars(선택): DEPLOY_PATH (기본 /opt/backend)
 name: Deploy
 
 on:
@@ -25,7 +28,6 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
         with:
-          # push 시 before..sha 전체 diff (여러 커밋 squash/merge 포함)
           fetch-depth: 0
 
       - name: Resolve compose services
@@ -72,45 +74,24 @@ jobs:
   deploy:
     needs: select
     if: needs.select.outputs.skip != 'true'
-    runs-on: ubuntu-latest
+    # prod VM에 등록한 self-hosted runner (라벨 production)
+    runs-on: [self-hosted, production]
     timeout-minutes: 45
     environment: production
 
     steps:
-      - name: Start SSH agent
-        uses: webfactory/ssh-agent@v0.9.0
-        with:
-          ssh-private-key: ${{ secrets.DEPLOY_SSH_KEY }}
-
-      - name: Add host to known_hosts
+      - name: Pull and deploy on VM
         env:
-          DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
-          DEPLOY_PORT: ${{ vars.DEPLOY_PORT || 22 }}
-        run: |
-          set -euo pipefail
-          mkdir -p ~/.ssh
-          ssh-keyscan -p "${DEPLOY_PORT}" -H "${DEPLOY_HOST}" >> ~/.ssh/known_hosts
-
-      - name: Deploy over SSH
-        env:
-          DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
-          DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
-          DEPLOY_PORT: ${{ vars.DEPLOY_PORT || 22 }}
           DEPLOY_PATH: ${{ vars.DEPLOY_PATH || '/opt/backend' }}
           SERVICES: ${{ needs.select.outputs.services }}
+          TARGET_SHA: ${{ github.sha }}
         run: |
           set -euo pipefail
-          echo "Deploying services: ${SERVICES}"
-          # shellcheck disable=SC2029
-          ssh -p "${DEPLOY_PORT}" \
-            -o IdentitiesOnly=yes \
-            -o StrictHostKeyChecking=yes \
-            "${DEPLOY_USER}@${DEPLOY_HOST}" \
-            "set -euo pipefail
-             cd '${DEPLOY_PATH}'
-             git fetch --prune origin
-             git checkout main
-             git pull --ff-only origin main
-             chmod +x scripts/deploy-prod.sh scripts/compose-services-from-paths.sh
-             ./scripts/deploy-prod.sh ${SERVICES}
-            "
+          echo "Deploying services: ${SERVICES} @ ${TARGET_SHA}"
+          cd "${DEPLOY_PATH}"
+          git fetch --prune origin
+          git checkout main
+          git reset --hard "${TARGET_SHA}"
+          chmod +x scripts/deploy-prod.sh scripts/compose-services-from-paths.sh
+          # shellcheck disable=SC2086
+          ./scripts/deploy-prod.sh ${SERVICES}

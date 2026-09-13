@@ -113,33 +113,42 @@ Jacoco LINE 커버리지 게이트 (Service 계층~, Repository 제외, 기준 �
 | Workflow | 트리거 | 동작 |
 |----------|--------|------|
 | `.github/workflows/ci.yml` | PR / `main` | `./gradlew build -x test` (docs·md 등만 바뀌면 skip) |
-| `.github/workflows/deploy.yml` | **수동만** (Actions → Deploy → Run workflow) | SSH → `git pull` → path 기반 `docker compose ... --build` |
+| `.github/workflows/deploy.yml` | **수동만** (Actions → Deploy → Run workflow) | prod VM self-hosted runner가 `git pull` + `deploy-prod.sh` |
 
 테스트·커버리지는 CI에 넣지 않는다. 로컬에서 `./gradlew test` / `./scripts/check-coverage.sh`로 확인한다.  
 Docker 이미지 빌드(`docker/app.Dockerfile`, `worker.Dockerfile`)도 이미 `bootJar -x test`다.
 
-### Deploy 설정 (GitHub)
+### Deploy 방식 (pull)
 
-**Secrets**
+GitHub-hosted 러너가 SSH로 들어오는 방식이 **아닙니다.**  
+VM에 self-hosted runner를 올려 두면, Actions에서 **Run workflow** 만 눌러도 서버가 잡아서 `git pull` + 배포를 합니다. 평소에 서버에 들어가 pull 할 필요 없습니다. (아웃바운드만 있으면 됨, 인바운드 22 불필요)
 
-- `DEPLOY_HOST` — VM 호스트/IP
-- `DEPLOY_USER` — SSH 사용자
-- `DEPLOY_SSH_KEY` — 배포용 private key (PEM)
+### Deploy 설정
 
-**Variables** (선택)
+**1회: VM에 runner 등록** (GitHub → Settings → Actions → Runners → New self-hosted runner)
 
-- `DEPLOY_PORT` — 기본 `22`
+```bash
+mkdir -p ~/actions-runner && cd ~/actions-runner
+# GitHub UI에 나온 download / config 명령을 그대로 실행
+# config 시 labels에 production 포함: --labels production
+sudo ./svc.sh install
+sudo ./svc.sh start
+```
+
+Runner 라벨은 `self-hosted` + `production` 이어야 `deploy.yml`의 `runs-on: [self-hosted, production]` 과 맞습니다.
+
+**Variables** (선택, Environment `production`)
+
 - `DEPLOY_PATH` — 기본 `/opt/backend` (클론된 저장소 루트)
 
-Environment `production`을 쓰므로, GitHub → Settings → Environments에 `production`을 만들고 위 시크릿을 넣으면 된다.
-
-VM에는 미리 `git clone` + `.env` + Docker가 있어야 하며, deploy key(또는 동일 SSH key)로 `git pull`이 되어야 한다.
+VM에는 미리 `git clone` + `.env` + Docker가 있어야 하며, runner 프로세스가 그 경로에서 `git pull` / `docker compose` 할 수 있어야 한다.  
+저장소 `git pull`용 인증(deploy key 또는 HTTPS credential)은 VM에만 두면 된다. `DEPLOY_HOST` / `DEPLOY_SSH_KEY` 같은 SSH 시크릿은 더 이상 필요 없다.
 
 수동 배포 / 서비스 지정:
 
 ```bash
-# Actions → Deploy → Run workflow → services 예: user-service api-gateway 또는 all
-# VM에서 직접:
+# 평소: Actions → Deploy → Run workflow → services 예: user-service api-gateway 또는 all
+# (디버그용) VM에서 직접:
 ./scripts/deploy-prod.sh user-service
 ./scripts/compose-services-from-paths.sh user-service/src/... common-web/...
 ```
