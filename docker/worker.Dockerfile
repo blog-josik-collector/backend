@@ -21,6 +21,7 @@ RUN apt-get update \
 COPY --from=build --chown=1001:1001 /src/integrated-worker/build/libs/*.jar /app/app.jar
 RUN mkdir -p /app/logs && chown 1001:1001 /app/logs
 USER 1001
+ENV HOME=/tmp
 ENV JAVA_OPTS=""
 ENV CHROME_BINARY=/usr/bin/chromium
 ENV CHROME_DRIVER=/usr/bin/chromedriver

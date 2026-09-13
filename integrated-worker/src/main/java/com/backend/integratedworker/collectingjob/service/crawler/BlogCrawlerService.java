@@ -52,10 +52,14 @@ public class BlogCrawlerService {
 
     public <T> List<T> crawl(CrawlerStrategy<T> strategy, PostProvider postProvider, int page) {
         ChromeOptions options = new ChromeOptions();
+        // Docker + non-root(UID 1001) 에서 Chromium이 바로 죽는 것 방지
         options.addArguments("--headless=new");
         options.addArguments("--no-sandbox");
+        options.addArguments("--disable-setuid-sandbox");
         options.addArguments("--disable-dev-shm-usage");
         options.addArguments("--disable-gpu");
+        options.addArguments("--user-data-dir=/tmp/chrome-user-data");
+        options.addArguments("--remote-allow-origins=*");
 
         String chromeBinary = System.getenv("CHROME_BINARY");
         if (chromeBinary != null && !chromeBinary.isBlank()) {
