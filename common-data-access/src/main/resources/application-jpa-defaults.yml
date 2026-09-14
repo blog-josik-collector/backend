@@ -1,0 +1,7 @@
+# JPA/Hibernate 공통 기본값 — 서비스 application.yml 에서
+#   spring.config.import: optional:classpath:application-jpa-defaults.yml
+spring:
+  jpa:
+    properties:
+      # TIMESTAMP WITH TIME ZONE 과 OffsetDateTime 매핑 시 사용할 존
+      hibernate.jdbc.time_zone: Asia/Seoul

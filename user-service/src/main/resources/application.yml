@@ -4,7 +4,9 @@ spring:
   application:
     name: user-service
   config:
-    import: optional:classpath:application-logging-defaults.yml
+    import: >-
+      optional:classpath:application-logging-defaults.yml,
+      optional:classpath:application-jpa-defaults.yml
   datasource:
     url: jdbc:postgresql://localhost:5432/db_backend
     username: postgres

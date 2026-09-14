@@ -6,6 +6,7 @@ spring:
   config:
     import: >-
       optional:classpath:application-logging-defaults.yml,
+      optional:classpath:application-jpa-defaults.yml,
       optional:classpath:application-elasticsearch-defaults.yml
   datasource:
     url: jdbc:postgresql://localhost:5432/db_backend

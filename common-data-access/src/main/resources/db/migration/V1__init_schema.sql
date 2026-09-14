@@ -22,10 +22,10 @@ CREATE TABLE users
     id            UUID PRIMARY KEY,
     user_type     INTEGER   NOT NULL,
     nickname      VARCHAR   NOT NULL,
-    created_at    TIMESTAMP NOT NULL,
-    updated_at    TIMESTAMP NOT NULL,
-    last_login_at TIMESTAMP,
-    deleted_at    TIMESTAMP
+    created_at    TIMESTAMPTZ NOT NULL,
+    updated_at    TIMESTAMPTZ NOT NULL,
+    last_login_at TIMESTAMPTZ,
+    deleted_at    TIMESTAMPTZ
 );
 
 CREATE UNIQUE INDEX IF NOT EXISTS uk_users_user_nickname_active ON users (nickname) WHERE deleted_at IS NULL;
@@ -37,9 +37,9 @@ CREATE TABLE users_authentication
     login_provider INTEGER   NOT NULL,
     identifier     VARCHAR   NOT NULL,
     credential     VARCHAR,
-    created_at     TIMESTAMP NOT NULL,
-    updated_at     TIMESTAMP NOT NULL,
-    deleted_at     TIMESTAMP,
+    created_at     TIMESTAMPTZ NOT NULL,
+    updated_at     TIMESTAMPTZ NOT NULL,
+    deleted_at     TIMESTAMPTZ,
 
     CONSTRAINT fk_users_authentication_user_id FOREIGN KEY (user_id) REFERENCES users (id)
 );
@@ -53,9 +53,9 @@ CREATE TABLE post_providers
     description VARCHAR   NOT NULL,
     base_url    VARCHAR   NOT NULL,
     is_used     BOOLEAN   NOT NULL,
-    created_at  TIMESTAMP NOT NULL,
-    updated_at  TIMESTAMP NOT NULL,
-    deleted_at  TIMESTAMP
+    created_at  TIMESTAMPTZ NOT NULL,
+    updated_at  TIMESTAMPTZ NOT NULL,
+    deleted_at  TIMESTAMPTZ
 );
 
 CREATE UNIQUE INDEX IF NOT EXISTS uk_post_providers_name_active ON post_providers (name) WHERE deleted_at IS NULL;
@@ -70,9 +70,9 @@ CREATE TABLE collect_sources
     cron_from_page        INTEGER,
     cron_to_page          INTEGER,
     is_used               BOOLEAN     NOT NULL,
-    created_at            TIMESTAMP   NOT NULL,
-    updated_at            TIMESTAMP   NOT NULL,
-    deleted_at            TIMESTAMP,
+    created_at            TIMESTAMPTZ   NOT NULL,
+    updated_at            TIMESTAMPTZ   NOT NULL,
+    deleted_at            TIMESTAMPTZ,
 
     CONSTRAINT fk_collect_sources_post_provider_id FOREIGN KEY (post_provider_id) REFERENCES post_providers (id)
 );
@@ -91,11 +91,11 @@ CREATE TABLE collecting_jobs
     collected_count   INTEGER              DEFAULT 0,
     attempt_count     INTEGER              DEFAULT 0,
     error_message     TEXT,
-    started_at        TIMESTAMP,
-    ended_at          TIMESTAMP,
-    created_at        TIMESTAMP   NOT NULL,
-    updated_at        TIMESTAMP   NOT NULL,
-    deleted_at        TIMESTAMP,
+    started_at        TIMESTAMPTZ,
+    ended_at          TIMESTAMPTZ,
+    created_at        TIMESTAMPTZ   NOT NULL,
+    updated_at        TIMESTAMPTZ   NOT NULL,
+    deleted_at        TIMESTAMPTZ,
 
     CONSTRAINT fk_collecting_jobs_collect_source_id FOREIGN KEY (collect_source_id) REFERENCES collect_sources (id)
 );
@@ -113,14 +113,14 @@ CREATE TABLE indexing_jobs
     total_count       INTEGER DEFAULT 0,
     indexed_count     INTEGER DEFAULT 0,
     error_message     TEXT,
-    started_at        TIMESTAMP,
-    ended_at          TIMESTAMP,
+    started_at        TIMESTAMPTZ,
+    ended_at          TIMESTAMPTZ,
     triggered_by      UUID,                 -- MANUAL일 때 사용자 (선택)
     target_source_id  UUID,                 -- MANUAL 재색인 대상 source (선택)
     target_post_id    UUID,                 -- MANUAL 재색인 대상 post (선택)
-    created_at        TIMESTAMP   NOT NULL,
-    updated_at        TIMESTAMP   NOT NULL,
-    deleted_at        TIMESTAMP,
+    created_at        TIMESTAMPTZ   NOT NULL,
+    updated_at        TIMESTAMPTZ   NOT NULL,
+    deleted_at        TIMESTAMPTZ,
 
     CONSTRAINT fk_indexing_jobs_target_source_id FOREIGN KEY (target_source_id) REFERENCES collect_sources (id)
 );
@@ -148,20 +148,20 @@ CREATE TABLE collect_source_posts
     collect_source_id      UUID         NOT NULL,
     title                  VARCHAR      NOT NULL,
     url                    VARCHAR(512) NOT NULL,
-    published_at           TIMESTAMP    NOT NULL,
+    published_at           TIMESTAMPTZ    NOT NULL,
     thumbnail_url          VARCHAR,
     summary                TEXT,
     content                TEXT,
     content_hash           VARCHAR,
     indexing_status        VARCHAR(20),
     indexing_error_count   INTEGER   DEFAULT 0,
-    last_indexed_at        TIMESTAMP DEFAULT NULL,
-    last_collected_at      TIMESTAMP DEFAULT NOW(),
+    last_indexed_at        TIMESTAMPTZ DEFAULT NULL,
+    last_collected_at      TIMESTAMPTZ DEFAULT NOW(),
     last_collecting_job_id UUID,
     last_indexing_job_id   UUID,
-    created_at             TIMESTAMP    NOT NULL,
-    updated_at             TIMESTAMP    NOT NULL,
-    deleted_at             TIMESTAMP,
+    created_at             TIMESTAMPTZ    NOT NULL,
+    updated_at             TIMESTAMPTZ    NOT NULL,
+    deleted_at             TIMESTAMPTZ,
 
     CONSTRAINT fk_collect_source_posts_collect_source_id FOREIGN KEY (collect_source_id) REFERENCES collect_sources (id),
     CONSTRAINT fk_collect_source_posts_last_collecting_job_id FOREIGN KEY (last_collecting_job_id) REFERENCES collecting_jobs (id),
@@ -182,9 +182,9 @@ CREATE TABLE posts
     comment_count      INTEGER DEFAULT 0,  -- 댓글 수
     total_report_count INTEGER DEFAULT 0,  -- 신고 수
     post_status        VARCHAR   NOT NULL, -- 게시글 상태 (예: ACTIVE, BLOCKED)
-    created_at         TIMESTAMP NOT NULL,
-    updated_at         TIMESTAMP NOT NULL,
-    deleted_at         TIMESTAMP
+    created_at         TIMESTAMPTZ NOT NULL,
+    updated_at         TIMESTAMPTZ NOT NULL,
+    deleted_at         TIMESTAMPTZ
 );
 
 -- 4. 사용자 활동 관련 테이블 (post, user 참조)
@@ -194,9 +194,9 @@ CREATE TABLE post_likes
     user_id    UUID      NOT NULL,
     post_id    UUID      NOT NULL,
     is_enable  BOOLEAN   NOT NULL,
-    created_at TIMESTAMP NOT NULL,
-    updated_at TIMESTAMP NOT NULL,
-    deleted_at TIMESTAMP,
+    created_at TIMESTAMPTZ NOT NULL,
+    updated_at TIMESTAMPTZ NOT NULL,
+    deleted_at TIMESTAMPTZ,
 
     CONSTRAINT fk_post_likes_user_id FOREIGN KEY (user_id) REFERENCES users (id),
     CONSTRAINT fk_post_likes_post_id FOREIGN KEY (post_id) REFERENCES posts (id)
@@ -211,9 +211,9 @@ CREATE TABLE post_bookmarks
     user_id    UUID      NOT NULL,
     post_id    UUID      NOT NULL,
     is_enable  BOOLEAN   NOT NULL,
-    created_at TIMESTAMP NOT NULL,
-    updated_at TIMESTAMP NOT NULL,
-    deleted_at TIMESTAMP,
+    created_at TIMESTAMPTZ NOT NULL,
+    updated_at TIMESTAMPTZ NOT NULL,
+    deleted_at TIMESTAMPTZ,
 
     CONSTRAINT fk_post_bookmarks_user_id FOREIGN KEY (user_id) REFERENCES users (id),
     CONSTRAINT fk_post_bookmarks_post_id FOREIGN KEY (post_id) REFERENCES posts (id)
@@ -231,9 +231,9 @@ CREATE TABLE post_comments
     content             VARCHAR   NOT NULL,
     total_report_count  INTEGER DEFAULT 0,
     post_comment_status VARCHAR   NOT NULL, -- 댓글 상태 (예: ACTIVE, BLOCKED)
-    created_at          TIMESTAMP NOT NULL,
-    updated_at          TIMESTAMP NOT NULL,
-    deleted_at          TIMESTAMP,
+    created_at          TIMESTAMPTZ NOT NULL,
+    updated_at          TIMESTAMPTZ NOT NULL,
+    deleted_at          TIMESTAMPTZ,
 
     CONSTRAINT fk_post_comments_user_id FOREIGN KEY (user_id) REFERENCES users (id),
     CONSTRAINT fk_post_comments_post_id FOREIGN KEY (post_id) REFERENCES posts (id),
@@ -249,9 +249,9 @@ CREATE TABLE post_reports
     report_status    VARCHAR   NOT NULL, -- 사용자가 남긴 포스팅 신고 처리상태 (예: 대기중, 처리완료, 유지(반려))
     post_report_type VARCHAR   NOT NULL, -- 포스트 오류, 링크 오류, 기타 신고
     content          VARCHAR   NOT NULL,
-    created_at       TIMESTAMP NOT NULL,
-    updated_at       TIMESTAMP NOT NULL,
-    deleted_at       TIMESTAMP,
+    created_at       TIMESTAMPTZ NOT NULL,
+    updated_at       TIMESTAMPTZ NOT NULL,
+    deleted_at       TIMESTAMPTZ,
 
     CONSTRAINT fk_post_reports_user_id FOREIGN KEY (user_id) REFERENCES users (id),
     CONSTRAINT fk_post_reports_post_id FOREIGN KEY (post_id) REFERENCES posts (id)
@@ -265,9 +265,9 @@ CREATE TABLE comment_reports
     report_status       VARCHAR   NOT NULL, -- 사용자가 남긴 댓글 신고 처리상태 (예: 대기중, 삭제완료(처리완료), 유지(반려))
     comment_report_type VARCHAR   NOT NULL, -- 정치, 성인, 기타 신고
     content             VARCHAR   NOT NULL,
-    created_at          TIMESTAMP NOT NULL,
-    updated_at          TIMESTAMP NOT NULL,
-    deleted_at          TIMESTAMP,
+    created_at          TIMESTAMPTZ NOT NULL,
+    updated_at          TIMESTAMPTZ NOT NULL,
+    deleted_at          TIMESTAMPTZ,
 
     CONSTRAINT fk_comment_reports_user_id FOREIGN KEY (user_id) REFERENCES users (id),
     CONSTRAINT fk_comment_reports_comment_id FOREIGN KEY (comment_id) REFERENCES post_comments (id)
