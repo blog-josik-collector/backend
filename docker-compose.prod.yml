@@ -132,6 +132,8 @@ services:
       ADMIN_LOGIN_ID: ${ADMIN_LOGIN_ID}
       ADMIN_PASSWORD: ${ADMIN_PASSWORD}
       ADMIN_NICKNAME: ${ADMIN_NICKNAME}
+      # user-service 만 Flyway 실행. 스키마 적용 후 false 로 되돌릴 것
+      FLYWAY_ENABLED: ${FLYWAY_ENABLED:-false}
       INTERACTION_SERVICE_URI: http://interaction-service:8083
     depends_on:
       postgres:

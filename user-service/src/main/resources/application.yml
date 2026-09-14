@@ -68,7 +68,8 @@ spring:
     init:
       mode: never
   flyway:
-    enabled: false
+    # 기본 off. DB 초기화 시에만 .env 의 FLYWAY_ENABLED=true (user-service 전용)
+    enabled: ${FLYWAY_ENABLED:false}
 app:
   bootstrap:
     admin:
