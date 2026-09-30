@@ -79,7 +79,7 @@ class ElasticsearchBulkOperationsTest {
         void 문서가_없으면_요청하지_않고_빈_결과를_반환한다() {
             // when
             BulkOperationResult result = elasticsearchBulkOperations.bulkIndex(List.<TestDocument>of(),
-                                                                               document -> document.id().toString());
+                                                                               document -> document.id());
 
             // then
             Assertions.assertThat(result.failedIds()).isEmpty();
@@ -99,7 +99,7 @@ class ElasticsearchBulkOperationsTest {
 
             // when
             BulkOperationResult result = elasticsearchBulkOperations.bulkIndex(
-                    List.of(firstDocument, secondDocument), document -> document.id().toString());
+                    List.of(firstDocument, secondDocument), document -> document.id());
 
             // then
             Assertions.assertThat(result.successCount()).isEqualTo(1);
@@ -126,7 +126,7 @@ class ElasticsearchBulkOperationsTest {
 
             // when & then
             Assertions.assertThatThrownBy(() -> elasticsearchBulkOperations.bulkIndex(
-                              List.of(firstDocument), document -> document.id().toString()))
+                              List.of(firstDocument), document -> document.id()))
                       .isInstanceOf(InfraException.class);
         }
     }
@@ -139,7 +139,7 @@ class ElasticsearchBulkOperationsTest {
         void 원본이_없으면_요청하지_않고_빈_결과를_반환한다() {
             // when
             BulkOperationResult result = elasticsearchBulkOperations.bulkUpdate(List.<TestDocument>of(),
-                                                                                document -> document.id().toString(),
+                                                                                document -> document.id(),
                                                                                 TestDocument::title,
                                                                                 true);
 
@@ -163,7 +163,7 @@ class ElasticsearchBulkOperationsTest {
             // when
             BulkOperationResult result = elasticsearchBulkOperations.bulkUpdate(
                     List.of(firstDocument, secondDocument),
-                    document -> document.id().toString(),
+                    document -> document.id(),
                     document -> new TestPartialDocument(document.title()),
                     true);
 

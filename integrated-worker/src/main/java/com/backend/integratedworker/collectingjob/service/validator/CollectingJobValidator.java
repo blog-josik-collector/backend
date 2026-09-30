@@ -6,8 +6,11 @@ import com.backend.commondataaccess.persistence.collectingjob.CollectingJob;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Function;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import org.apache.commons.lang3.ObjectUtils;
 
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class CollectingJobValidator {
 
     public static void validateId(UUID id) {

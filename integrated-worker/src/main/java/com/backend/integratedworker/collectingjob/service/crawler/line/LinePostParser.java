@@ -4,6 +4,7 @@ import com.backend.commondataaccess.exception.CrawlingException;
 import com.backend.integratedworker.collectingjob.service.crawler.strategy.PostParser;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.regex.Matcher;
@@ -20,6 +21,8 @@ public class LinePostParser implements PostParser<LinePost> {
     private static final DateTimeFormatter YYYY_MM_DD_WITH_DASH = DateTimeFormatter.ofPattern("yyyy-MM-dd");
     private static final Pattern DOT_DATE_PATTERN = Pattern.compile("(\\d{4}\\.\\d{2}\\.\\d{2})");
     private static final Pattern DASH_DATE_PATTERN = Pattern.compile("(\\d{4}-\\d{2}-\\d{2})");
+    private static final Pattern RFC_DATE_PATTERN = Pattern.compile("(?i)([A-Za-z]{3}, \\d{1,2} [A-Za-z]{3} \\d{4})");
+    private static final DateTimeFormatter RFC_DATE = DateTimeFormatter.ofPattern("EEE, d MMM yyyy", Locale.ENGLISH);
 
     @Override
     public LinePost parse(Object rawData) {
@@ -54,19 +57,23 @@ public class LinePostParser implements PostParser<LinePost> {
 
     @Override
     public LocalDate parsePublishedAt(String metaData) {
-        Matcher dotDateMatcher = DOT_DATE_PATTERN.matcher(metaData);
-        if (dotDateMatcher.find()) {
-            return LocalDate.parse(dotDateMatcher.group(1), YYYY_MM_DD);
-        }
+        try {
+            Matcher dotDateMatcher = DOT_DATE_PATTERN.matcher(metaData);
+            if (dotDateMatcher.find()) {
+                return LocalDate.parse(dotDateMatcher.group(1), YYYY_MM_DD);
+            }
 
-        Matcher dashDateMatcher = DASH_DATE_PATTERN.matcher(metaData);
-        if (dashDateMatcher.find()) {
-            return LocalDate.parse(dashDateMatcher.group(1), YYYY_MM_DD_WITH_DASH);
-        }
+            Matcher dashDateMatcher = DASH_DATE_PATTERN.matcher(metaData);
+            if (dashDateMatcher.find()) {
+                return LocalDate.parse(dashDateMatcher.group(1), YYYY_MM_DD_WITH_DASH);
+            }
 
-        String normalized = metaData.trim();
-        if (normalized.matches("(?i)[A-Za-z]{3}, \\d{1,2} [A-Za-z]{3} \\d{4}.*")) {
-            return LocalDate.parse(normalized.substring(0, 16), DateTimeFormatter.ofPattern("EEE, dd MMM yyyy", Locale.ENGLISH));
+            Matcher rfcDateMatcher = RFC_DATE_PATTERN.matcher(metaData.trim());
+            if (rfcDateMatcher.lookingAt()) {
+                return LocalDate.parse(rfcDateMatcher.group(1), RFC_DATE);
+            }
+        } catch (DateTimeParseException e) {
+            throw new CrawlingException("Invalid LINE blog date: " + metaData, e);
         }
 
         throw new CrawlingException("Unsupported LINE blog date format: " + metaData);

@@ -30,7 +30,7 @@ public class PostCountsElasticsearchRepository {
         }
 
         return bulkOperations.bulkUpdate(posts,
-                                       post -> post.id().toString(),
+                                       post -> post.id(),
                                        PostCountFields::from,
                                        true);
     }

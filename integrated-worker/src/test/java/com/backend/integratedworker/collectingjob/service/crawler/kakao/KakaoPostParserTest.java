@@ -111,5 +111,11 @@ class KakaoPostParserTest {
         void yyyy_MM_dd_점_포맷을_LocalDate로_변환한다() {
             Assertions.assertThat(kakaoPostParser.parsePublishedAt("2025.01.02")).isEqualTo(LocalDate.of(2025, 1, 2));
         }
+
+        @Test
+        void 포맷이_다르면_CrawlingException을_던진다() {
+            Assertions.assertThatThrownBy(() -> kakaoPostParser.parsePublishedAt("2025-01-02"))
+                      .isInstanceOf(CrawlingException.class);
+        }
     }
 }

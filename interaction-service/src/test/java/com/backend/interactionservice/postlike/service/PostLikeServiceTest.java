@@ -3,7 +3,6 @@ package com.backend.interactionservice.postlike.service;
 import static org.mockito.ArgumentMatchers.any;
 
 import com.backend.commondataaccess.exception.BadRequestException;
-import com.backend.commondataaccess.exception.NotFoundException;
 import com.backend.commondataaccess.persistence.common.enums.PostStatus;
 import com.backend.commondataaccess.persistence.post.Post;
 import com.backend.commondataaccess.persistence.post.PostLike;
@@ -196,14 +195,15 @@ class PostLikeServiceTest {
         }
 
         @Test
-        void 좋아요_이력이_없으면_NotFoundException을_던진다() {
+        void 좋아요_이력이_없으면_아무것도_하지_않는다() {
             // given
             Mockito.doReturn(Optional.empty()).when(queryRepository).fetchOneByUserAndPost(mockUser.id(), mockPost.id());
 
-            // when & then
-            Assertions.assertThatThrownBy(() -> postLikeService.unLike(mockUser.id(), mockPost.id()))
-                      .isInstanceOf(NotFoundException.class)
-                      .hasMessageContaining("존재하지 않는 postLike입니다.");
+            // when
+            postLikeService.unLike(mockUser.id(), mockPost.id());
+
+            // then
+            Mockito.verify(postQueryRepository, Mockito.never()).decrementLikeCount(any());
         }
 
         @Test

@@ -90,7 +90,7 @@ public class PostCommentController {
     }
 
     /**
-     * 5. 대댓글 작성. 부모는 1-depth 댓글이어야 한다.
+     * 5. 대댓글 작성. 부모는 최상위 댓글이든 다른 대댓글이든 될 수 있다.
      */
     @Operation(summary = "대댓글 작성")
     @PostMapping(value = "/comments/{commentId}/replies", consumes = MediaType.APPLICATION_JSON_VALUE)

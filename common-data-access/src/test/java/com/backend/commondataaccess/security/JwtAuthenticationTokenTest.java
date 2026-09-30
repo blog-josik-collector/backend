@@ -1,6 +1,5 @@
 package com.backend.commondataaccess.security;
 
-import com.backend.commondataaccess.exception.StateConflictException;
 import java.util.List;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
@@ -44,11 +43,11 @@ class JwtAuthenticationTokenTest {
     }
 
     @Test
-    void setAuthenticated_true는_StateConflictException을_던진다() {
+    void setAuthenticated_true는_IllegalArgumentException을_던진다() {
         JwtAuthenticationToken token = JwtAuthenticationToken.from("user");
 
         Assertions.assertThatThrownBy(() -> token.setAuthenticated(true))
-                  .isInstanceOf(StateConflictException.class);
+                  .isInstanceOf(IllegalArgumentException.class);
         Assertions.assertThat(token.isAuthenticated()).isFalse();
     }
 

@@ -129,6 +129,20 @@ class LinePostParserTest {
         }
 
         @Test
+        void 영문_RFC_포맷의_한_자리_일자를_변환한다() {
+            Assertions.assertThat(linePostParser.parsePublishedAt("Sat, 5 Apr 2025 10:00:00 GMT"))
+                      .isEqualTo(LocalDate.of(2025, 4, 5));
+            Assertions.assertThat(linePostParser.parsePublishedAt("Sat, 5 Apr 2025"))
+                      .isEqualTo(LocalDate.of(2025, 4, 5));
+        }
+
+        @Test
+        void 존재하지_않는_날짜면_CrawlingException을_던진다() {
+            Assertions.assertThatThrownBy(() -> linePostParser.parsePublishedAt("2025-13-45"))
+                      .isInstanceOf(CrawlingException.class);
+        }
+
+        @Test
         void 지원하지_않는_포맷이면_CrawlingException을_던진다() {
             Assertions.assertThatThrownBy(() -> linePostParser.parsePublishedAt("3 days ago"))
                       .isInstanceOf(CrawlingException.class)

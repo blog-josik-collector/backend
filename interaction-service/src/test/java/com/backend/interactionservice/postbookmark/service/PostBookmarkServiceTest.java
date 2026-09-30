@@ -5,7 +5,6 @@ import static org.mockito.ArgumentMatchers.anyList;
 
 import com.backend.commondataaccess.dto.OffsetPageResult;
 import com.backend.commondataaccess.exception.BadRequestException;
-import com.backend.commondataaccess.exception.NotFoundException;
 import com.backend.commondataaccess.persistence.common.enums.PostStatus;
 import com.backend.commondataaccess.persistence.post.Post;
 import com.backend.commondataaccess.persistence.post.PostBookmark;
@@ -198,14 +197,13 @@ class PostBookmarkServiceTest {
         }
 
         @Test
-        void 즐겨찾기_이력이_없으면_NotFoundException을_던진다() {
+        void 즐겨찾기_이력이_없으면_아무것도_하지_않는다() {
             // given
             Mockito.doReturn(Optional.empty()).when(queryRepository).fetchOneByUserAndPost(mockUser.id(), mockPost.id());
 
             // when & then
-            Assertions.assertThatThrownBy(() -> postBookmarkService.unBookmark(mockUser.id(), mockPost.id()))
-                      .isInstanceOf(NotFoundException.class)
-                      .hasMessageContaining("존재하지 않는 postBookmark입니다.");
+            Assertions.assertThatCode(() -> postBookmarkService.unBookmark(mockUser.id(), mockPost.id()))
+                      .doesNotThrowAnyException();
         }
 
         @Test

@@ -3,6 +3,7 @@ package com.backend.integratedworker.collectingjob.service.crawler.kakao;
 import com.backend.commondataaccess.exception.CrawlingException;
 import com.backend.integratedworker.collectingjob.service.crawler.strategy.PostParser;
 import java.time.LocalDate;
+import java.time.format.DateTimeParseException;
 import java.util.Optional;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
@@ -46,6 +47,10 @@ public class KakaoPostParser implements PostParser<KakaoPost> {
     @Override
     public LocalDate parsePublishedAt(String metaData) {
         // 정해진 날짜 포맷으로 변경 (yyyy.MM.dd)
-        return LocalDate.parse(metaData, YYYY_MM_DD);
+        try {
+            return LocalDate.parse(metaData, YYYY_MM_DD);
+        } catch (DateTimeParseException e) {
+            throw new CrawlingException("Invalid Kakao blog date: " + metaData, e);
+        }
     }
 }

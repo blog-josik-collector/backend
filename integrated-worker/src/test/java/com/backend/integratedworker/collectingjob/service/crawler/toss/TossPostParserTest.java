@@ -236,5 +236,11 @@ class TossPostParserTest {
             Assertions.assertThat(tossPostParser.parsePublishedAt("2025-03-10T23:30:00+09:00"))
                       .isEqualTo(LocalDate.of(2025, 3, 10));
         }
+
+        @Test
+        void 포맷이_다르면_CrawlingException을_던진다() {
+            Assertions.assertThatThrownBy(() -> tossPostParser.parsePublishedAt("2025.03.10"))
+                      .isInstanceOf(CrawlingException.class);
+        }
     }
 }

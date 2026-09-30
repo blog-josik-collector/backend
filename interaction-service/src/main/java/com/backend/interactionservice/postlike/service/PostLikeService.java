@@ -89,13 +89,13 @@ public class PostLikeService {
         PostLikeValidator.validateUserId(userId);
         PostLikeValidator.validatePostId(postId);
 
-        PostLike postLike = PostLikeValidator.getPostLikeOrThrow(userId, postId, queryRepository::fetchOneByUserAndPost);
+        Optional<PostLike> existing = queryRepository.fetchOneByUserAndPost(userId, postId);
 
-        if (!postLike.isEnable()) {
+        if (existing.isEmpty() || !existing.get().isEnable()) {
             return;
         }
 
-        postLike.deactivate();
+        existing.get().deactivate();
         postQueryRepository.decrementLikeCount(postId);
     }
 }

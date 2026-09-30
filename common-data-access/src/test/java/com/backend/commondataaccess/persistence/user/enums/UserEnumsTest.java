@@ -27,6 +27,12 @@ class UserEnumsTest {
         }
 
         @Test
+        void null은_양방향_모두_null로_변환한다() {
+            Assertions.assertThat(converter.convertToDatabaseColumn(null)).isNull();
+            Assertions.assertThat(converter.convertToEntityAttribute(null)).isNull();
+        }
+
+        @Test
         void 없는_code면_BadRequestException을_던진다() {
             Assertions.assertThatThrownBy(() -> UserType.from(0))
                       .isInstanceOf(BadRequestException.class)
@@ -47,6 +53,12 @@ class UserEnumsTest {
 
             Assertions.assertThat(code).isEqualTo(loginType.getCode());
             Assertions.assertThat(converter.convertToEntityAttribute(code)).isEqualTo(loginType);
+        }
+
+        @Test
+        void null은_양방향_모두_null로_변환한다() {
+            Assertions.assertThat(converter.convertToDatabaseColumn(null)).isNull();
+            Assertions.assertThat(converter.convertToEntityAttribute(null)).isNull();
         }
 
         @Test

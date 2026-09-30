@@ -91,13 +91,13 @@ public class PostBookmarkService {
         PostBookmarkValidator.validateUserId(userId);
         PostBookmarkValidator.validatePostId(postId);
 
-        PostBookmark postBookmark = PostBookmarkValidator.getPostBookmarkOrThrow(userId, postId, queryRepository::fetchOneByUserAndPost);
+        Optional<PostBookmark> existing = queryRepository.fetchOneByUserAndPost(userId, postId);
 
-        if (!postBookmark.isEnable()) {
+        if (existing.isEmpty() || !existing.get().isEnable()) {
             return;
         }
 
-        postBookmark.deactivate();
+        existing.get().deactivate();
     }
 
     /**

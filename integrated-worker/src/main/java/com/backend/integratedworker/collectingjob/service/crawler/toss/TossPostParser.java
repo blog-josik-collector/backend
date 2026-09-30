@@ -9,6 +9,7 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
+import java.time.format.DateTimeParseException;
 import java.util.List;
 import java.util.Optional;
 import java.util.regex.Matcher;
@@ -61,7 +62,11 @@ public class TossPostParser implements PostParser<TossPost> {
 
     @Override
     public LocalDate parsePublishedAt(String metaData) {
-        return OffsetDateTime.parse(metaData).toLocalDate();
+        try {
+            return OffsetDateTime.parse(metaData).toLocalDate();
+        } catch (DateTimeParseException e) {
+            throw new CrawlingException("Invalid Toss blog date: " + metaData, e);
+        }
     }
 
     private LocalDate fetchPublishedAt(String articleUrl) {

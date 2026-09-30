@@ -78,12 +78,6 @@ public final class ElasticsearchExceptionTranslator {
         if (isClientDataError(status, type)) {
             return new BadRequestException(ErrorCode.BE_INVALID_INPUT_VALUE.getDefaultMessage());
         }
-        if (status >= 500) {
-            return new InfraException(ErrorCode.IE_ELASTICSEARCH_ERROR, exception);
-        }
-        if (status >= 400) {
-            return new BadRequestException(ErrorCode.BE_INVALID_INPUT_VALUE.getDefaultMessage());
-        }
 
         return new InfraException(ErrorCode.IE_ELASTICSEARCH_ERROR, exception);
     }

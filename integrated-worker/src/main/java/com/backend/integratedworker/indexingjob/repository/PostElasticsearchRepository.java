@@ -27,6 +27,6 @@ public class PostElasticsearchRepository {
             return BulkOperationResult.empty();
         }
 
-        return bulkOperations.bulkIndex(documents, doc -> doc.id().toString());
+        return bulkOperations.bulkIndex(documents, doc -> doc.id());
     }
 }

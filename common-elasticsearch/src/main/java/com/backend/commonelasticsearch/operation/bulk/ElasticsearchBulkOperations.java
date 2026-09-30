@@ -5,6 +5,7 @@ import co.elastic.clients.elasticsearch.core.BulkResponse;
 import com.backend.commonelasticsearch.client.ApplicationElasticsearchClient;
 import com.backend.commonelasticsearch.operation.ElasticsearchOperation;
 import java.util.List;
+import java.util.UUID;
 import java.util.function.Function;
 
 public final class ElasticsearchBulkOperations {
@@ -17,7 +18,7 @@ public final class ElasticsearchBulkOperations {
         this.indexName = indexName;
     }
 
-    public <T> BulkOperationResult bulkIndex(List<T> documents, Function<T, String> idExtractor) {
+    public <T> BulkOperationResult bulkIndex(List<T> documents, Function<T, UUID> idExtractor) {
         if (documents.isEmpty()) {
             return BulkOperationResult.empty();
         }
@@ -25,14 +26,14 @@ public final class ElasticsearchBulkOperations {
         BulkRequest.Builder builder = new BulkRequest.Builder();
         for (T document : documents) {
             builder.operations(op -> op.index(idx -> idx.index(indexName)
-                                                        .id(idExtractor.apply(document))
+                                                        .id(idExtractor.apply(document).toString())
                                                         .document(document)));
         }
         return executeBulk(builder.build());
     }
 
     public <S, T> BulkOperationResult bulkUpdate(List<S> sources,
-                                                 Function<S, String> idExtractor,
+                                                 Function<S, UUID> idExtractor,
                                                  Function<S, T> docMapper,
                                                  boolean docAsUpsert) {
         if (sources.isEmpty()) {
@@ -43,7 +44,7 @@ public final class ElasticsearchBulkOperations {
         for (S source : sources) {
             T document = docMapper.apply(source);
             builder.operations(op -> op.update(u -> u.index(indexName)
-                                                     .id(idExtractor.apply(source))
+                                                     .id(idExtractor.apply(source).toString())
                                                      .action(a -> a.doc(document)
                                                                    .docAsUpsert(docAsUpsert))));
         }
