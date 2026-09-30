@@ -180,6 +180,7 @@ services:
       USER_SERVICE_URI: http://user-service:8080
       INTERACTION_SERVICE_URI: http://interaction-service:8083
       INTEGRATED_API_URI: http://integrated-api:8081
+      CORS_ALLOWED_ORIGINS: ${CORS_ALLOWED_ORIGINS:-http://localhost:*}
     depends_on:
       - user-service
       - interaction-service
