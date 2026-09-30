@@ -55,7 +55,9 @@ spring:
   application:
     name: <서비스명>
   config:
-    import: optional:classpath:application-logging-defaults.yml
+    import: >-
+      optional:classpath:application-logging-defaults.yml,
+      ...
 ```
 
 서비스 `resources/logback-spring.xml`은 **두지 않음**.
@@ -76,7 +78,7 @@ spring:
 | `%msg` | 애플리케이션 `log.*("...")` 본문 — [application-logging.md](./application-logging.md) 형식 권장 |
 
 ```text
-[integrated-worker] INFO  2026-06-02 17:30:00.123 [scheduling-1] c.b.i.c.s.CollectingJobWorker - [CollectingJob] job finished jobId={}
+[integrated-worker] DEBUG 2026-06-02 17:30:00.123 [scheduling-1] c.b.i.c.s.CollectingJobWorker - [CollectingJob] job finished jobId={}
 ```
 
 `%msg` 안의 `[도메인][BE40401]` 은 **애플리케이션 정책**에서 붙입니다.
@@ -134,7 +136,7 @@ spring:
 ## 8. 설정 변경 · 로컬 실행
 
 **팀 공통:** `application-logging-defaults.yml`  
-**환경만:** 서비스 `application-prod.yml` 또는 `LOGGING_*` 환경변수  
+**환경만:** 서비스 `application.yml`의 `on-profile: prod` 블록 또는 `LOGGING_*` 환경변수  
 **구조 변경:** `logback-spring.xml` + 재빌드
 
 ```bash

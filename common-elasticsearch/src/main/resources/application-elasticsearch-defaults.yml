@@ -36,7 +36,8 @@ elasticsearch:
   fingerprint: ${ELASTICSEARCH_FINGERPRINT:}
   index-alias: ${ELASTICSEARCH_INDEX_ALIAS:techblog-posts}
   provisioning:
-    # 운영은 스크립트/관리 API 로 명시적 생성·재색인 → 자동 부트스트랩 비활성
+    # 미설정 시 자동 부트스트랩 비활성. docker-compose.prod 는 신규 환경 초기 세팅용으로 .env 에서 true 로 켠다
+    # (alias 존재 시 생성 생략). 재색인은 스크립트/관리 API 로 명시적 수행
     enabled: ${ELASTICSEARCH_PROVISIONING_ENABLED:false}
     definition-location: ${ELASTICSEARCH_PROVISIONING_DEFINITION_LOCATION:classpath:elasticsearch/techblog-posts.json}
     number-of-replicas: ${ELASTICSEARCH_PROVISIONING_NUMBER_OF_REPLICAS:1}

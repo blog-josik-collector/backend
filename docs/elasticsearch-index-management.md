@@ -31,7 +31,7 @@ common-elasticsearch/src/main/resources/elasticsearch/
 - `techblog-posts.json` 은 `settings`(shards, analysis) + `mappings` 를 담는다.
 - 사용자 사전/동의어는 JSON 인라인이 아니라 **별도 텍스트 파일**로 관리한다. 프로비저너·운영 스크립트가 생성 직전에 JSON의 `*_file` 참조를 배열로 치환한다.
 - `title` / `summary` 는 색인용 `tech_blog_analyzer` 와 검색용 `tech_blog_search_analyzer`(동의어 포함)를 분리한다.
-- `number_of_replicas` 값은 파일에도 있지만, **자동 부트스트랩 경로에서는 환경 설정값으로 덮어씁니다**(아래 3장).
+- `number_of_replicas` 값은 파일에도 있지만, **프로비저너 경로(자동 부트스트랩·관리자 API)에서는 환경 설정값으로 덮어씁니다**(아래 3장). 운영 스크립트(`manage-index.sh`)는 덮어쓰지 않고 파일 값을 그대로 사용합니다.
 
 ### 축2 — alias 로 참조 + 물리명 timestamp
 
@@ -39,12 +39,12 @@ common-elasticsearch/src/main/resources/elasticsearch/
 - 모든 Repository 는 `@Value("${elasticsearch.index-alias}")` 로 alias 를 주입받아 index/search/bulk 를 수행합니다. write alias(단일 물리 인덱스, `is_write_index=true`)라 색인/업서트도 정상 동작합니다.
 - 물리 인덱스명은 프로비저너가 `alias + "-" + yyMMddHHmmss` 로 생성 → 재색인마다 유일하고 시각 추적이 쉽습니다.
 
-### 축3 — 운영은 명시적 생성/재색인, 로컬만 자동 부트스트랩
+### 축3 — 재색인은 명시적, 부트스트랩은 alias 부재 시에만 자동
 
 | 환경 | 인덱스 생성 방식 |
 |------|------------------|
 | 로컬 | `integrated-api` 기동 시 자동 부트스트랩(alias 없으면 생성) |
-| 운영(prod) | 관리자 API 또는 운영 스크립트로 **명시적** 생성·재색인(자동 부트스트랩 비활성) |
+| 운영(prod) | prod 프로필 기본값은 자동 부트스트랩 비활성. `docker-compose.prod.yml` 은 `.env` 의 `ELASTICSEARCH_PROVISIONING_ENABLED=true` 로 활성화(신규 환경 초기 세팅 편의, alias 가 있으면 생략). 재색인은 관리자 API 또는 운영 스크립트로 **명시적** 수행 |
 
 ---
 
@@ -78,7 +78,7 @@ graph LR
 3. 새 `techblog-posts-<timestamp>` 생성 → `_reindex` → alias 를 remove+add 로 **한 번에** 스왑
 4. 이전 인덱스는 삭제하지 않고 남겨 롤백/검증에 활용(검증 후 수동 삭제)
 
-> **재색인 중 유입 데이터 gap**: `_reindex` 시작~alias 스왑 사이에 워커가 새로 색인한 글은 새 인덱스에 누락될 수 있습니다. 다만 `integrated-worker` 의 `IndexingReconciliationWorker`(DB↔ES 정합성 조율)가 주기적으로 누락분을 재색인해 메꾸므로 실질 안전망이 존재합니다. 재색인 직후에는 이 조율기가 한 바퀴 돌아 정합성이 맞춰졌는지 확인하는 것을 권장합니다.
+> **재색인 중 유입 데이터 gap**: `_reindex` 시작~alias 스왑 사이에 기존 인덱스(write alias 대상)로 들어간 쓰기 — 워커의 신규 글 색인, `interaction-service` 의 카운트 upsert — 는 새 인덱스에 반영되지 않으며 **자동으로 복구되지 않습니다**. `integrated-worker` 의 `IndexingReconciliationWorker` 는 `INDEXING` 상태로 멈춘 `collect_source_posts` 를 `PENDING` 으로 되돌릴 뿐, DB↔ES 비교나 누락분 재색인은 하지 않습니다. 따라서 재색인은 유입이 적은 시간대에 실행하고, 필요하면 재색인 후 누락 구간을 다시 색인하세요.
 
 ---
 
@@ -88,7 +88,7 @@ graph LR
 elasticsearch:
   index-alias: ${ELASTICSEARCH_INDEX_ALIAS:techblog-posts}   # 앱이 읽고/쓰는 alias
   provisioning:
-    enabled: ${ELASTICSEARCH_PROVISIONING_ENABLED:true}       # 자동 부트스트랩(로컬 true / prod false)
+    enabled: ${ELASTICSEARCH_PROVISIONING_ENABLED:true}       # 자동 부트스트랩(로컬 true / prod 미설정 시 false)
     definition-location: ${ELASTICSEARCH_PROVISIONING_DEFINITION_LOCATION:classpath:elasticsearch/techblog-posts.json}
     number-of-replicas: ${ELASTICSEARCH_PROVISIONING_NUMBER_OF_REPLICAS:0} # 로컬 0(green) / prod 1
 ```
@@ -96,7 +96,7 @@ elasticsearch:
 | 키 | 로컬 기본값 | 운영(prod) |
 |----|------------|-----------|
 | `elasticsearch.index-alias` | `techblog-posts` | `techblog-posts` |
-| `elasticsearch.provisioning.enabled` | `true` | `false` |
+| `elasticsearch.provisioning.enabled` | `true` | `false`(미설정 시) / compose prod 는 `.env` 로 `true` |
 | `elasticsearch.provisioning.definition-location` | `classpath:elasticsearch/techblog-posts.json` | 동일 |
 | `elasticsearch.provisioning.number-of-replicas` | `0` | `1` |
 
@@ -104,14 +104,14 @@ elasticsearch:
 
 ---
 
-## 4. 자동 부트스트랩 (로컬, integrated-api 전용)
+## 4. 자동 부트스트랩 (integrated-api 전용)
 
 `ElasticsearchAutoBootstrapRunner` 는 `@ConditionalOnProperty(elasticsearch.provisioning.enabled=true)` 로 동작하며, **`integrated-api` 에만 존재**합니다.
 
 - 여러 서비스를 동시에 기동해도 인덱스가 중복 생성되는 경쟁을 방지하기 위해 부트스트랩 소유 서비스를 한 곳으로 고정했습니다.
 - `integrated-worker` / `interaction-service` 는 자동 부트스트랩을 수행하지 않습니다(러너 없음).
 - ES 미기동 등으로 실패해도 예외를 삼켜 애플리케이션 기동을 막지 않습니다.
-- 운영(prod)은 `enabled=false` 라 자동 생성되지 않습니다 → 5·6장의 명시적 방법 사용.
+- 운영(prod) 프로필 기본값은 `enabled=false` 입니다. `docker-compose.prod.yml` 은 신규 환경 초기 세팅 편의를 위해 `.env` 의 `ELASTICSEARCH_PROVISIONING_ENABLED=true` 로 활성화하며, `bootstrapIfAbsent()` 가 alias 존재 시 생성을 생략하므로 기존 인덱스에는 영향이 없습니다. 재색인은 5·6장의 명시적 방법을 사용합니다.
 
 ---
 

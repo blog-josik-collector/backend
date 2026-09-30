@@ -189,7 +189,7 @@ services:
       SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER}
       SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
       <<: *elasticsearch-env
-      # .env 의 ELASTICSEARCH_PROVISIONING_ENABLED 를 컨테이너에 전달 (미설정 시 compose prod 기본 true)
+      # .env 의 ELASTICSEARCH_PROVISIONING_ENABLED 를 컨테이너에 전달 (미설정 시 false, 운영은 .env 로 true — alias 존재 시 생성 생략)
       ELASTICSEARCH_PROVISIONING_ENABLED: ${ELASTICSEARCH_PROVISIONING_ENABLED:-false}
       JWT_CLIENT_SECRET: ${JWT_CLIENT_SECRET}
     depends_on:

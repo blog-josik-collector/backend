@@ -30,14 +30,22 @@ common-elasticsearch/
       ApplicationElasticsearchClient.java           # ES 호출 래퍼(예외 변환 적용)
       ApplicationElasticsearchClientCallback.java   # 함수형 콜백 인터페이스
     operation/
-      ElasticsearchOperation.java           # GET / SEARCH / BULK (로그·변환 컨텍스트)
+      ElasticsearchOperation.java           # GET / SEARCH / BULK / EXISTS / GET_ALIAS / CREATE_INDEX / UPDATE_ALIASES / REINDEX (로그·변환 컨텍스트)
       bulk/
         ElasticsearchBulkOperations.java    # bulkIndex / bulkUpdate 헬퍼
         BulkOperationResult.java            # 실패 ID·성공 건수 집계
     exception/
       ElasticsearchExceptionTranslator.java # ES 예외 → BusinessException 변환
+    provision/
+      ElasticsearchIndexProvisioner.java    # 물리 인덱스 생성 / alias 연결 / 재색인 + alias 스왑
+      IndexDefinitionAssembler.java         # 정의 JSON + 사전/동의어 병합
+      ProvisionResult.java, ReindexResult.java  # 결과 DTO
   src/main/resources/
     application-elasticsearch-defaults.yml   # 로컬/운영 접속값(프로파일 분기)
+    elasticsearch/
+      techblog-posts.json                    # 인덱스 settings + mappings
+      techblog-user-dictionary.txt           # Nori 사용자 사전
+      techblog-synonyms.txt                  # 검색 동의어
 
 docker-backend/
   docker-compose.yml                         # 로컬 ES 컨테이너 정의
@@ -50,7 +58,7 @@ docker-backend/
 
 | 파일 | 역할 |
 |------|------|
-| `application-elasticsearch-defaults.yml` | host/port/scheme/auth/index-name **값** (local·prod) |
+| `application-elasticsearch-defaults.yml` | host/port/scheme/auth/index-alias/provisioning **값** (local·prod) |
 | `ElasticsearchConfig.java` | yml 값을 읽어 클라이언트 Bean 구성(Auth/TLS) |
 | 서비스 `application.yml` | `spring.config.import` 로 defaults 로드, 필요 시 override |
 
@@ -130,7 +138,7 @@ elasticsearch:
 | `ELASTICSEARCH_PASSWORD` | 공백 | compose prod **필수** |
 | `ELASTICSEARCH_FINGERPRINT` | 공백 | 외부 TLS ES **필수** |
 | `ELASTICSEARCH_INDEX_ALIAS` | `techblog-posts` | 동일 |
-| `ELASTICSEARCH_PROVISIONING_ENABLED` | `true` | `false` |
+| `ELASTICSEARCH_PROVISIONING_ENABLED` | `true` | 미설정 시 `false` / compose prod 는 `.env` 로 `true`(신규 환경 초기 세팅용, alias 존재 시 생략) |
 | `ELASTICSEARCH_PROVISIONING_NUMBER_OF_REPLICAS` | `0` | `1`(단일 노드 compose는 `0`) |
 
 ### 3.4 프로퍼티 → 클라이언트 매핑
@@ -138,23 +146,28 @@ elasticsearch:
 `ElasticsearchConfig` 가 위 값을 읽어 `RestClient → Transport → ElasticsearchClient` Bean 체인을 만듭니다.
 
 - `username` 이 비어있지 않을 때만 Basic Auth 적용 → 로컬은 인증 생략, 운영은 자동 적용.
-- `scheme=https` + `fingerprint` 존재 시 `TransportUtils.sslContextFromCaFingerprint(...)` 로 TLS 검증.
+- `scheme=https` + `fingerprint` 존재 시 `TransportUtils.sslContextFromCaFingerprint(...)` 로 TLS 검증. 지문이 64자리 SHA-256 hex(콜론 허용)가 아니면 기동 시 `IllegalArgumentException`.
 - `ObjectMapper` 에 `JavaTimeModule` 등록 + 날짜를 timestamp 가 아닌 ISO 문자열로 직렬화(`WRITE_DATES_AS_TIMESTAMPS=false`).
 
-```26:48:common-elasticsearch/src/main/java/com/backend/commonelasticsearch/config/ElasticsearchConfig.java
+```29:58:common-elasticsearch/src/main/java/com/backend/commonelasticsearch/config/ElasticsearchConfig.java
     public RestClient restClient(ElasticsearchProperties props) {
         HttpHost httpHost = new HttpHost(props.host(), props.port(), props.scheme());
 
         return RestClient.builder(httpHost)
                          .setHttpClientConfigCallback(httpClientBuilder -> {
                              // basic auth
-                             if (props.username() != null && !props.username().isBlank()) {
+                             if (StringUtils.hasText(props.username())) {
                                  ...
                              }
-                             // TLS: CA fingerprint 검증
-                             if ("https".equalsIgnoreCase(props.scheme())
-                                     && props.fingerprint() != null && !props.fingerprint().isBlank()) {
-                                 ...
+                             // TLS: CA fingerprint 검증 (https + 유효한 SHA-256 지문일 때만)
+                             if ("https".equalsIgnoreCase(props.scheme())) {
+                                 String fingerprint = props.fingerprint();
+                                 if (StringUtils.hasText(fingerprint)) {
+                                     if (!isValidCaFingerprint(fingerprint)) {
+                                         throw new IllegalArgumentException(...);
+                                     }
+                                     ...
+                                 }
                              }
 ```
 
@@ -238,7 +251,7 @@ curl -fsS http://localhost:9200
 | `interaction-service` | `PostCountsElasticsearchRepository` | **BULK (update/upsert)** | posts 카운트 필드를 인덱스에 주기적 부분 upsert |
 
 **공통 규칙**
-- 인덱스명은 모든 Repository 가 `@Value("${elasticsearch.index-name}")` 로 주입 (하드코딩 없음).
+- 인덱스명은 모든 Repository 가 `@Value("${elasticsearch.index-alias}")` 로 alias 를 주입 (하드코딩 없음).
 - 문서 ID 는 항상 도메인 엔티티의 `UUID.toString()` → 서비스 간 문서 정합성 유지.
 
 ### 5.4 데이터 흐름
@@ -247,7 +260,7 @@ curl -fsS http://localhost:9200
 graph LR
     Worker["integrated-worker<br/>bulkIndex"]
     Sync["interaction-service<br/>counts bulkUpsert"]
-    Index[("techblog-posts-v1<br/>ES 인덱스")]
+    Index[("techblog-posts (alias)<br/>→ techblog-posts-yyMMddHHmmss")]
     Search["interaction-service<br/>SEARCH / GET"]
     Verify["integrated-api<br/>GET(검증)"]
 

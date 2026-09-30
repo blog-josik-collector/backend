@@ -17,7 +17,7 @@ public record ElasticsearchIndexReadDto() {
             @Schema(description = "alias 이름", example = "techblog-posts")
             String alias,
 
-            @Schema(description = "alias가 가리키는 현재 인덱스 이름", example = "techblog-posts-v1")
+            @Schema(description = "alias가 가리키는 현재 인덱스 이름", example = "techblog-posts-250101000000")
             String currentIndex,
 
             @Schema(description = "alias 존재 여부")

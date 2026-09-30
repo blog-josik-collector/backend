@@ -524,7 +524,7 @@
                     },
                     "current_index": {
                         "description": "alias\uac00 \uac00\ub9ac\ud0a4\ub294 \ud604\uc7ac \uc778\ub371\uc2a4 \uc774\ub984",
-                        "example": "techblog-posts-v1",
+                        "example": "techblog-posts-250101000000",
                         "type": "string"
                     },
                     "exists": {

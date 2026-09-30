@@ -106,8 +106,6 @@ Jacoco LINE 커버리지 게이트 (Service 계층~, Repository 제외, 기준 �
 ./scripts/check-coverage.sh user-service    # 특정 모듈만
 ```
 
-커버리지 현황: [docs/test-coverage.md](./docs/test-coverage.md)
-
 ## CI / CD
 
 | Workflow | 트리거 | 동작 |

@@ -62,7 +62,7 @@ IE_ELASTICSEARCH_ERROR(500, "IE50001", "서버 처리 오류(관리자에게 문
 - API 응답 `code` 필드와 **동일 문자열**
 
 ```java
-log.warn("[CollectingJob][BE40901] crawler conflict sourceId={}", sourceId);
+log.warn("[CollectingJob][BE40902] crawler conflict sourceId={}", sourceId);
 
 BusinessException e = ...;
 log.debug("[Post][BE40401] post not found postId={}", postId, e);
@@ -81,7 +81,7 @@ log.error("[IndexingJob][BE50001] job failed jobId={}", jobId, e);
 ### 3.4 출력 예 (인프라 패턴 + 애플리케이션 본문)
 
 ```text
-[integrated-api] WARN  2026-06-02 17:30:00.123 [http-nio-8081-exec-3] c.b.i.c.s.CollectingJobService - [CollectingJob][BE40401] collecting job not found jobId=550e8400-e29b-41d4-a716-446655440000
+[integrated-api] DEBUG 2026-06-02 17:30:00.123 [http-nio-8081-exec-3] c.b.i.c.s.CollectingJobService - [CollectingJob][BE40401] collecting job not found jobId=550e8400-e29b-41d4-a716-446655440000
 ```
 
 앞의 `[integrated-api]`는 Logback `APP_NAME`, 뒤 `[CollectingJob][BE40401]`부터가 `%msg`입니다.
@@ -115,7 +115,7 @@ log.error("[IndexingJob][BE50001] job failed jobId={}", jobId, e);
 | thin Controller (Service 위임만) | 대부분의 `*Controller` |
 | thin Service (CRUD + `BusinessException`만) | |
 | QueryDSL QueryRepository | |
-| `BlogCrawlerService`, Crawler Parser 하위 | 실패 시 throw → `CollectingJobExecutor.markFailed`에서 로그 |
+| `BlogCrawlerService`, Crawler Parser 하위 | 실패 시 throw → `CollectingJobExecutor` catch에서 로그 |
 
 **원칙:** 운영·장애 분석에 직접 쓰일 로그를 남기는 클래스만 `@Slf4j`.
 
@@ -164,29 +164,30 @@ log.info("CollectingJob Worker call poll()");
 // O: job이 있을 때만
 log.debug("[CollectingJob] jobs picked count={}", pickedJobIds.size());
 
-// O: 실패
-log.error("[CollectingJob][BE50001] poll failed", e);
+// O: 실패 (IndexingJobWorker 스타일)
+log.error("[IndexingJob][BE50001] poll failed", e);
 
 // O: 부분 실패 (PostCountsSyncWorker 스타일)
-log.warn("[PostCount] ES sync partial failure totalPosts={} failedCount={}", total, failed);
+log.warn("[PostCount] ES sync partial failure totalPosts={} successCount={} failedCount={}", total, success, failed);
 ```
 
 ### Executor
 
 ```java
 catch (Exception e) {
-    markFailed(jobId, e);  // 내부에서 [CollectingJob][ErrorCode] error 1줄
+    log.error("[CollectingJob][{}] job failed jobId={}", code, jobId, e);  // catch에서 error 1줄
+    collectingJobService.markFailed(jobId, now, e.getMessage());
 }
 ```
 
 - 루프 **매 아이템 `info`** 지양 → `debug` 또는 job 종료 시 건수만
-- `markFailed` / catch 경계에 **반드시 `error` 1줄**
+- catch 경계(`markFailed` 호출 직전)에 **반드시 `error` 1줄**
 
 ### Collecting job · 크롤 (`BlogCrawlerService`)
 
-- **한 페이지라도 크롤 실패 → 전체 CollectingJob 실패** (`CrawlingException` rethrow → `CollectingJobExecutor.markFailed`)
+- **한 페이지라도 크롤 실패 → 전체 CollectingJob 실패** (`CrawlingException` rethrow → `CollectingJobExecutor` catch → `markFailed`)
 - API 응답 code: `BE40902` (`ErrorCode.BE_CRAWLER_CONFLICT`)
-- 크롤 구간에서는 **로그를 남기지 않고** throw만 한다. job 단위 `error` 로그는 `markFailed` 한 곳 (중복·이중 stack 방지)
+- 크롤 구간에서는 **로그를 남기지 않고** throw만 한다. job 단위 `error` 로그는 `CollectingJobExecutor` catch 한 곳 (중복·이중 stack 방지)
 - 부분 성공(일부 페이지만 수집 후 SUCCESS)은 **허용하지 않음**
 
 ### Service (API)
@@ -213,7 +214,7 @@ log.warn("[Auth][BE40101] Google id_token verification failed");
 `ElasticsearchExceptionTranslator` 예:
 
 ```java
-log.error("[ES][IE50001] {} failed status={} reason={}", operation.name(), status, reason, e);
+log.error("[ES][IE50001] {} failed status={} type={} reason={}", operation.name(), status, type, reason, e);
 ```
 
 ---

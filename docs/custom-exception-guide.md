@@ -22,7 +22,7 @@ BusinessException (abstract, common-data-access)   ← ErrorCode + errorMessage 
 |------|------|------|
 | 예외 정의 + ErrorCode | `common-data-access` | 모든 모듈이 의존하는 기반 타입 |
 | HTTP 에러 처리 | `common-web` | `GlobalExceptionHandler`, `ErrorResponse`, 시큐리티 진입점 |
-| 인프라 예외 변환 | `common-elasticsearch` | `ElasticsearchExceptionTranslator` 가 ES 오류를 `BusinessException` 으로 래핑 |
+| 인프라 예외 변환 | `common-elasticsearch` | `ElasticsearchExceptionTranslator` 가 ES 오류를 `InfraException`(클라이언트 데이터 오류는 `BadRequestException`)으로 변환 |
 | 로깅 설정 | `common-logging` | 예외 관련 Java 코드 없음 (설정 전용) |
 
 ---
@@ -110,7 +110,7 @@ if (href == null) {
 String url = href.startsWith("http") ? href : "https://tech.kakao.com" + href;
 ```
 
-이로써 **프로덕션 코드 전체에서 raw `RuntimeException` / `IllegalArgumentException` / NPE를 직접 던지는 곳이 사라졌고**, 모든 예외가 `BusinessException` 체계를 거치게 되었습니다.
+이로써 **도메인·비즈니스 코드는 `BusinessException` 하위 예외만 던지게** 되었습니다. 단, 프레임워크·설정·부트스트랩 코드(`JwtAuthenticationToken.setAuthenticated(true)`, `ElasticsearchConfig`, `JsonValueEnumConverterFactory`, `AdminBootstrapRunner`)는 여전히 `IllegalArgumentException` / `IllegalStateException`을 던지며, API 요청 중 발생하면 `GlobalExceptionHandler`가 각각 `FE40001` / `FE40901`로 매핑합니다.
 
 ---
 

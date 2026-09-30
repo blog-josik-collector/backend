@@ -40,7 +40,7 @@ public record PostCommentCreateDto() {
             @Schema(description = "생성된 대댓글 ID")
             UUID id,
 
-            @Schema(description = "부모 댓글 ID. 대댓글의 부모는 항상 1-depth 댓글이다")
+            @Schema(description = "부모 댓글 ID. 최상위 댓글 또는 다른 대댓글일 수 있다")
             UUID parentId,
 
             @Schema(description = "작성 시각")
