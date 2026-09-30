@@ -50,7 +50,7 @@ subprojects {
             csv.required = true
             html.required = true
         }
-        // QClass·설정·DTO·Repository 제외 (커버리지는 Service 계층부터)
+        // QClass·설정·DTO·Repository·Entity 제외 (커버리지는 Service 계층부터)
         classDirectories.setFrom(
                 files(classDirectories.files.collect {
                     fileTree(dir: it, exclude: [
@@ -59,6 +59,7 @@ subprojects {
                             "**/dto/**",
                             "**/config/**",
                             "**/repository/**",
+                            "**/persistence/*/*.class",
                     ])
                 })
         )
